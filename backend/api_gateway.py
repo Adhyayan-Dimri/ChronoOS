@@ -10,7 +10,7 @@ import os
 import sys
 import json
 import asyncio
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
 
 # Ensure local module imports work seamlessly
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -117,6 +117,57 @@ async def mcp_message_endpoint(request: Request, session_id: str):
     return {"status": "delivered", "session_id": session_id}
 
 # -------------------------------------------------------------
+# -------------------------------------------------------------
+# User Authentication & Tenant Management Endpoints
+# -------------------------------------------------------------
+
+from mock_executive_data import authenticate_user, register_user, get_user_data, DEMO_USER_EMAIL
+
+@app.post("/api/auth/login")
+async def auth_login_endpoint(payload: Dict[str, Any]):
+    """
+    Authenticates a user or switches to the preloaded Executive Sandbox (Alex Mercer).
+    """
+    email = payload.get("email", "")
+    password = payload.get("password")
+    is_demo = payload.get("is_demo", False)
+    
+    result = authenticate_user(email=email, password=password, is_demo=is_demo)
+    return result
+
+@app.post("/api/auth/register")
+async def auth_register_endpoint(payload: Dict[str, Any]):
+    """
+    Registers a new isolated executive account with an empty personal calendar and memory.
+    """
+    name = payload.get("name", "").strip()
+    email = payload.get("email", "").strip()
+    org = payload.get("organization", "Private Enterprise").strip()
+    password = payload.get("password")
+
+    if not name or not email:
+        raise HTTPException(status_code=400, detail="Name and Email are required.")
+
+    result = register_user(name=name, email=email, organization=org, password=password)
+    return result
+
+@app.get("/api/auth/me")
+async def auth_me_endpoint(email: Optional[str] = None):
+    """
+    Returns user profile and workspace configuration.
+    """
+    data = get_user_data(email)
+    return {
+        "user": {
+            "name": data["name"],
+            "email": data["email"],
+            "title": data["title"],
+            "organization": data["organization"],
+            "is_demo": data["is_demo"]
+        }
+    }
+
+# -------------------------------------------------------------
 # Alexa+ Voice & Multimodal Frontend Endpoints
 # -------------------------------------------------------------
 
@@ -127,10 +178,11 @@ async def alexa_chat_endpoint(payload: Dict[str, Any]):
     Processes user voice input via the Amazon Bedrock Orchestrator.
     """
     user_query = (payload.get("query") or payload.get("prompt") or "").strip()
+    user_email = payload.get("user_email") or payload.get("email")
     if not user_query:
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
     
-    result = bedrock_orchestrator_instance.execute_agent_turn(user_query)
+    result = bedrock_orchestrator_instance.execute_agent_turn(user_query, user_email=user_email)
     return result
 
 @app.post("/api/confirm")

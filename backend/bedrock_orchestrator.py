@@ -13,7 +13,7 @@ import sys
 import json
 import time
 import logging
-from typing import Dict, Any, List, Generator, Tuple
+from typing import Dict, Any, List, Generator, Tuple, Optional
 
 # Ensure local module imports work seamlessly
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -57,7 +57,7 @@ class BedrockOrchestrator:
             logger.warning(f"Bedrock runtime initialization note: {e}. Defaulting to resilient simulation mode.")
             self.boto_client = None
 
-    def execute_agent_turn(self, user_query: str) -> Dict[str, Any]:
+    def execute_agent_turn(self, user_query: str, user_email: Optional[str] = None) -> Dict[str, Any]:
         """
         Processes a user turn through the Bedrock reasoning loop.
         Dispatches MCP tools, evaluates safety guardrails, and produces
@@ -70,7 +70,7 @@ class BedrockOrchestrator:
             "stage": "Intent Comprehension",
             "model": BEDROCK_MODEL_ID,
             "status": "active",
-            "detail": f"Analyzing user intent: '{user_query}'"
+            "detail": f"Analyzing user intent: '{user_query}'" + (f" for user {user_email}" if user_email else "")
         })
 
         # Check if live Bedrock client is active
@@ -86,20 +86,78 @@ class BedrockOrchestrator:
                 })
 
         # Autonomous Engine Execution
-        return self._run_autonomous_engine(user_query, trace_events, start_time)
+        return self._run_autonomous_engine(user_query, trace_events, start_time, user_email)
 
-    def _run_autonomous_engine(self, user_query: str, trace_events: List[Dict[str, Any]], start_time: float) -> Dict[str, Any]:
+    def _run_autonomous_engine(self, user_query: str, trace_events: List[Dict[str, Any]], start_time: float, user_email: Optional[str] = None) -> Dict[str, Any]:
         """
         High-fidelity executive reasoning engine that invokes the real MCP server tools,
         applies Amazon Bedrock Guardrail checks, and constructs multimodal Echo Show outputs.
         """
+        from mock_executive_data import get_user_data, DEMO_USER_EMAIL
+        user_data = get_user_data(user_email)
+        is_demo = user_data.get("is_demo", True)
+        user_name = user_data.get("name", "Alex Mercer")
+
         query_lower = user_query.lower()
         tools_invoked = []
         confirmation_needed = None
         voice_response = ""
         visual_card = {}
 
-        # Scenario 1: Executive Daily Briefing / Standup
+        # Scenario: If user is in a PERSONAL (non-demo) account with a clean slate
+        if not is_demo:
+            schedule = user_data.get("schedule", [])
+            memory = user_data.get("memory", [])
+            
+            if any(w in query_lower for w in ["briefing", "schedule", "morning", "agenda", "today", "standup"]):
+                trace_events.append({
+                    "stage": "MCP Tool Dispatch",
+                    "tool": "get_executive_briefing",
+                    "args": {"user": user_name, "mode": "personal_tenant"},
+                    "status": "completed"
+                })
+                
+                if not schedule:
+                    voice_response = (
+                        f"Good morning, {user_name}. Your private executive calendar is completely clear today with zero active alerts. "
+                        "You can speak or type to add your commitments, or ask me to draft executive correspondence."
+                    )
+                    visual_card = {
+                        "type": "PERSONAL_BRIEFING",
+                        "title": f"Private Executive Briefing • {user_name}",
+                        "organization": user_data.get("organization", "Private Workspace"),
+                        "commitments_count": 0,
+                        "alerts_count": 0,
+                        "status_note": "Clean executive slate. Zero conflicting commitments."
+                    }
+                else:
+                    voice_response = f"Good morning, {user_name}. You have {len(schedule)} commitments scheduled in your personal calendar today."
+                    visual_card = {
+                        "type": "PERSONAL_BRIEFING",
+                        "title": f"Personal Executive Briefing • {user_name}",
+                        "organization": user_data.get("organization", "Private Workspace"),
+                        "commitments_count": len(schedule),
+                        "alerts_count": 0,
+                        "schedule": schedule
+                    }
+                
+                latency = round((time.time() - start_time) * 1000)
+                return {
+                    "query": user_query,
+                    "voice_response": voice_response,
+                    "visual_card": visual_card,
+                    "confirmation_needed": None,
+                    "tools_invoked": tools_invoked,
+                    "trace_events": trace_events,
+                    "latency_ms": latency,
+                    "bedrock_metadata": {
+                        "model_id": BEDROCK_MODEL_ID,
+                        "orchestrator": "ChronoOS Autonomous Multi-Tenant Gateway",
+                        "region": AWS_REGION
+                    }
+                }
+
+        # Scenario 1: Executive Daily Briefing / Standup (Demo Account - Alex Mercer)
         if any(w in query_lower for w in ["briefing", "schedule", "morning", "agenda", "today", "standup"]):
             trace_events.append({
                 "stage": "MCP Tool Dispatch",

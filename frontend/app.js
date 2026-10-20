@@ -3,6 +3,8 @@
  * - Interactive Dynamic Dot Matrix Canvas Engine (Scroll Zoom, Red Waves & Shockwaves)
  * - Synthesized Web Audio Acoustic Feedback (Clicks, Chimes, Sub-Bass Hums)
  * - Progressive Disclosure (Zen Spotlight Mode vs Scroll-Driven Executive Dossier)
+ * - Cinematic Architecture Film Showcase Controller
+ * - Multi-Tenant Authentication & Executive Sandbox Isolation
  * - 3D Card Perspective Tilt Engine
  * - Amazon Bedrock Multi-Turn Tool Telemetry & MCP Streamable HTTP JSON-RPC 2.0
  * - Human-in-the-Loop Native Sheet (<dialog>) Authorization
@@ -19,6 +21,25 @@ let soundEnabled = true;
 let audioCtx = null;
 let activeTab = 'overview';
 let isZenMode = false;
+
+// User Session State (Defaults to Preloaded Executive Demo Sandbox)
+let currentUser = {
+  name: 'Alex Mercer',
+  email: 'alex.mercer@aetherdynamics.com',
+  title: 'Chief Executive Officer',
+  organization: 'Aether Dynamics Inc.',
+  is_demo: true
+};
+
+// Check local storage for active session
+try {
+  const savedUser = localStorage.getItem('chrono_user');
+  if (savedUser) {
+    currentUser = JSON.parse(savedUser);
+  }
+} catch (e) {
+  console.log('Session storage initialized.');
+}
 
 // DOM Elements
 const micOrbBtn = document.getElementById('micOrbBtn');
@@ -39,12 +60,34 @@ const viewModeToggleBtn = document.getElementById('viewModeToggleBtn');
 const viewModeText = document.getElementById('viewModeText');
 const clearInputBtn = document.getElementById('clearInputBtn');
 
+// Auth & User Display Elements
+const userPill = document.getElementById('userPill');
+const userNameDisplay = document.getElementById('userNameDisplay');
+const authPortalBtn = document.getElementById('authPortalBtn');
+const authBtnIcon = document.getElementById('authBtnIcon');
+const authBtnText = document.getElementById('authBtnText');
+const authPortalDialog = document.getElementById('authPortalDialog');
+const workspaceBadgeText = document.getElementById('workspaceBadgeText');
+const workspaceStatusDot = document.getElementById('workspaceStatusDot');
+
 // Dialog Elements
 const hitlDialog = document.getElementById('hitlDialog');
 const dialogToken = document.getElementById('dialogToken');
 const dialogRecipient = document.getElementById('dialogRecipient');
 const dialogPayload = document.getElementById('dialogPayload');
 const dialogApproveBtn = document.getElementById('dialogApproveBtn');
+
+// Cinema Elements
+const cinemaVideoPlayer = document.getElementById('cinemaVideoPlayer');
+const cinemaPlayToggleBtn = document.getElementById('cinemaPlayToggleBtn');
+const cinemaPlayIcon = document.getElementById('cinemaPlayIcon');
+const cinemaControllerOverlay = document.getElementById('cinemaControllerOverlay');
+const cinemaAudioToggleBtn = document.getElementById('cinemaAudioToggleBtn');
+const cinemaAudioIcon = document.getElementById('cinemaAudioIcon');
+const cinemaProgressBar = document.getElementById('cinemaProgressBar');
+const cinemaProgressFill = document.getElementById('cinemaProgressFill');
+const cinemaTimecode = document.getElementById('cinemaTimecode');
+const cinemaFullscreenBtn = document.getElementById('cinemaFullscreenBtn');
 
 // --------------------------------------------------------------------------
 // 1. Synthesized Web Audio Sound Design Engine
@@ -70,7 +113,6 @@ function playSound(type) {
   const gain = audioCtx.createGain();
 
   if (type === 'click') {
-    // Crisp high-tech tick
     osc.type = 'sine';
     osc.frequency.setValueAtTime(1400, now);
     osc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
@@ -81,7 +123,6 @@ function playSound(type) {
     osc.start(now);
     osc.stop(now + 0.04);
   } else if (type === 'execute') {
-    // Command dispatch confirmation chime
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(520, now);
     osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
@@ -92,7 +133,6 @@ function playSound(type) {
     osc.start(now);
     osc.stop(now + 0.12);
   } else if (type === 'shockwave') {
-    // Sci-fi sub-bass pulse
     osc.type = 'sine';
     osc.frequency.setValueAtTime(120, now);
     osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
@@ -103,7 +143,6 @@ function playSound(type) {
     osc.start(now);
     osc.stop(now + 0.35);
   } else if (type === 'success') {
-    // Action executed harmonic chord
     playChord([523.25, 659.25, 783.99, 1046.50], 0.3);
   }
 }
@@ -150,7 +189,6 @@ function initDotMatrix() {
     mouse.targetY = e.clientY;
   });
 
-  // Track scroll position & velocity for matrix zoom
   let lastScrollY = window.scrollY;
   let scrollVelocity = 0;
   let scrollZoom = 1;
@@ -161,7 +199,6 @@ function initDotMatrix() {
     lastScrollY = currentScrollY;
   }, { passive: true });
 
-  // Shockwave array
   const shockwaves = [];
 
   triggerMatrixShockwave = (originX, originY) => {
@@ -177,7 +214,6 @@ function initDotMatrix() {
   };
 
   window.addEventListener('click', (e) => {
-    // Only trigger if not clicking inside input or interactive buttons
     if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
       triggerMatrixShockwave(e.clientX, e.clientY);
     }
@@ -194,17 +230,13 @@ function initDotMatrix() {
     ctx.clearRect(0, 0, width, height);
     frame += 0.02;
 
-    // Smooth scroll velocity damping
     scrollVelocity *= 0.92;
-    // Interpolate zoom factor based on scroll position (1.0 to 1.35)
     const targetZoom = 1.0 + Math.min(window.scrollY / 1000, 0.45) + scrollVelocity * 0.08;
     scrollZoom += (targetZoom - scrollZoom) * 0.1;
 
-    // Smooth mouse interpolation
     mouse.x += (mouse.targetX - mouse.x) * 0.16;
     mouse.y += (mouse.targetY - mouse.y) * 0.16;
 
-    // Update active shockwaves
     for (let i = shockwaves.length - 1; i >= 0; i--) {
       const sw = shockwaves[i];
       sw.radius += sw.speed;
@@ -224,10 +256,8 @@ function initDotMatrix() {
         const dy = mouse.y - y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        // Ambient breathing wave
         const ambientWave = Math.sin(x * 0.012 + y * 0.012 + frame) * 0.4;
 
-        // Shockwave influence
         let shockwaveFactor = 0;
         for (let s = 0; s < shockwaves.length; s++) {
           const sw = shockwaves[s];
@@ -246,14 +276,12 @@ function initDotMatrix() {
 
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, Math.PI * 2);
-          // Radiant Raycast Neon Red #FF5C7A
           ctx.fillStyle = `rgba(255, 92, 122, ${0.25 + combinedRatio * 0.75})`;
           ctx.shadowColor = '#FF5C7A';
           ctx.shadowBlur = combinedRatio * 14;
           ctx.fill();
           ctx.shadowBlur = 0;
         } else {
-          // Base idle dot
           ctx.beginPath();
           ctx.arc(x, y, baseRadius * scrollZoom, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255, 255, 255, ${0.05 + ambientWave * 0.035})`;
@@ -269,11 +297,210 @@ function initDotMatrix() {
 }
 
 // --------------------------------------------------------------------------
-// 3. 3D Card Perspective Tilt Engine
+// 3. User Authentication & Multi-Tenant State Isolation
+// --------------------------------------------------------------------------
+
+function updateUserDisplay() {
+  if (currentUser.is_demo) {
+    userPill.classList.add('demo-mode');
+    userNameDisplay.textContent = 'Alex Mercer (CEO • Demo Sandbox)';
+    workspaceBadgeText.textContent = 'Wednesday, October 21, 2026 • Live Sandbox';
+    workspaceStatusDot.style.background = '#FF5C7A';
+    authBtnIcon.textContent = '⚡';
+    authBtnText.textContent = 'Accounts & Demo';
+  } else {
+    userPill.classList.remove('demo-mode');
+    userNameDisplay.textContent = `${currentUser.name} (${currentUser.organization})`;
+    workspaceBadgeText.textContent = `Wednesday, October 21, 2026 • Private Workspace`;
+    workspaceStatusDot.style.background = '#10B981';
+    authBtnIcon.textContent = '👤';
+    authBtnText.textContent = '⚡ Try Demo Sandbox';
+  }
+
+  // Refresh current view
+  switchWorkspaceTab(activeTab);
+}
+
+function openAuthPortal() {
+  playSound('click');
+  authPortalDialog.showModal();
+}
+
+function closeAuthPortal() {
+  playSound('click');
+  authPortalDialog.close();
+}
+
+function switchAuthTab(tab) {
+  playSound('click');
+  document.querySelectorAll('.auth-seg-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('panelDemo').style.display = 'none';
+  document.getElementById('panelSignIn').style.display = 'none';
+  document.getElementById('panelRegister').style.display = 'none';
+
+  if (tab === 'demo') {
+    document.getElementById('tabDemoMode').classList.add('active');
+    document.getElementById('panelDemo').style.display = 'flex';
+  } else if (tab === 'signin') {
+    document.getElementById('tabSignIn').classList.add('active');
+    document.getElementById('panelSignIn').style.display = 'flex';
+  } else if (tab === 'register') {
+    document.getElementById('tabRegister').classList.add('active');
+    document.getElementById('panelRegister').style.display = 'flex';
+  }
+}
+
+function launchDemoSandbox() {
+  currentUser = {
+    name: 'Alex Mercer',
+    email: 'alex.mercer@aetherdynamics.com',
+    title: 'Chief Executive Officer',
+    organization: 'Aether Dynamics Inc.',
+    is_demo: true
+  };
+  localStorage.setItem('chrono_user', JSON.stringify(currentUser));
+  closeAuthPortal();
+  playSound('success');
+  updateUserDisplay();
+  
+  speechText.textContent = "Switched to preloaded Executive Sandbox (Alex Mercer). Acme M&A redlines and flight UA 482 delay active.";
+  speechTimestamp.textContent = 'Just now';
+}
+
+async function handleUserSignIn() {
+  const email = document.getElementById('signInEmail').value.trim();
+  const password = document.getElementById('signInPassword').value;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, is_demo: false })
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentUser = data.user;
+      localStorage.setItem('chrono_user', JSON.stringify(currentUser));
+      closeAuthPortal();
+      playSound('success');
+      updateUserDisplay();
+      speechText.textContent = `Welcome back to your private executive workspace, ${currentUser.name}. Zero dummy clutter loaded.`;
+    }
+  } catch (err) {
+    console.error('Sign in error:', err);
+  }
+}
+
+async function handleUserRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const organization = document.getElementById('regOrg').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, organization, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      currentUser = data.user;
+      localStorage.setItem('chrono_user', JSON.stringify(currentUser));
+      closeAuthPortal();
+      playSound('success');
+      updateUserDisplay();
+      speechText.textContent = `Clean private workspace created for ${currentUser.name} (${currentUser.organization}). You have an empty slate.`;
+    }
+  } catch (err) {
+    console.error('Registration error:', err);
+  }
+}
+
+function simulateBiometricAuth() {
+  playSound('shockwave');
+  const btn = event.currentTarget;
+  btn.textContent = "Verifying TouchID Passkey...";
+  setTimeout(() => {
+    btn.textContent = "✓ Biometric Key Verified";
+    handleUserSignIn();
+  }, 750);
+}
+
+// --------------------------------------------------------------------------
+// 4. Cinematic Architecture Video Showcase Controller
+// --------------------------------------------------------------------------
+
+function initCinemaVideo() {
+  if (!cinemaVideoPlayer) return;
+
+  cinemaVideoPlayer.addEventListener('timeupdate', () => {
+    const current = cinemaVideoPlayer.currentTime;
+    const duration = cinemaVideoPlayer.duration || 120;
+    const pct = (current / duration) * 100;
+    if (cinemaProgressFill) {
+      cinemaProgressFill.style.width = `${pct}%`;
+    }
+
+    if (cinemaTimecode) {
+      const mins = Math.floor(current / 60).toString().padStart(2, '0');
+      const secs = Math.floor(current % 60).toString().padStart(2, '0');
+      const frames = Math.floor((current % 1) * 30).toString().padStart(2, '0');
+      cinemaTimecode.textContent = `00:${mins}:${secs}:${frames}`;
+    }
+  });
+
+  if (cinemaPlayToggleBtn) {
+    cinemaPlayToggleBtn.addEventListener('click', toggleCinemaPlayback);
+  }
+
+  if (cinemaAudioToggleBtn) {
+    cinemaAudioToggleBtn.addEventListener('click', () => {
+      cinemaVideoPlayer.muted = !cinemaVideoPlayer.muted;
+      cinemaAudioIcon.textContent = cinemaVideoPlayer.muted ? '🔇' : '🔊';
+      playSound('click');
+    });
+  }
+
+  if (cinemaFullscreenBtn) {
+    cinemaFullscreenBtn.addEventListener('click', () => {
+      if (cinemaVideoPlayer.requestFullscreen) {
+        cinemaVideoPlayer.requestFullscreen();
+      }
+    });
+  }
+}
+
+function toggleCinemaPlayback() {
+  playSound('click');
+  if (cinemaVideoPlayer.paused) {
+    cinemaVideoPlayer.play();
+    cinemaPlayIcon.textContent = '❚❚';
+  } else {
+    cinemaVideoPlayer.pause();
+    cinemaPlayIcon.textContent = '▶';
+  }
+}
+
+function seekCinemaChapter(seconds, title) {
+  playSound('execute');
+  if (cinemaVideoPlayer) {
+    cinemaVideoPlayer.currentTime = seconds;
+    if (cinemaVideoPlayer.paused) cinemaVideoPlayer.play();
+    cinemaPlayIcon.textContent = '❚❚';
+  }
+
+  document.querySelectorAll('.chapter-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.textContent.includes(title.split(' ')[1]));
+  });
+}
+
+// --------------------------------------------------------------------------
+// 5. 3D Card Perspective Tilt Engine
 // --------------------------------------------------------------------------
 
 function apply3DCardTilt() {
-  const cards = document.querySelectorAll('.raycast-3d-card');
+  const cards = document.querySelectorAll('.raycast-3d-card, .cinema-theater-frame');
   cards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
@@ -283,20 +510,20 @@ function apply3DCardTilt() {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       
-      const rotateX = ((y - centerY) / centerY) * -4.0;
-      const rotateY = ((x - centerX) / centerX) * 4.0;
+      const rotateX = ((y - centerY) / centerY) * -3.5;
+      const rotateY = ((x - centerX) / centerX) * 3.5;
 
-      card.style.transform = `perspective(1100px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.008, 1.008, 1.008)`;
+      card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.006, 1.006, 1.006)`;
     });
 
     card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(1100px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
     });
   });
 }
 
 // --------------------------------------------------------------------------
-// 4. Progressive Disclosure & Scroll Coordination
+// 6. Progressive Disclosure & Scroll Coordination
 // --------------------------------------------------------------------------
 
 function scrollToDossier() {
@@ -311,33 +538,34 @@ function toggleViewMode() {
   isZenMode = !isZenMode;
   playSound('click');
 
-  const heroCluster = document.getElementById('heroCluster');
   const dossierDeck = document.getElementById('dossierDeck');
   const scrollPrompt = document.getElementById('scrollPrompt');
+  const cinemaShowcase = document.getElementById('cinemaShowcase');
 
   if (isZenMode) {
     viewModeToggleBtn.classList.add('active-mode');
     viewModeText.textContent = 'Zen Focus';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    dossierDeck.style.opacity = '0.15';
-    scrollPrompt.style.display = 'none';
+    if (dossierDeck) dossierDeck.style.opacity = '0.15';
+    if (cinemaShowcase) cinemaShowcase.style.opacity = '0.15';
+    if (scrollPrompt) scrollPrompt.style.display = 'none';
   } else {
     viewModeToggleBtn.classList.remove('active-mode');
     viewModeText.textContent = 'Dossier View';
-    dossierDeck.style.opacity = '1';
-    scrollPrompt.style.display = 'flex';
-    dossierDeck.scrollIntoView({ behavior: 'smooth' });
+    if (dossierDeck) dossierDeck.style.opacity = '1';
+    if (cinemaShowcase) cinemaShowcase.style.opacity = '1';
+    if (scrollPrompt) scrollPrompt.style.display = 'flex';
+    if (dossierDeck) dossierDeck.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
 // --------------------------------------------------------------------------
-// 5. Speech Recognition & Voice Interaction
+// 7. Speech Recognition & Voice Interaction
 // --------------------------------------------------------------------------
 
 function initSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    console.log('Web Speech Recognition API not supported in this browser.');
     return;
   }
 
@@ -360,7 +588,6 @@ function initSpeechRecognition() {
   };
 
   speechRecognition.onerror = (event) => {
-    console.warn('Speech recognition error:', event.error);
     isListening = false;
     micOrbBtn.classList.remove('recording');
   };
@@ -373,7 +600,6 @@ function initSpeechRecognition() {
 
 function toggleListening() {
   if (!speechRecognition) {
-    // Fallback simulation for browsers without Web Speech
     simulateVoiceCommand();
     return;
   }
@@ -386,12 +612,17 @@ function toggleListening() {
 }
 
 function simulateVoiceCommand() {
-  const simulatedPrompts = [
+  const simulatedPrompts = currentUser.is_demo ? [
     "Alexa, give me my morning briefing",
     "Alexa, inspect the Acme merger redline from Sarah",
     "Alexa, prepare a counter-offer rejecting the 12 million cap",
     "Alexa, check for travel buffer conflicts tomorrow"
+  ] : [
+    "Alexa, what is on my schedule today?",
+    "Alexa, schedule a strategic review with Elena at 3 PM",
+    "Alexa, summarize my private executive status"
   ];
+
   const chosen = simulatedPrompts[Math.floor(Math.random() * simulatedPrompts.length)];
   voiceTextInput.value = chosen;
   micOrbBtn.classList.add('recording');
@@ -420,7 +651,7 @@ function speakAgentResponse(text) {
 }
 
 // --------------------------------------------------------------------------
-// 6. Form Submission & Agent Query Dispatcher
+// 8. Form Submission & Agent Query Dispatcher
 // --------------------------------------------------------------------------
 
 function handleFormSubmit() {
@@ -435,14 +666,12 @@ async function sendQuery(promptText) {
   clearInputBtn.style.display = 'block';
   playSound('execute');
 
-  // Trigger visual shockwave centered on command bar
   const deckRect = document.getElementById('commandDeck').getBoundingClientRect();
   if (triggerMatrixShockwave) {
     triggerMatrixShockwave(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2);
   }
 
-  // Visual loading feedback
-  speechText.innerHTML = `<span style="color:var(--color-primary); font-weight:600;">✦ ChronoOS Bedrock Agent Reasoning...</span> Evaluating tools via Model Context Protocol.`;
+  speechText.innerHTML = `<span style="color:var(--color-primary); font-weight:600;">✦ ChronoOS Bedrock Agent Reasoning...</span> Evaluating tools via Model Context Protocol for ${currentUser.name}.`;
   speechTimestamp.textContent = 'Streaming...';
 
   const startTime = performance.now();
@@ -451,7 +680,12 @@ async function sendQuery(promptText) {
     const res = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: promptText, prompt: promptText })
+      body: JSON.stringify({
+        query: promptText,
+        prompt: promptText,
+        user_email: currentUser.email,
+        email: currentUser.email
+      })
     });
 
     const data = await res.json();
@@ -466,24 +700,20 @@ async function sendQuery(promptText) {
 }
 
 // --------------------------------------------------------------------------
-// 7. Render Agent Response & Dynamic Cards
+// 9. Render Agent Turn & Dynamic Cards
 // --------------------------------------------------------------------------
 
 function renderAgentTurn(data) {
-  // Update speech text & TTS
   speechText.textContent = `"${data.voice_response}"`;
   speechTimestamp.textContent = 'Just now';
   speakAgentResponse(data.voice_response);
 
-  // Update Bedrock telemetry in inspector
   renderInspectorTelemetry(data);
 
-  // Render visual cards
   if (data.visual_card) {
     renderCardContent(data.visual_card, data);
   }
 
-  // Smoothly scroll to dossier to show results
   const dossier = document.getElementById('dossierDeck');
   if (dossier && !isZenMode) {
     dossier.scrollIntoView({ behavior: 'smooth' });
@@ -493,6 +723,10 @@ function renderAgentTurn(data) {
 function renderCardContent(card, data) {
   if (card.type === 'EXECUTIVE_BRIEFING') {
     renderBriefingCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'PERSONAL_BRIEFING') {
+    renderPersonalBriefingCard(card);
     activeTab = 'overview';
     updateActiveTabUI('overview');
   } else if (card.type === 'CONTRACT_REDLINE_ANALYSIS') {
@@ -537,10 +771,20 @@ function renderInspectorTelemetry(data) {
 }
 
 // --------------------------------------------------------------------------
-// 8. Card Layout Generators
+// 10. Card Layout Generators
 // --------------------------------------------------------------------------
 
 function renderBriefingCard(card) {
+  if (!currentUser.is_demo) {
+    renderPersonalBriefingCard({
+      title: `Private Executive Briefing • ${currentUser.name}`,
+      organization: currentUser.organization,
+      commitments_count: 0,
+      alerts_count: 0
+    });
+    return;
+  }
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card" id="briefingCard">
       <div class="card-beam-glow"></div>
@@ -550,7 +794,7 @@ function renderBriefingCard(card) {
           <span class="card-badge">Daily Digest</span>
           <h2 class="card-main-title">${card.title || 'Executive Intelligence Briefing'}</h2>
         </div>
-        <span class="card-subtitle-tag">Aether Dynamics Inc. • Private & Confidential</span>
+        <span class="card-subtitle-tag">Aether Dynamics Inc. • Demo Sandbox</span>
       </div>
 
       <div class="raycast-metrics-grid">
@@ -627,6 +871,53 @@ function renderBriefingCard(card) {
   `;
 }
 
+function renderPersonalBriefingCard(card) {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="briefingCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">Private Workspace</span>
+          <h2 class="card-main-title">${card.title || `Executive Workspace • ${currentUser.name}`}</h2>
+        </div>
+        <span class="card-subtitle-tag">${currentUser.organization}</span>
+      </div>
+
+      <div class="raycast-metrics-grid">
+        <div class="metric-tile">
+          <div class="metric-tile-label">Personal Schedule</div>
+          <div class="metric-tile-val">0 Commitments</div>
+          <div class="metric-tile-tag">Clear Calendar Slate</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile-label">Active Alerts</div>
+          <div class="metric-tile-val" style="color:#10b981;">0 Active</div>
+          <div class="metric-tile-tag">No Conflicts Detected</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile-label">Episodic Graph</div>
+          <div class="metric-tile-val">Online</div>
+          <div class="metric-tile-tag">Private Tenant Memory</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:24px; display:flex; flex-direction:column; gap:12px;">
+        <div style="font-size:16px; font-weight:600; color:var(--color-on-surface);">Your Clean Executive Canvas</div>
+        <p style="font-size:14px; color:var(--color-secondary); line-height:1.55;">
+          You are logged into your private, isolated account. You will not see random demo data or dummy M&A items here. 
+          Use voice or command inputs to schedule your real meetings, add memory context, or inspect your own contracts.
+        </p>
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button class="btn-raycast-action" onclick="sendQuery('Alexa, schedule team sync today at 2:00 PM')">+ Schedule First Meeting</button>
+          <button class="btn-raycast-action" onclick="sendQuery('Alexa, remember that board deck is due on Friday')">+ Add Strategic Memory Note</button>
+          <button class="btn-raycast-action" onclick="openAuthPortal()">⚡ Switch to Demo Sandbox</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderContractRedlineCard(card) {
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card">
@@ -643,7 +934,7 @@ function renderContractRedlineCard(card) {
       <div class="redline-diff-box">
         <div class="redline-diff-header">
           <div>
-            <strong style="font-size:15px; color:var(--color-on-surface);">Section 9.2: Indemnification Cap</strong>
+            <strong style="font-size:15px; color:var(--color-on-surface);">Section 9.2: Indemnification Liability Cap</strong>
             <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">Dispute detected by Bedrock Guardrail: Executive Liability Exceeded</div>
           </div>
           <span class="sheet-badge">VIOLATION INTERCEPTED</span>
@@ -741,6 +1032,25 @@ function renderExecutionCard(card) {
 }
 
 function renderCalendarTravelCard() {
+  if (!currentUser.is_demo) {
+    multimodalWidgetArea.innerHTML = `
+      <div class="raycast-3d-card">
+        <div class="card-beam-glow"></div>
+        <div class="card-topbar">
+          <div class="card-title-group">
+            <span class="card-badge" style="color:#10b981;">Private Calendar</span>
+            <h2 class="card-main-title">Personal Schedule & Buffer</h2>
+          </div>
+          <span class="card-subtitle-tag">${currentUser.name}</span>
+        </div>
+        <div style="padding:20px; font-size:14px; color:var(--color-secondary);">
+          No travel conflicts or calendar collisions detected. You have a clean buffer.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card">
       <div class="card-beam-glow"></div>
@@ -812,22 +1122,13 @@ function renderGenericCard(card) {
       <div class="card-beam-glow"></div>
       <h2 class="card-main-title" style="margin-bottom:8px;">${card.title}</h2>
       <p style="font-size:14px; color:var(--color-secondary); margin-bottom:16px; line-height:1.5;">${card.summary || ''}</p>
-      ${card.relevant_memories ? `
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          ${card.relevant_memories.map(m => `
-            <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:12px 16px; font-size:13px;">
-              <strong style="color:var(--color-primary);">${m.entity}:</strong> ${m.memory}
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
     </div>
   `;
 }
 
-// --------------------------------------------------------------------------
-// 9. Workspace Tab Switching
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------
+// 11. Workspace Tab Switching
+// -------------------------------------------------------------
 
 function switchWorkspaceTab(tab) {
   playSound('click');
@@ -855,7 +1156,7 @@ function updateActiveTabUI(tab) {
 }
 
 // --------------------------------------------------------------------------
-// 10. Human-in-the-Loop Native Sheet Control
+// 12. Human-in-the-Loop Native Sheet Control
 // --------------------------------------------------------------------------
 
 function openHitlDialog(action) {
@@ -919,13 +1220,13 @@ async function confirmAction(decision) {
 }
 
 // --------------------------------------------------------------------------
-// 11. Global Keyboard Navigation & Event Listeners
+// 13. Global Event Listeners & Keyboard Shortcuts
 // --------------------------------------------------------------------------
 
 function initEventListeners() {
   micOrbBtn.addEventListener('click', toggleListening);
-  
   viewModeToggleBtn.addEventListener('click', toggleViewMode);
+  authPortalBtn.addEventListener('click', openAuthPortal);
 
   inspectorToggleBtn.addEventListener('click', () => {
     playSound('click');
@@ -963,6 +1264,11 @@ function initEventListeners() {
       voiceTextInput.focus();
       voiceTextInput.select();
     }
+    // ⌘U to open Auth Portal
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'u') {
+      e.preventDefault();
+      openAuthPortal();
+    }
     // ⌘Z to toggle Zen Mode / Dossier
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
       e.preventDefault();
@@ -974,17 +1280,18 @@ function initEventListeners() {
       playSound('click');
       displayInspectorPane.classList.toggle('collapsed');
     }
-    // Numeric quick-triggers (1-5) when NOT typing in an input
-    if (document.activeElement !== voiceTextInput) {
+    // Numeric triggers (1-5) when NOT typing in an input
+    if (document.activeElement !== voiceTextInput && document.activeElement.tagName !== 'INPUT') {
       if (e.key === '1') sendQuery('Alexa, give me my morning briefing');
       if (e.key === '2') sendQuery('Alexa, inspect the Acme merger redline from Sarah');
       if (e.key === '3') sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap');
       if (e.key === '4') sendQuery('Alexa, confirm action and dispatch to legal');
       if (e.key === '5') sendQuery('Alexa, check for travel buffer conflicts tomorrow');
     }
-    // Escape to dismiss
+    // Escape to dismiss dialogs
     if (e.key === 'Escape') {
       if (hitlDialog.open) hitlDialog.close();
+      if (authPortalDialog && authPortalDialog.open) authPortalDialog.close();
       if (!displayInspectorPane.classList.contains('collapsed')) {
         displayInspectorPane.classList.add('collapsed');
       }
@@ -1005,13 +1312,15 @@ function initClock() {
 }
 
 // --------------------------------------------------------------------------
-// 12. App Bootstrapping
+// 14. App Bootstrapping
 // --------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
   initDotMatrix();
   initClock();
   initSpeechRecognition();
+  initCinemaVideo();
   initEventListeners();
   apply3DCardTilt();
+  updateUserDisplay();
 });

@@ -7,7 +7,7 @@ Contains realistic enterprise executive context:
 - Long-term episodic memory graph & executive constraints
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime, date
 
 EXECUTIVE_PROFILE = {
@@ -189,3 +189,131 @@ DOCUMENTS_REPOSITORY: Dict[str, Dict[str, Any]] = {
         ]
     }
 }
+
+# --------------------------------------------------------------------------
+# Multi-User Account & Tenant Isolation System
+# --------------------------------------------------------------------------
+
+DEMO_USER_EMAIL = "alex.mercer@aetherdynamics.com"
+
+USER_ACCOUNTS: Dict[str, Dict[str, Any]] = {
+    DEMO_USER_EMAIL: {
+        "name": "Alex Mercer",
+        "email": DEMO_USER_EMAIL,
+        "title": "Chief Executive Officer",
+        "organization": "Aether Dynamics Inc.",
+        "is_demo": True,
+        "profile": EXECUTIVE_PROFILE,
+        "memory": list(EPISODIC_MEMORY_GRAPH),
+        "schedule": list(CALENDAR_SCHEDULE),
+        "communications": list(COMMUNICATIONS_FEED),
+        "documents": dict(DOCUMENTS_REPOSITORY)
+    }
+}
+
+def get_user_data(email: Optional[str] = None) -> Dict[str, Any]:
+    """Retrieves data store for a given user or defaults to the demo sandbox."""
+    if not email or email == DEMO_USER_EMAIL or email == "demo":
+        return USER_ACCOUNTS[DEMO_USER_EMAIL]
+    
+    if email not in USER_ACCOUNTS:
+        # Create a fresh clean personal instance for this email
+        USER_ACCOUNTS[email] = {
+            "name": email.split("@")[0].replace(".", " ").title(),
+            "email": email,
+            "title": "Principal Executive",
+            "organization": "Private Workspace",
+            "is_demo": False,
+            "profile": {
+                "name": email.split("@")[0].replace(".", " ").title(),
+                "title": "Principal Executive",
+                "organization": "Private Workspace",
+                "timezone": "America/Los_Angeles",
+                "preferences": {
+                    "work_hours_start": "09:00",
+                    "work_hours_end": "18:00",
+                    "buffer_between_meetings_minutes": 15,
+                    "max_focus_time_blocks_daily": 2,
+                    "contract_liability_threshold_usd": 1000000,
+                    "preferred_communication_tone": "executive, decisive"
+                }
+            },
+            "memory": [],
+            "schedule": [],
+            "communications": [],
+            "documents": {}
+        }
+    return USER_ACCOUNTS[email]
+
+def authenticate_user(email: str, password: Optional[str] = None, is_demo: bool = False) -> Dict[str, Any]:
+    """Authenticates or retrieves user session profile."""
+    if is_demo or email.lower() in ["demo", DEMO_USER_EMAIL]:
+        user = USER_ACCOUNTS[DEMO_USER_EMAIL]
+        return {
+            "success": True,
+            "user": {
+                "name": user["name"],
+                "email": user["email"],
+                "title": user["title"],
+                "organization": user["organization"],
+                "is_demo": True
+            }
+        }
+    
+    user = get_user_data(email)
+    return {
+        "success": True,
+        "user": {
+            "name": user["name"],
+            "email": user["email"],
+            "title": user["title"],
+            "organization": user["organization"],
+            "is_demo": False
+        }
+    }
+
+def register_user(name: str, email: str, organization: str = "Private Workspace", password: Optional[str] = None) -> Dict[str, Any]:
+    """Registers a new personal executive account with a clean, isolated slate."""
+    USER_ACCOUNTS[email] = {
+        "name": name,
+        "email": email,
+        "title": "Executive Officer",
+        "organization": organization,
+        "is_demo": False,
+        "profile": {
+            "name": name,
+            "title": "Executive Officer",
+            "organization": organization,
+            "timezone": "America/Los_Angeles",
+            "preferences": {
+                "work_hours_start": "09:00",
+                "work_hours_end": "18:00",
+                "buffer_between_meetings_minutes": 15,
+                "max_focus_time_blocks_daily": 2,
+                "contract_liability_threshold_usd": 1000000,
+                "preferred_communication_tone": "executive, decisive"
+            }
+        },
+        "memory": [
+            {
+                "id": "mem_welcome",
+                "category": "system",
+                "entity": name,
+                "memory": f"ChronoOS initialized for {name} ({organization}). Private workspace active.",
+                "last_updated": datetime.now().strftime("%Y-%m-%d")
+            }
+        ],
+        "schedule": [],
+        "communications": [],
+        "documents": {}
+    }
+    return {
+        "success": True,
+        "user": {
+            "name": name,
+            "email": email,
+            "title": "Executive Officer",
+            "organization": organization,
+            "is_demo": False
+        }
+    }
