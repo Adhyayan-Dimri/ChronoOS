@@ -1,10 +1,10 @@
 /**
- * ChronoOS Alexa Echo Show 15 Multimodal Client
- * Manages:
- * - Web Speech API (STT & TTS) with Audio Waveform sync
- * - Dynamic Multimodal Widget Rendering
+ * ChronoOS • Lusion Minimal Editorial Client
+ * Implements:
+ * - Web Speech API (STT & TTS)
+ * - Lusion Minimal card rendering (Oversized typography, 8px radius, 1px borders, pill buttons)
  * - Real-Time Bedrock Agent & MCP Thought Inspector Telemetry
- * - Human-in-the-Loop Dialog Authorization
+ * - Human-in-the-Loop Native Modal (<dialog>) Authorization
  */
 
 const API_BASE = window.location.origin;
@@ -17,10 +17,8 @@ let currentPendingAction = null;
 
 // DOM Elements
 const micOrbBtn = document.getElementById('micOrbBtn');
-const audioWaveformCanvas = document.getElementById('audioWaveformCanvas');
 const voiceTextInput = document.getElementById('voiceTextInput');
 const speechText = document.getElementById('speechText');
-const speechTimestamp = document.getElementById('speechTimestamp');
 const multimodalWidgetArea = document.getElementById('multimodalWidgetArea');
 const inspectorToggleBtn = document.getElementById('inspectorToggleBtn');
 const displayInspectorPane = document.getElementById('displayInspectorPane');
@@ -68,8 +66,7 @@ function initSpeechRecognition() {
 
     speechRecognition.onstart = () => {
       isListening = true;
-      micOrbBtn.classList.add('listening');
-      audioWaveformCanvas.classList.add('active');
+      micOrbBtn.classList.add('recording');
     };
 
     speechRecognition.onresult = (event) => {
@@ -79,7 +76,7 @@ function initSpeechRecognition() {
     };
 
     speechRecognition.onerror = (event) => {
-      console.warn('Speech recognition notification:', event.error);
+      console.warn('Speech recognition notice:', event.error);
       stopListening();
     };
 
@@ -101,49 +98,45 @@ function toggleListening() {
     try {
       speechRecognition.start();
     } catch (e) {
-      console.warn('Voice recognition already started', e);
+      console.warn('Speech recognition already started', e);
     }
   }
 }
 
 function stopListening() {
   isListening = false;
-  micOrbBtn.classList.remove('listening');
-  if (!isSpeaking) {
-    audioWaveformCanvas.classList.remove('active');
-  }
+  micOrbBtn.classList.remove('recording');
 }
 
 // -------------------------------------------------------------
-// 2. Text-to-Speech (Alexa Voice Output)
+// 2. Text-to-Speech (Neural Output)
 // -------------------------------------------------------------
 
-function speakAlexaResponse(text) {
+function speakResponse(text) {
   if (!('speechSynthesis' in window)) return;
   
-  window.speechSynthesis.cancel(); // Cancel any prior speech
+  window.speechSynthesis.cancel();
   const cleanText = text.replace(/[*_#`]/g, '');
   const utterance = new SpeechSynthesisUtterance(cleanText);
   
-  // Pick high-quality English voice if available
   const voices = window.speechSynthesis.getVoices();
-  const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Siri')));
+  const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Siri')));
   if (preferredVoice) {
     utterance.voice = preferredVoice;
   }
   
   utterance.rate = 1.05;
-  utterance.pitch = 1.02;
+  utterance.pitch = 1.0;
 
   utterance.onstart = () => {
     isSpeaking = true;
-    audioWaveformCanvas.classList.add('active');
+    micOrbBtn.classList.add('recording');
   };
 
   utterance.onend = () => {
     isSpeaking = false;
     if (!isListening) {
-      audioWaveformCanvas.classList.remove('active');
+      micOrbBtn.classList.remove('recording');
     }
   };
 
@@ -164,9 +157,7 @@ async function handleFormSubmit() {
 
 async function sendQuery(queryText) {
   stopListening();
-  speechText.innerHTML = `<em>"Processing with Amazon Bedrock & MCP Tools..."</em>`;
-  speechTimestamp.textContent = 'Thinking...';
-  audioWaveformCanvas.classList.add('active');
+  speechText.innerHTML = `<em>"Analyzing with Amazon Bedrock & MCP Tools..."</em>`;
 
   try {
     const res = await fetch(`${API_BASE}/api/chat`, {
@@ -180,20 +171,18 @@ async function sendQuery(queryText) {
     renderAgentTurn(data);
   } catch (err) {
     console.error('Failed to communicate with ChronoOS Gateway:', err);
-    speechText.textContent = `Apologies, Alex. An error occurred while communicating with the agent runtime: ${err.message}`;
-    audioWaveformCanvas.classList.remove('active');
+    speechText.textContent = `Apologies, Alex. An error occurred in the agent runtime: ${err.message}`;
   }
 }
 
 // -------------------------------------------------------------
-// 4. Rendering Multimodal Visual Cards & Telemetry
+// 4. Rendering Lusion Minimal Cards & Telemetry
 // -------------------------------------------------------------
 
 function renderAgentTurn(data) {
-  // 1. Update Alexa Speech Bubble & Voice
+  // 1. Update Editorial Quote Box & Voice
   speechText.textContent = `"${data.voice_response}"`;
-  speechTimestamp.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  speakAlexaResponse(data.voice_response);
+  speakResponse(data.voice_response);
 
   // 2. Render Telemetry & Thought Stream
   renderInspectorTelemetry(data);
@@ -208,7 +197,6 @@ function renderAgentTurn(data) {
     renderContractRedlineCard(card);
   } else if (card.type === 'CONFIRMATION_REQUIRED') {
     renderConfirmationCard(card);
-    // Automatically trigger Human-in-the-Loop dialog
     openHitlDialog(data.confirmation_needed);
   } else if (card.type === 'ACTION_EXECUTED') {
     renderExecutionCard(card);
@@ -227,13 +215,10 @@ function renderInspectorTelemetry(data) {
   traceFeed.innerHTML = '';
   data.trace_events.forEach(evt => {
     const item = document.createElement('div');
-    item.className = 'trace-item completed';
+    item.className = 'trace-item-editorial';
     item.innerHTML = `
-      <div class="trace-icon">✓</div>
-      <div class="trace-content">
-        <div class="trace-stage">${evt.stage} ${evt.tool ? `• <span style="color:var(--alexa-cyan)">${evt.tool}</span>` : ''}</div>
-        <div class="trace-desc">${evt.detail || (evt.args ? JSON.stringify(evt.args) : 'Operation completed.')}</div>
-      </div>
+      <div class="trace-item-stage">${evt.stage} ${evt.tool ? `• [${evt.tool}]` : ''}</div>
+      <div class="trace-item-desc">${evt.detail || (evt.args ? JSON.stringify(evt.args) : 'Operation executed.')}</div>
     `;
     traceFeed.appendChild(item);
   });
@@ -247,44 +232,44 @@ function renderInspectorTelemetry(data) {
 
 function renderContractRedlineCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="card-glass redline-card">
-      <div class="card-header">
-        <div class="card-title-group">
-          <span class="badge-tag accent">Legal Risk Assessment</span>
-          <h2 class="card-title">${card.title}</h2>
+    <div class="lusion-card">
+      <div class="card-title-row">
+        <div>
+          <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--color-primary-60);">Legal Risk Assessment</span>
+          <h2 class="card-heading" style="margin-top:4px;">${card.title}</h2>
         </div>
-        <span class="card-date">${card.parties}</span>
+        <span class="card-timestamp">${card.parties}</span>
       </div>
 
-      <div class="redline-clauses-list">
+      <div style="display:flex; flex-direction:column; gap:20px; margin-bottom:28px;">
         ${card.critical_clauses.map(clause => `
-          <div class="clause-box" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px; margin-bottom:14px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-              <strong style="color:var(--text-primary); font-size:14px;">${clause.section}</strong>
-              <span style="font-size:11px; font-weight:700; color:var(--status-critical); background:var(--status-critical-bg); padding:2px 8px; border-radius:4px;">${clause.guardrail_status}</span>
+          <div style="border:1px solid var(--color-secondary); border-radius:8px; padding:24px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:baseline;">
+              <strong style="font-size:15px; font-weight:600; color:var(--color-primary);">${clause.section}</strong>
+              <span style="font-size:11px; font-weight:700; border:1px solid var(--color-primary); padding:2px 8px; border-radius:4px;">${clause.guardrail_status}</span>
             </div>
             
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px; font-size:13px;">
-              <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; border-left:3px solid var(--alexa-cyan);">
-                <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; font-weight:700; margin-bottom:4px;">Original Approved Mandate</div>
-                <div>${clause.original}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px; font-size:14px;">
+              <div style="background:#fafafa; border:1px solid var(--color-secondary); padding:14px; border-radius:4px;">
+                <div style="font-size:11px; color:var(--color-primary-60); text-transform:uppercase; font-weight:600; margin-bottom:6px;">Original Mandate</div>
+                <div style="line-height:1.5;">${clause.original}</div>
               </div>
-              <div style="background:rgba(239,68,68,0.1); padding:10px; border-radius:6px; border-left:3px solid var(--status-critical);">
-                <div style="font-size:10px; color:var(--status-critical); text-transform:uppercase; font-weight:700; margin-bottom:4px;">Acme Proposed Redline (Violates Policy)</div>
-                <div>${clause.redline}</div>
+              <div style="background:#fef2f2; border:1px solid #000; padding:14px; border-radius:4px;">
+                <div style="font-size:11px; color:#000; text-transform:uppercase; font-weight:700; margin-bottom:6px;">Acme Proposed Redline (Violation)</div>
+                <div style="line-height:1.5; font-weight:500;">${clause.redline}</div>
               </div>
             </div>
 
-            <div style="font-size:12px; color:#38bdf8; background:rgba(56,189,248,0.1); padding:8px 12px; border-radius:6px;">
-              💡 <strong>Autonomous Chief of Staff Recommendation:</strong> ${clause.recommendation}
+            <div style="font-size:13px; color:var(--color-primary); border-left:2px solid var(--color-primary); padding-left:12px; line-height:1.5;">
+              <strong>Strategic Recommendation:</strong> ${clause.recommendation}
             </div>
           </div>
         `).join('')}
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
-        <span style="font-size:12px; color:var(--text-muted);">${card.action_prompt}</span>
-        <button class="alert-action-btn" style="background:var(--alexa-cyan); color:#000; font-weight:700;" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-secondary); padding-top:20px;">
+        <span style="font-size:13px; color:var(--color-primary-60);">${card.action_prompt}</span>
+        <button class="btn-inline-pill" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
           Draft Counter-Offer Now
         </button>
       </div>
@@ -294,26 +279,26 @@ function renderContractRedlineCard(card) {
 
 function renderConfirmationCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="card-glass confirmation-card" style="border-color:rgba(245,158,11,0.4);">
-      <div class="card-header">
-        <div class="card-title-group">
-          <span class="badge-tag" style="background:rgba(245,158,11,0.2); color:var(--status-warning);">Human-in-the-Loop Required</span>
-          <h2 class="card-title">${card.title}</h2>
+    <div class="lusion-card" style="border:2px solid var(--color-primary);">
+      <div class="card-title-row">
+        <div>
+          <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--color-primary);">Authorization Mandated</span>
+          <h2 class="card-heading" style="margin-top:4px;">${card.title}</h2>
         </div>
-        <span class="card-date" style="font-family:var(--font-mono); color:var(--alexa-cyan);">${card.token}</span>
+        <span class="card-timestamp" style="font-family:var(--font-mono); font-weight:600;">${card.token}</span>
       </div>
 
-      <div style="background:rgba(0,0,0,0.35); padding:16px; border-radius:12px; margin-bottom:18px;">
-        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700; margin-bottom:4px;">Target Recipient</div>
-        <div style="font-size:13px; font-weight:600; margin-bottom:12px;">${card.recipient}</div>
+      <div style="border:1px solid var(--color-secondary); border-radius:8px; padding:24px; margin-bottom:24px;">
+        <div style="font-size:11px; color:var(--color-primary-60); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Target Recipient</div>
+        <div style="font-size:14px; font-weight:500; margin-bottom:16px;">${card.recipient}</div>
 
-        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700; margin-bottom:4px;">Draft Counter-Offer</div>
-        <div style="font-size:13px; line-height:1.5; color:#e2e8f0; white-space:pre-wrap;">${card.payload}</div>
+        <div style="font-size:11px; color:var(--color-primary-60); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Drafted Response</div>
+        <div style="font-size:14px; line-height:1.6; white-space:pre-wrap; background:#fafafa; border:1px solid var(--color-secondary); padding:16px; border-radius:4px;">${card.payload}</div>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:12px;">
-        <button class="btn-cancel" onclick="sendQuery('Alexa, cancel this action')">Reject Action</button>
-        <button class="btn-approve" onclick="openHitlDialogCurrent()">Review & Approve on Screen</button>
+      <div style="display:flex; justify-content:flex-end; gap:16px;">
+        <button class="btn-secondary-pill" onclick="sendQuery('Alexa, cancel this action')">Reject Action</button>
+        <button class="btn-primary-pill" onclick="openHitlDialogCurrent()">Review & Authorize</button>
       </div>
     </div>
   `;
@@ -321,24 +306,21 @@ function renderConfirmationCard(card) {
 
 function renderExecutionCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="card-glass execution-card" style="border-color:rgba(16,185,129,0.4);">
-      <div class="card-header">
-        <div class="card-title-group">
-          <span class="badge-tag" style="background:rgba(16,185,129,0.2); color:var(--status-success);">Action Finalized</span>
-          <h2 class="card-title">${card.title}</h2>
-        </div>
-        <span class="card-date" style="font-family:var(--font-mono); color:var(--status-success);">${card.receipt}</span>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:16px; background:rgba(16,185,129,0.08); padding:18px; border-radius:12px; margin-bottom:18px;">
-        <div style="font-size:32px;">✅</div>
+    <div class="lusion-card">
+      <div class="card-title-row">
         <div>
-          <div style="font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${card.status}</div>
-          <div style="font-size:13px; color:var(--text-secondary);">${card.details}</div>
+          <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--color-primary);">Action Finalized</span>
+          <h2 class="card-heading" style="margin-top:4px;">${card.title}</h2>
         </div>
+        <span class="card-timestamp" style="font-family:var(--font-mono); font-weight:600;">${card.receipt}</span>
       </div>
 
-      <button class="alert-action-btn" onclick="sendQuery('Alexa, give me my morning briefing')">
+      <div style="border:1px solid var(--color-primary); border-radius:8px; padding:24px; margin-bottom:24px;">
+        <div style="font-size:16px; font-weight:600; margin-bottom:6px;">${card.status}</div>
+        <div style="font-size:14px; color:var(--color-primary-60); line-height:1.5;">${card.details}</div>
+      </div>
+
+      <button class="btn-inline-pill" onclick="sendQuery('Alexa, give me my morning briefing')">
         ← Return to Briefing Dashboard
       </button>
     </div>
@@ -347,14 +329,14 @@ function renderExecutionCard(card) {
 
 function renderGenericCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="card-glass">
-      <h2 class="card-title" style="margin-bottom:12px;">${card.title}</h2>
-      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">${card.summary || ''}</p>
+    <div class="lusion-card">
+      <h2 class="card-heading" style="margin-bottom:12px;">${card.title}</h2>
+      <p style="font-size:15px; color:var(--color-primary-60); margin-bottom:20px; line-height:1.5;">${card.summary || ''}</p>
       ${card.relevant_memories ? `
-        <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; flex-direction:column; gap:10px;">
           ${card.relevant_memories.map(m => `
-            <div style="background:rgba(255,255,255,0.02); padding:10px 14px; border-radius:8px; font-size:13px;">
-              <strong style="color:var(--alexa-cyan);">${m.entity}:</strong> ${m.memory}
+            <div style="border:1px solid var(--color-secondary); border-radius:6px; padding:12px 16px; font-size:13px; line-height:1.5;">
+              <strong>${m.entity}:</strong> ${m.memory}
             </div>
           `).join('')}
         </div>
@@ -404,7 +386,7 @@ async function confirmAction(decision) {
     });
     const result = await res.json();
     renderAgentTurn({
-      voice_response: `Action confirmed. Your legal counter-offer has been officially dispatched to Sarah Chen and the Acme M&A advisory room.`,
+      voice_response: `Action authorized and finalized. Your legal counter-offer has been officially dispatched to Sarah Chen and the Acme M&A advisory room.`,
       visual_card: {
         type: 'ACTION_EXECUTED',
         title: 'Executive Action Executed',
@@ -416,7 +398,7 @@ async function confirmAction(decision) {
         { stage: 'Voice Confirmation Received', status: 'approved' },
         { stage: 'MCP Action Execution', tool: 'execute_confirmed_action', status: 'delivered' }
       ],
-      latency_ms: 120
+      latency_ms: 110
     });
   } catch (err) {
     console.error('Confirmation error:', err);
