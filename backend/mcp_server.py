@@ -1,0 +1,329 @@
+"""
+Chronos+ Model Context Protocol (MCP) Server
+Implements Model Context Protocol (MCP) Specification (JSON-RPC 2.0 & Streamable HTTP/SSE).
+Exposes executive-grade tools for Alexa+ and agentic reasoning systems.
+"""
+
+from typing import Dict, Any, List, Optional
+import json
+import uuid
+from datetime import datetime
+from pydantic import BaseModel, Field
+
+from mock_executive_data import (
+    EXECUTIVE_PROFILE,
+    EPISODIC_MEMORY_GRAPH,
+    CALENDAR_SCHEDULE,
+    COMMUNICATIONS_FEED,
+    DOCUMENTS_REPOSITORY
+)
+
+# Standard MCP Tool Definitions
+CHRONOS_MCP_TOOLS = [
+    {
+        "name": "get_executive_briefing",
+        "description": "Aggregates the executive's current schedule, critical alerts, urgent communications, and active M&A/board deadlines for today.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "include_calendar": {"type": "boolean", "default": True, "description": "Include upcoming calendar commitments."},
+                "include_urgent_comms": {"type": "boolean", "default": True, "description": "Include high-priority email/Slack messages."},
+                "urgency_filter": {"type": "string", "enum": ["all", "high", "critical"], "default": "high", "description": "Filter level for communications."}
+            }
+        }
+    },
+    {
+        "name": "search_communications",
+        "description": "Performs semantic search across executive communications (Emails, Slack, SMS) with VIP sender filtering.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search keyword or semantic topic (e.g., 'merger', 'redline', 'flight', 'Elena')."},
+                "sender_filter": {"type": "string", "description": "Optional filter by sender name (e.g., 'Sarah Chen', 'David Ross')."}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "inspect_document_redlines",
+        "description": "Inspects tracked changes, dispute items, and legal risk evaluations for active contracts and board documents.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "document_id": {"type": "string", "description": "Identifier of the document (e.g., 'doc_apex_redline_v4', 'doc_board_q3_summary')."},
+                "focus_section": {"type": "string", "description": "Optional section name to zero in on (e.g., 'Indemnification', 'Intellectual Property')."}
+            },
+            "required": ["document_id"]
+        }
+    },
+    {
+        "name": "query_episodic_memory",
+        "description": "Retrieves persistent executive preferences, stakeholder relationship profiles, past board mandates, and decision rules from the episodic memory graph.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "entity_or_topic": {"type": "string", "description": "Topic or person to retrieve memories for (e.g., 'Sarah Chen', 'Elena Rostova', 'Acme valuation', 'travel buffer')."}
+            },
+            "required": ["entity_or_topic"]
+        }
+    },
+    {
+        "name": "manage_calendar_commitments",
+        "description": "Resolves scheduling conflicts, creates focus time blocks, adjusts travel buffers, or drafts calendar revisions.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["find_conflicts", "insert_focus_block", "adjust_meeting_time"], "description": "Calendar action to perform."},
+                "target_meeting_id": {"type": "string", "description": "Meeting ID if adjusting existing commitment."},
+                "time_slot": {"type": "string", "description": "Proposed time slot (e.g., '15:15-16:00')."},
+                "reason": {"type": "string", "description": "Executive justification for calendar modification."}
+            },
+            "required": ["action"]
+        }
+    },
+    {
+        "name": "prepare_high_stakes_action",
+        "description": "Prepares and validates an executive action (e.g., sending a formal contract counter-proposal, modifying legal terms, rescheduling VIP meetings). Generates a cryptographic verification token and requires Human-in-the-Loop approval.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action_type": {"type": "string", "enum": ["send_legal_response", "reschedule_vip_meeting", "authorize_expenditure"], "description": "Category of high-stakes action."},
+                "target_recipient": {"type": "string", "description": "Recipient name/email or stakeholder."},
+                "proposed_payload": {"type": "string", "description": "Full text or specification of the action to be confirmed."},
+                "risk_assessment": {"type": "string", "description": "Autonomous risk evaluation generated by Bedrock."},
+                "requires_voice_confirmation": {"type": "boolean", "default": True, "description": "Whether explicit Alexa voice confirmation is mandated."}
+            },
+            "required": ["action_type", "target_recipient", "proposed_payload", "risk_assessment"]
+        }
+    },
+    {
+        "name": "execute_confirmed_action",
+        "description": "Executes a previously prepared high-stakes action after the executive provides verified voice or tactile confirmation.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action_token": {"type": "string", "description": "The unique verification token generated during preparation."},
+                "executive_decision": {"type": "string", "enum": ["APPROVED", "REJECTED", "MODIFIED"], "description": "The executive's explicit decision."}
+            },
+            "required": ["action_token", "executive_decision"]
+        }
+    }
+]
+
+# Pending high-stakes actions awaiting confirmation
+PENDING_ACTIONS_STORE: Dict[str, Dict[str, Any]] = {}
+
+class ChronosMCPServer:
+    """Core Model Context Protocol Server Handler."""
+
+    def __init__(self):
+        self.server_info = {
+            "name": "chronos-executive-mcp",
+            "version": "1.0.0",
+            "protocolVersion": "2024-11-05",
+            "description": "Autonomous Chief of Staff MCP Server for Alexa+ & Amazon Bedrock"
+        }
+
+    def handle_initialize(self, request_id: Any) -> Dict[str, Any]:
+        """Handles MCP protocol initialization."""
+        return {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "result": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {
+                    "tools": {
+                        "listChanged": False
+                    },
+                    "resources": {
+                        "subscribe": False,
+                        "listChanged": False
+                    },
+                    "prompts": {
+                        "listChanged": False
+                    }
+                },
+                "serverInfo": self.server_info
+            }
+        }
+
+    def handle_tools_list(self, request_id: Any) -> Dict[str, Any]:
+        """Returns list of available MCP tools."""
+        return {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "result": {
+                "tools": CHRONOS_MCP_TOOLS
+            }
+        }
+
+    def execute_tool(self, name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Dispatches and executes the requested tool call."""
+        if name == "get_executive_briefing":
+            urgency = arguments.get("urgency_filter", "high")
+            comms = [c for c in COMMUNICATIONS_FEED if c["urgency"] in (["critical", "high"] if urgency == "high" else ["critical", "high", "medium", "low"])]
+            
+            result = {
+                "executive": EXECUTIVE_PROFILE["name"],
+                "title": EXECUTIVE_PROFILE["title"],
+                "today_schedule": CALENDAR_SCHEDULE,
+                "urgent_communications": comms,
+                "active_alerts": [
+                    "URGENT: Acme Corp Merger Redline received from General Counsel Sarah Chen (Section 9.2 Liability Cap altered). Decision required before 2:00 PM negotiation call.",
+                    "TRAVEL ALERT: Flight UA 482 delayed by 45 mins. 25-minute margin remaining before Hudson Yards keynote."
+                ]
+            }
+            return {"content": [{"type": "text", "text": json.dumps(result, indent=2)}], "isError": False}
+
+        elif name == "search_communications":
+            query = arguments.get("query", "").lower()
+            sender = arguments.get("sender_filter", "").lower()
+            
+            matches = []
+            for c in COMMUNICATIONS_FEED:
+                text_corpus = f"{c['sender_name']} {c['subject']} {c['snippet']}".lower()
+                if query in text_corpus:
+                    if not sender or sender in c['sender_name'].lower():
+                        matches.append(c)
+            return {"content": [{"type": "text", "text": json.dumps({"query": query, "match_count": len(matches), "matches": matches}, indent=2)}], "isError": False}
+
+        elif name == "inspect_document_redlines":
+            doc_id = arguments.get("document_id")
+            focus = arguments.get("focus_section", "").lower()
+            
+            if doc_id not in DOCUMENTS_REPOSITORY:
+                return {"content": [{"type": "text", "text": f"Error: Document '{doc_id}' not found in secure vault."}], "isError": True}
+            
+            doc = DOCUMENTS_REPOSITORY[doc_id]
+            if focus and "key_clauses" in doc:
+                filtered_clauses = [clause for clause in doc["key_clauses"] if focus in clause["section"].lower() or focus in clause.get("proposed_redline", "").lower()]
+                output = {"document_title": doc["title"], "filtered_clauses": filtered_clauses}
+            else:
+                output = doc
+            return {"content": [{"type": "text", "text": json.dumps(output, indent=2)}], "isError": False}
+
+        elif name == "query_episodic_memory":
+            topic = arguments.get("entity_or_topic", "").lower()
+            relevant = []
+            for mem in EPISODIC_MEMORY_GRAPH:
+                if topic in mem["entity"].lower() or topic in mem["memory"].lower() or topic in mem["category"].lower():
+                    relevant.append(mem)
+            
+            # If no direct match, return all memories for general awareness
+            if not relevant:
+                relevant = EPISODIC_MEMORY_GRAPH
+                
+            return {"content": [{"type": "text", "text": json.dumps({"topic_queried": topic, "memories": relevant}, indent=2)}], "isError": False}
+
+        elif name == "manage_calendar_commitments":
+            action = arguments.get("action")
+            if action == "find_conflicts":
+                conflicts = [
+                    {
+                        "conflict_type": "Travel Buffer Violation",
+                        "description": "Flight UA 482 lands at JFK 08:35 AM EDT tomorrow. Keynote rehearsal starts at 09:00 AM EDT. Travel time to Manhattan is 50 mins. Conflict severity: CRITICAL (Estimated 30-min tardiness).",
+                        "recommended_fix": "Reschedule Keynote Rehearsal to 10:15 AM EDT or rebook to UA 118 (leaves SFO 10:30 PM tonight, red-eye arrival 06:45 AM EDT)."
+                    }
+                ]
+                return {"content": [{"type": "text", "text": json.dumps({"calendar_conflicts": conflicts}, indent=2)}], "isError": False}
+
+            elif action == "insert_focus_block":
+                new_block = {
+                    "id": f"cal_focus_{uuid.uuid4().hex[:6]}",
+                    "title": "Executive Focus Time: M&A Due Diligence & Legal Strategy",
+                    "start": "13:00",
+                    "end": "13:45",
+                    "status": "reserved",
+                    "reason": arguments.get("reason", "Preparation for 2 PM Acme negotiation call.")
+                }
+                CALENDAR_SCHEDULE.append(new_block)
+                return {"content": [{"type": "text", "text": json.dumps({"message": "Focus block reserved successfully.", "block": new_block}, indent=2)}], "isError": False}
+
+            return {"content": [{"type": "text", "text": json.dumps({"status": "acknowledged", "action": action}, indent=2)}], "isError": False}
+
+        elif name == "prepare_high_stakes_action":
+            token = f"ACT-AUTH-{uuid.uuid4().hex[:8].upper()}"
+            action_record = {
+                "action_token": token,
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "action_type": arguments.get("action_type"),
+                "target_recipient": arguments.get("target_recipient"),
+                "proposed_payload": arguments.get("proposed_payload"),
+                "risk_assessment": arguments.get("risk_assessment"),
+                "requires_voice_confirmation": arguments.get("requires_voice_confirmation", True),
+                "status": "AWAITING_EXECUTIVE_CONFIRMATION"
+            }
+            PENDING_ACTIONS_STORE[token] = action_record
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": json.dumps({
+                        "confirmation_required": True,
+                        "action_token": token,
+                        "summary": f"High-stakes action prepared. Explicit executive authorization required.",
+                        "details": action_record
+                    }, indent=2)
+                }],
+                "isError": False
+            }
+
+        elif name == "execute_confirmed_action":
+            token = arguments.get("action_token")
+            decision = arguments.get("executive_decision")
+
+            if token not in PENDING_ACTIONS_STORE:
+                return {"content": [{"type": "text", "text": f"Error: Token '{token}' not recognized or already finalized."}], "isError": True}
+
+            record = PENDING_ACTIONS_STORE[token]
+            record["status"] = decision
+            record["finalized_at"] = datetime.utcnow().isoformat() + "Z"
+
+            if decision == "APPROVED":
+                execution_receipt = {
+                    "receipt_id": f"RCPT-{uuid.uuid4().hex[:8].upper()}",
+                    "token": token,
+                    "status": "EXECUTED_SUCCESSFULLY",
+                    "target_recipient": record["target_recipient"],
+                    "action_executed": record["action_type"],
+                    "delivery_channel": "Direct Secure Dispatch via Amazon Bedrock Guarded Gateway",
+                    "timestamp": record["finalized_at"]
+                }
+                return {"content": [{"type": "text", "text": json.dumps(execution_receipt, indent=2)}], "isError": False}
+            else:
+                return {"content": [{"type": "text", "text": json.dumps({"status": f"ACTION_{decision}", "token": token}, indent=2)}], "isError": False}
+
+        else:
+            return {"content": [{"type": "text", "text": f"Tool '{name}' is not registered on this MCP server."}], "isError": True}
+
+    def dispatch_jsonrpc(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Processes standard JSON-RPC 2.0 requests."""
+        req_id = request_data.get("id")
+        method = request_data.get("method")
+        params = request_data.get("params", {})
+
+        if method == "initialize":
+            return self.handle_initialize(req_id)
+        elif method == "notifications/initialized":
+            return {"jsonrpc": "2.0", "result": None}
+        elif method == "tools/list":
+            return self.handle_tools_list(req_id)
+        elif method == "tools/call":
+            tool_name = params.get("name")
+            tool_args = params.get("arguments", {})
+            execution_res = self.execute_tool(tool_name, tool_args)
+            return {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "result": execution_res
+            }
+        else:
+            return {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "error": {
+                    "code": -32601,
+                    "message": f"Method '{method}' not found."
+                }
+            }
+
+mcp_server_instance = ChronosMCPServer()
