@@ -1,5 +1,5 @@
 /**
- * Chronos+ Alexa Echo Show 15 Multimodal Client
+ * ChronoOS Alexa Echo Show 15 Multimodal Client
  * Manages:
  * - Web Speech API (STT & TTS) with Audio Waveform sync
  * - Dynamic Multimodal Widget Rendering
@@ -179,7 +179,7 @@ async function sendQuery(queryText) {
     const data = await res.json();
     renderAgentTurn(data);
   } catch (err) {
-    console.error('Failed to communicate with Chronos Gateway:', err);
+    console.error('Failed to communicate with ChronoOS Gateway:', err);
     speechText.textContent = `Apologies, Alex. An error occurred while communicating with the agent runtime: ${err.message}`;
     audioWaveformCanvas.classList.remove('active');
   }

@@ -1,5 +1,5 @@
 """
-Chronos+ Model Context Protocol (MCP) Server
+ChronoOS Model Context Protocol (MCP) Server
 Implements Model Context Protocol (MCP) Specification (JSON-RPC 2.0 & Streamable HTTP/SSE).
 Exposes executive-grade tools for Alexa+ and agentic reasoning systems.
 """
@@ -113,12 +113,12 @@ CHRONOS_MCP_TOOLS = [
 # Pending high-stakes actions awaiting confirmation
 PENDING_ACTIONS_STORE: Dict[str, Dict[str, Any]] = {}
 
-class ChronosMCPServer:
+class ChronoOSMCPServer:
     """Core Model Context Protocol Server Handler."""
 
     def __init__(self):
         self.server_info = {
-            "name": "chronos-executive-mcp",
+            "name": "chrono_os-executive-mcp",
             "version": "1.0.0",
             "protocolVersion": "2024-11-05",
             "description": "Autonomous Chief of Staff MCP Server for Alexa+ & Amazon Bedrock"
@@ -326,4 +326,4 @@ class ChronosMCPServer:
                 }
             }
 
-mcp_server_instance = ChronosMCPServer()
+mcp_server_instance = ChronoOSMCPServer()

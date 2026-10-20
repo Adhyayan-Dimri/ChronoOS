@@ -1,4 +1,4 @@
-# Chronos+ • Autonomous Executive Chief of Staff
+# ChronoOS • Autonomous Executive Chief of Staff
 ### Built for the *Build, Ship, Shape: Amazon Developer Hackathon (2026)*
 **Primary Track:** Alexa+ / Agent Skills • **Layered Track:** AWS Builder Mini-Challenge (Amazon Bedrock)
 
@@ -13,7 +13,7 @@
 ## ⚡ Executive Summary
 Executive leaders and enterprise founders make hundreds of high-stakes decisions every week while being inundated by fragmented communications across Slack, email, calendar changes, and legal redlines. Traditional voice assistants are limited to single-turn slot-filling or rigid commands ("Alexa, what's my next meeting?").
 
-**Chronos+** transforms Alexa+ into an **Autonomous Executive Chief of Staff**. Powered by a self-hosted **Model Context Protocol (MCP)** server, multi-turn **Amazon Bedrock** reasoning (Claude 3.5 Sonnet / Amazon Nova Pro), persistent **episodic memory**, and a multimodal **Echo Show 15 simulator**, Chronos+ proactively triages executive schedules, detects contract disputes, formulates counter-proposals, and secures **Human-in-the-Loop (HITL)** voice confirmation before dispatching corporate commitments.
+**ChronoOS** transforms Alexa+ into an **Autonomous Executive Chief of Staff**. Powered by a self-hosted **Model Context Protocol (MCP)** server, multi-turn **Amazon Bedrock** reasoning (Claude 3.5 Sonnet / Amazon Nova Pro), persistent **episodic memory**, and a multimodal **Echo Show 15 simulator**, ChronoOS proactively triages executive schedules, detects contract disputes, formulates counter-proposals, and secures **Human-in-the-Loop (HITL)** voice confirmation before dispatching corporate commitments.
 
 ---
 
@@ -52,23 +52,23 @@ Executive leaders and enterprise founders make hundreds of high-stakes decisions
 ## 🚀 Key Innovations & Competitive Differentiators
 
 ### 1. True Multi-Tool Agentic Reasoning (Overcoming the "Tool Wrapper" Flaw)
-Most hackathon entrants wrap an API in an MCP tool and invoke it once. Chronos+ implements an autonomous agentic loop: upon hearing *"Alexa, inspect the Acme merger redline from Sarah"*, the Bedrock agent:
+Most hackathon entrants wrap an API in an MCP tool and invoke it once. ChronoOS implements an autonomous agentic loop: upon hearing *"Alexa, inspect the Acme merger redline from Sarah"*, the Bedrock agent:
 1. Dispatches `inspect_document_redlines` targeting the disputed section (Section 9.2).
 2. Cross-references `query_episodic_memory` for General Counsel Sarah Chen's historical risk tolerance and board mandates.
 3. Evaluates **Bedrock Guardrails** to identify that the proposed $12M cap violates the CEO's $5M authorization threshold.
 4. Synthesizes a strategic counter-offer and prepares a reserved 45-minute focus block on the calendar.
 
 ### 2. Human-in-the-Loop (HITL) Cryptographic Safety Gates
-Autonomous agents must not execute irreversible commitments without explicit authorization. When Chronos+ prepares an action (e.g. sending a legal counter-offer on a $48M merger), it:
+Autonomous agents must not execute irreversible commitments without explicit authorization. When ChronoOS prepares an action (e.g. sending a legal counter-offer on a $48M merger), it:
 * Generates a unique authorization token (`ACT-AUTH-XXXXXX`).
 * Renders a native `<dialog>` card with full transparency on the Echo Show screen.
 * Requires the executive to speak: *"Alexa, confirm action"* or tap **Approve & Dispatch**.
 
 ### 3. Persistent Episodic Memory Graph
-Chronos+ maintains a cross-session knowledge graph storing stakeholder communication nuances, travel preferences (e.g., JFK airport travel buffer rules), board risk mandates, and executive work habits.
+ChronoOS maintains a cross-session knowledge graph storing stakeholder communication nuances, travel preferences (e.g., JFK airport travel buffer rules), board risk mandates, and executive work habits.
 
 ### 4. Multimodal Echo Show 15 Simulator (25% Design Score Priority)
-Rather than a generic chatbot text box, Chronos+ replicates an Amazon Echo Show 15 smart display:
+Rather than a generic chatbot text box, ChronoOS replicates an Amazon Echo Show 15 smart display:
 * Dynamic audio visualizer reacting in real-time to speech.
 * Dark-mode glassmorphism tailored with Alexa Cyan (`#00CAFF`) and AWS Bedrock Gold (`#FF9900`).
 * Live **Thought Inspector** drawer providing judges full visibility into the agent's internal monologue, active Bedrock model, latency (ms), and JSON-RPC payloads.
@@ -96,19 +96,19 @@ The server exposes 7 production-grade tools compliant with the **Model Context P
 ### Prerequisites
 * Python 3.9+ 
 * Web browser (Chrome, Edge, or Safari for Web Speech STT/TTS support)
-* *(Optional)* AWS credentials with Bedrock access (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`). Chronos+ includes a resilient high-fidelity autonomous engine if AWS credentials are not configured, enabling instant zero-config testing.
+* *(Optional)* AWS credentials with Bedrock access (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`). ChronoOS includes a resilient high-fidelity autonomous engine if AWS credentials are not configured, enabling instant zero-config testing.
 
 ### 1. Clone & Set Up Virtual Environment
 ```bash
-git clone https://github.com/your-username/chronos-alexa-mcp.git
-cd chronos-alexa-mcp
+git clone https://github.com/your-username/ChronoOS.git
+cd ChronoOS
 
 python3 -m venv venv
 source venv/bin/activate
 pip install -r backend/requirements.txt
 ```
 
-### 2. Launch Chronos+ Gateway & MCP Server
+### 2. Launch ChronoOS Gateway & MCP Server
 ```bash
 python -m uvicorn backend.api_gateway:app --host 127.0.0.1 --port 8000 --reload
 ```

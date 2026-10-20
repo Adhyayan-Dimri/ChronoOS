@@ -1,5 +1,5 @@
 """
-Chronos+ Amazon Bedrock Agentic Orchestrator
+ChronoOS Amazon Bedrock Agentic Orchestrator
 Layers Amazon Bedrock reasoning over the self-hosted MCP Server.
 Implements:
 - Multi-step tool use loop (Plan -> MCP Tool Call -> Observe -> Synthesize)
@@ -27,7 +27,7 @@ logger = logging.getLogger("BedrockOrchestrator")
 BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022-v2:0")
 AWS_REGION = os.getenv("AWS_DEFAULT_REGION", os.getenv("AWS_REGION", "us-east-1"))
 
-SYSTEM_PROMPT = """You are Chronos+, the elite executive Chief of Staff voice assistant operating on Alexa+ and powered by Amazon Bedrock.
+SYSTEM_PROMPT = """You are ChronoOS, the elite executive Chief of Staff voice assistant operating on Alexa+ and powered by Amazon Bedrock.
 You serve Alex Mercer, CEO of Aether Dynamics.
 Your principles:
 1. Executive Brevity: Speak concisely, decisively, and with crisp clarity. Provide the punchline first, followed by key evidence.
@@ -52,7 +52,7 @@ class BedrockOrchestrator:
                 self.boto_client = boto3.client("bedrock-runtime", region_name=AWS_REGION)
                 logger.info(f"Initialized live Amazon Bedrock client for region {AWS_REGION} using {BEDROCK_MODEL_ID}")
             else:
-                logger.info("No active AWS credentials detected. Chronos+ will run in Autonomous High-Fidelity Simulation Mode.")
+                logger.info("No active AWS credentials detected. ChronoOS will run in Autonomous High-Fidelity Simulation Mode.")
         except Exception as e:
             logger.warning(f"Bedrock runtime initialization note: {e}. Defaulting to resilient simulation mode.")
             self.boto_client = None
@@ -309,7 +309,7 @@ class BedrockOrchestrator:
             )
             visual_card = {
                 "type": "INFORMATION",
-                "title": "Chronos+ Executive Context",
+                "title": "ChronoOS Executive Context",
                 "summary": f"Context matching: '{user_query}'",
                 "relevant_memories": memories.get("memories", [])
             }

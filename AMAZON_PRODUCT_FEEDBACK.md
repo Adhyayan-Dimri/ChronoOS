@@ -1,5 +1,5 @@
 # Amazon Product & Developer Feedback
-**Project:** Chronos+ • Autonomous Executive Chief of Staff  
+**Project:** ChronoOS • Autonomous Executive Chief of Staff  
 **Hackathon:** *Build, Ship, Shape: Amazon Developer Hackathon (2026)*  
 **Tracks Evaluated:** Alexa+ / Agent Skills & AWS Builder (Amazon Bedrock)  
 **Date:** October 21, 2026  
@@ -9,7 +9,7 @@
 ## 1. Executive Summary & Purpose
 As part of the mandatory submission requirements for the *Build, Ship, Shape: Amazon Developer Hackathon*, this document provides constructive, actionable, and structured engineering feedback directly to the teams building **Alexa+**, **Model Context Protocol (MCP) integrations**, and **Amazon Bedrock**.
 
-Our submission, **Chronos+**, built an autonomous voice-first Chief of Staff using a self-hosted Model Context Protocol (MCP) server (Streamable HTTP / SSE) and multi-turn Amazon Bedrock reasoning.
+Our submission, **ChronoOS**, built an autonomous voice-first Chief of Staff using a self-hosted Model Context Protocol (MCP) server (Streamable HTTP / SSE) and multi-turn Amazon Bedrock reasoning.
 
 ---
 

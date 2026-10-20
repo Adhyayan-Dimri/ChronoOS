@@ -1,5 +1,5 @@
 """
-Chronos+ Executive Intelligence Store
+ChronoOS Executive Intelligence Store
 Contains realistic enterprise executive context:
 - VIP stakeholders & communication threads
 - High-stakes contracts & redlines

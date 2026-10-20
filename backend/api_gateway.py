@@ -1,5 +1,5 @@
 """
-Chronos+ API Gateway & HTTP/SSE Server
+ChronoOS API Gateway & HTTP/SSE Server
 Provides:
 - Model Context Protocol (MCP) Streamable HTTP / SSE endpoints
 - Alexa+ Voice Orchestration API (/api/chat, /api/confirm)
@@ -25,7 +25,7 @@ from mcp_server import mcp_server_instance, CHRONOS_MCP_TOOLS
 from bedrock_orchestrator import bedrock_orchestrator_instance
 
 app = FastAPI(
-    title="Chronos+ Alexa Executive MCP Gateway",
+    title="ChronoOS Alexa Executive MCP Gateway",
     version="1.0.0",
     description="Self-Hosted MCP Server and Bedrock Orchestrator for Alexa+ Hackathon"
 )
@@ -161,7 +161,7 @@ async def gateway_status():
     """Returns runtime telemetry for the hackathon showcase."""
     from mock_executive_data import CALENDAR_SCHEDULE, COMMUNICATIONS_FEED
     return {
-        "service": "Chronos+ Alexa Executive MCP Hub",
+        "service": "ChronoOS Alexa Executive MCP Hub",
         "version": "1.0.0",
         "mcp_tools_registered": len(CHRONOS_MCP_TOOLS),
         "bedrock_model": os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022-v2:0"),
