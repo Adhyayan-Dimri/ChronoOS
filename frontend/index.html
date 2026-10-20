@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=raycast-cinema-auth-v4">
+  <link rel="stylesheet" href="style.css?v=raycast-v5-pro">
 </head>
 <body class="raycast-supreme">
 
@@ -19,52 +19,84 @@
   <div class="ambient-light-beam primary-beam"></div>
   <div class="ambient-light-beam secondary-beam"></div>
 
-  <!-- Top Raycast Navigation Bar -->
+  <!-- Ultra-Sleek Top Navigation Bar -->
   <header class="raycast-top-nav" id="topNav">
+    <!-- Left: Bespoke ChronoOS Quantum Logo & Brand -->
     <div class="nav-left">
-      <div class="raycast-logo-orb" id="logoOrb">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-          <path d="M12 2L2 19.5h20L12 2zm0 4l6.5 11.5h-13L12 6z"/>
+      <div class="chrono-logo-container" id="logoOrb" title="ChronoOS Executive Architecture">
+        <svg viewBox="0 0 40 40" width="30" height="30" fill="none" class="chrono-brand-svg">
+          <circle cx="20" cy="20" r="18" stroke="rgba(255,92,122,0.3)" stroke-width="1.2" stroke-dasharray="2 3"/>
+          <circle cx="20" cy="20" r="13" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+          <ellipse cx="20" cy="20" rx="14" ry="5.5" stroke="#FF5C7A" stroke-width="1.6" transform="rotate(-30 20 20)"/>
+          <ellipse cx="20" cy="20" rx="14" ry="5.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" transform="rotate(30 20 20)"/>
+          <circle cx="20" cy="20" r="3.5" fill="#FF5C7A" class="logo-core-pulse"/>
+          <circle cx="20" cy="20" r="1.5" fill="#FFFFFF"/>
+          <line x1="20" y1="20" x2="20" y2="7.5" stroke="#FF3D5C" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </div>
       <div class="brand-text-block">
-        <div class="brand-title">Chrono<span>OS</span></div>
-        <span class="brand-sub">Autonomous Chief of Staff • Alexa+ & AWS Bedrock</span>
+        <div class="brand-title">Chrono<span>OS</span> <span class="version-tag">v2.4</span></div>
+        <span class="brand-sub">Autonomous Chief of Staff • Alexa+ & Bedrock</span>
       </div>
     </div>
 
+    <!-- Center: System Telemetry Status Capsule -->
+    <div class="nav-center-status">
+      <div class="system-status-capsule">
+        <span class="status-beacon-dot"></span>
+        <span class="status-core-text">Bedrock Claude 3.5 Sonnet</span>
+        <span class="status-sep">/</span>
+        <span class="status-mcp-text">MCP Streamable HTTP</span>
+      </div>
+    </div>
+
+    <!-- Right: Workspace Pill & Action Buttons -->
     <div class="nav-right">
-      <!-- Live User / Workspace Pill -->
       <div class="live-user-pill demo-mode" id="userPill">
         <span class="live-indicator-dot"></span>
-        <span id="userNameDisplay">Alex Mercer (CEO • Demo Sandbox)</span>
+        <span id="userNameDisplay">Alex Mercer (CEO • Demo)</span>
         <span class="pill-divider">|</span>
         <span id="deviceClock">Wed, Oct 21 • 08:30 AM</span>
       </div>
 
       <!-- Auth & Workspace Switcher Button -->
-      <button class="btn-header-tool" id="authPortalBtn" title="Switch Workspace or Sign In (⌘U)">
-        <span id="authBtnIcon">⚡</span>
-        <span id="authBtnText">Accounts & Demo</span>
+      <button class="btn-header-tool" id="authPortalBtn" title="Accounts & Workspaces (⌘U)">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span id="authBtnText">Accounts</span>
         <span class="kbd-badge">⌘U</span>
       </button>
 
       <!-- View Mode Toggle: Zen vs Dossier -->
       <button class="btn-header-tool" id="viewModeToggleBtn" title="Toggle Zen Spotlight / Full Dossier View (⌘Z)">
-        <span id="viewModeIcon">☷</span>
-        <span id="viewModeText">Dossier View</span>
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span id="viewModeText">Dossier</span>
         <span class="kbd-badge">⌘Z</span>
       </button>
 
       <!-- Sound FX Toggle -->
       <button class="btn-header-tool" id="soundToggleBtn" title="Toggle Tactile Audio Feedback">
-        <span id="soundIcon">🔊</span>
-        <span>Sound FX</span>
+        <span id="soundIconWrapper">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </span>
+        <span>Audio</span>
       </button>
 
       <!-- Inspector Toggle -->
       <button class="btn-header-tool" id="inspectorToggleBtn" title="Toggle Bedrock & MCP Thought Inspector (⌘I)">
-        <span class="inspector-indicator-dot"></span>
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
         <span>Telemetry</span>
         <span class="kbd-badge">⌘I</span>
       </button>
@@ -210,7 +242,7 @@
                 <span class="card-badge" id="cardCategoryBadge">Daily Digest</span>
                 <h2 class="card-main-title" id="cardMainTitle">Executive Intelligence Briefing</h2>
               </div>
-              <span class="card-subtitle-tag" id="cardSubtitleTag">Aether Dynamics Inc. • Private & Confidential</span>
+              <span class="card-subtitle-tag" id="cardSubtitleTag">Aether Dynamics Inc. • Demo Sandbox</span>
             </div>
 
             <!-- Metric Tiles Grid -->
@@ -291,13 +323,13 @@
       </section>
 
       <!-- ===================================================================
-           STAGE 3: CINEMATIC ARCHITECTURE FILM SHOWCASE (Crazy Bottom Video Reel)
+           STAGE 3: CINEMATIC ARCHITECTURE FILM SHOWCASE (Self-Contained 60FPS Reel)
            =================================================================== -->
       <section class="cinema-showcase-section" id="cinemaShowcase">
         <div class="cinema-header-group">
           <div class="hero-pill-badge">
             <span class="badge-pulsar"></span>
-            <span>✦ 4K HDR • 60 FPS • LIVE MCP ARCHITECTURE REEL</span>
+            <span>4K HDR • 60 FPS • LIVE MCP ARCHITECTURE REEL</span>
           </div>
           <h2 class="cinema-main-title">Autonomous Intelligence in Motion.</h2>
           <p class="cinema-lead-text">
@@ -325,11 +357,10 @@
             </div>
           </div>
 
-          <!-- Video Player Display Container -->
+          <!-- Cinema Viewport (Real 60FPS High-Tech Canvas Visualizer + Video Support) -->
           <div class="cinema-screen-viewport">
-            <video id="cinemaVideoPlayer" class="cinema-video-element" loop playsinline muted autoplay poster="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80">
-              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4">
-            </video>
+            <!-- Dedicated Canvas for Guaranteed 60FPS Holographic Visualizer -->
+            <canvas id="cinemaCanvas" width="1060" height="480"></canvas>
             
             <!-- Scanline & Holographic HUD Overlay -->
             <div class="cinema-scanlines"></div>
@@ -343,15 +374,17 @@
             <!-- Video Playback Floating Overlay Controller -->
             <div class="cinema-center-controller" id="cinemaControllerOverlay">
               <button class="btn-cinema-play" id="cinemaPlayToggleBtn" aria-label="Toggle Playback">
-                <span id="cinemaPlayIcon">❚❚</span>
+                <span id="cinemaPlayIcon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                </span>
               </button>
             </div>
           </div>
 
           <!-- Cinema Controls & Chapter Navigator -->
           <div class="cinema-bottom-deck">
-            <div class="cinema-progress-wrapper" id="cinemaProgressTrack">
-              <div class="cinema-progress-fill" id="cinemaProgressFill" style="width: 28%;"></div>
+            <div class="cinema-progress-wrapper" id="cinemaProgressTrack" onclick="handleScrubClick(event)">
+              <div class="cinema-progress-fill" id="cinemaProgressFill" style="width: 25%;"></div>
             </div>
 
             <div class="cinema-toolbar-row">
@@ -365,11 +398,16 @@
 
               <div class="cinema-audio-tools">
                 <button class="btn-cinema-tool" id="cinemaAudioToggleBtn" title="Toggle Sound">
-                  <span id="cinemaAudioIcon">🔇</span>
+                  <span id="cinemaAudioIcon">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                  </span>
                   <span>Audio</span>
                 </button>
                 <button class="btn-cinema-tool" id="cinemaFullscreenBtn" title="Fullscreen View">
-                  <span>⛶ Fullscreen</span>
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                  </svg>
+                  <span>Fullscreen</span>
                 </button>
               </div>
             </div>
@@ -460,7 +498,7 @@
       </div>
       <div class="footer-key-item">
         <span class="kbd-badge">⌘U</span>
-        <span>Auth & Demo Sandbox</span>
+        <span>Auth & Accounts</span>
       </div>
       <div class="footer-key-item">
         <span class="kbd-badge">⌘Z</span>
@@ -535,51 +573,25 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
       </div>
 
       <p class="sheet-desc">
-        Separate your clean, private workspace from the pre-loaded Hackathon Evaluation Sandbox.
+        Sign in to your private executive workspace or switch to the pre-loaded Hackathon Evaluation Sandbox.
       </p>
 
-      <!-- Auth Mode Switcher Segmented Pills -->
+      <!-- Auth Mode Switcher Segmented Pills: SIGN IN FIRST, THEN CREATE, THEN DEMO -->
       <div class="auth-mode-segmented">
-        <button class="auth-seg-btn active" id="tabDemoMode" onclick="switchAuthTab('demo')">
+        <button class="auth-seg-btn active" id="tabSignIn" onclick="switchAuthTab('signin')">
           <span class="seg-dot"></span>
-          <span>⚡ Demo Sandbox</span>
-        </button>
-        <button class="auth-seg-btn" id="tabSignIn" onclick="switchAuthTab('signin')">
           <span>Sign In</span>
         </button>
         <button class="auth-seg-btn" id="tabRegister" onclick="switchAuthTab('register')">
           <span>Create Workspace</span>
         </button>
-      </div>
-
-      <!-- PANEL 1: Instant Demo Sandbox (Alex Mercer CEO) -->
-      <div class="auth-panel-body" id="panelDemo">
-        <div class="demo-spotlight-card">
-          <div class="demo-card-head">
-            <div class="demo-avatar-orb">AM</div>
-            <div>
-              <div class="demo-user-name">Alex Mercer</div>
-              <div class="demo-user-title">Chief Executive Officer • Aether Dynamics Inc.</div>
-            </div>
-            <span class="demo-status-pill">EVALUATION SANDBOX</span>
-          </div>
-
-          <div class="demo-card-features">
-            <div class="demo-feat-item">✓ <strong>Acme Merger M&A:</strong> $12M Indemnification redline dispute & analysis</div>
-            <div class="demo-feat-item">✓ <strong>Flight UA 482 Delay:</strong> 45m schedule & airport buffer clash</div>
-            <div class="demo-feat-item">✓ <strong>Bedrock Guardrails:</strong> Autonomous high-stakes liability intercept</div>
-            <div class="demo-feat-item">✓ <strong>Alexa+ Voice Skills:</strong> Complete multi-turn multimodal simulation</div>
-          </div>
-        </div>
-
-        <button class="btn-auth-primary" onclick="launchDemoSandbox()">
-          <span>⚡ Launch Executive Demo Sandbox</span>
-          <span class="btn-arrow">→</span>
+        <button class="auth-seg-btn" id="tabDemoMode" onclick="switchAuthTab('demo')">
+          <span>Demo Sandbox</span>
         </button>
       </div>
 
-      <!-- PANEL 2: Sign In -->
-      <div class="auth-panel-body" id="panelSignIn" style="display:none;">
+      <!-- PANEL 1: Sign In (ACTIVE BY DEFAULT) -->
+      <div class="auth-panel-body" id="panelSignIn">
         <form id="signInForm" onsubmit="event.preventDefault(); handleUserSignIn();">
           <div class="auth-input-group">
             <label class="auth-label">Executive Work Email</label>
@@ -592,7 +604,11 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
 
           <div class="auth-biometric-slot">
             <button type="button" class="btn-biometric-auth" onclick="simulateBiometricAuth()">
-              <span>🔐 Authenticate with TouchID / FaceID Passkey</span>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <span>Authenticate with TouchID / FaceID Passkey</span>
             </button>
           </div>
 
@@ -603,7 +619,7 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
         </form>
       </div>
 
-      <!-- PANEL 3: Create Personal Workspace -->
+      <!-- PANEL 2: Create Personal Workspace -->
       <div class="auth-panel-body" id="panelRegister" style="display:none;">
         <form id="registerForm" onsubmit="event.preventDefault(); handleUserRegister();">
           <div class="auth-input-group">
@@ -624,7 +640,7 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
           </div>
 
           <div class="clean-slate-notice">
-            <span>✦ Starts with a clean, private executive canvas. Monitor only your own meetings, contacts, and personal memory graph with zero dummy clutter.</span>
+            <span>Starts with a clean, private executive canvas. Monitor only your own meetings, contacts, and personal memory graph with zero dummy clutter.</span>
           </div>
 
           <button type="submit" class="btn-auth-primary">
@@ -634,9 +650,47 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
         </form>
       </div>
 
+      <!-- PANEL 3: Instant Demo Sandbox (Alex Mercer CEO) -->
+      <div class="auth-panel-body" id="panelDemo" style="display:none;">
+        <div class="demo-spotlight-card">
+          <div class="demo-card-head">
+            <div class="demo-avatar-orb">AM</div>
+            <div>
+              <div class="demo-user-name">Alex Mercer</div>
+              <div class="demo-user-title">Chief Executive Officer • Aether Dynamics Inc.</div>
+            </div>
+            <span class="demo-status-pill">EVALUATION SANDBOX</span>
+          </div>
+
+          <div class="demo-card-features">
+            <div class="demo-feat-item">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <strong>Acme Merger M&A:</strong> $12M Indemnification redline dispute & analysis
+            </div>
+            <div class="demo-feat-item">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <strong>Flight UA 482 Delay:</strong> 45m schedule & airport buffer clash
+            </div>
+            <div class="demo-feat-item">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <strong>Bedrock Guardrails:</strong> Autonomous high-stakes liability intercept
+            </div>
+            <div class="demo-feat-item">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <strong>Alexa+ Voice Skills:</strong> Complete multi-turn multimodal simulation
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-auth-primary" onclick="launchDemoSandbox()">
+          <span>Launch Executive Demo Sandbox</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+
     </div>
   </dialog>
 
-  <script src="app.js?v=raycast-cinema-auth-v4"></script>
+  <script src="app.js?v=raycast-v5-pro"></script>
 </body>
 </html>

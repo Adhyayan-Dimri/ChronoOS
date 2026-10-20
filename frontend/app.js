@@ -1,10 +1,10 @@
 /**
  * ChronoOS • Raycast Ultra Interactive Client & Creative Technology Engine
  * - Interactive Dynamic Dot Matrix Canvas Engine (Scroll Zoom, Red Waves & Shockwaves)
+ * - 60FPS Holographic Cybernetic Cinema Architecture Visualizer (Zero External Video Dependencies)
  * - Synthesized Web Audio Acoustic Feedback (Clicks, Chimes, Sub-Bass Hums)
  * - Progressive Disclosure (Zen Spotlight Mode vs Scroll-Driven Executive Dossier)
- * - Cinematic Architecture Film Showcase Controller
- * - Multi-Tenant Authentication & Executive Sandbox Isolation
+ * - Multi-Tenant Authentication & Executive Sandbox Isolation (Sign In First, Zero Emojis)
  * - 3D Card Perspective Tilt Engine
  * - Amazon Bedrock Multi-Turn Tool Telemetry & MCP Streamable HTTP JSON-RPC 2.0
  * - Human-in-the-Loop Native Sheet (<dialog>) Authorization
@@ -55,7 +55,7 @@ const telemetryLatency = document.getElementById('telemetryLatency');
 const telemetryModel = document.getElementById('telemetryModel');
 const mcpPayloadJson = document.getElementById('mcpPayloadJson');
 const soundToggleBtn = document.getElementById('soundToggleBtn');
-const soundIcon = document.getElementById('soundIcon');
+const soundIconWrapper = document.getElementById('soundIconWrapper');
 const viewModeToggleBtn = document.getElementById('viewModeToggleBtn');
 const viewModeText = document.getElementById('viewModeText');
 const clearInputBtn = document.getElementById('clearInputBtn');
@@ -64,7 +64,6 @@ const clearInputBtn = document.getElementById('clearInputBtn');
 const userPill = document.getElementById('userPill');
 const userNameDisplay = document.getElementById('userNameDisplay');
 const authPortalBtn = document.getElementById('authPortalBtn');
-const authBtnIcon = document.getElementById('authBtnIcon');
 const authBtnText = document.getElementById('authBtnText');
 const authPortalDialog = document.getElementById('authPortalDialog');
 const workspaceBadgeText = document.getElementById('workspaceBadgeText');
@@ -78,16 +77,21 @@ const dialogPayload = document.getElementById('dialogPayload');
 const dialogApproveBtn = document.getElementById('dialogApproveBtn');
 
 // Cinema Elements
-const cinemaVideoPlayer = document.getElementById('cinemaVideoPlayer');
+const cinemaCanvas = document.getElementById('cinemaCanvas');
 const cinemaPlayToggleBtn = document.getElementById('cinemaPlayToggleBtn');
 const cinemaPlayIcon = document.getElementById('cinemaPlayIcon');
-const cinemaControllerOverlay = document.getElementById('cinemaControllerOverlay');
 const cinemaAudioToggleBtn = document.getElementById('cinemaAudioToggleBtn');
 const cinemaAudioIcon = document.getElementById('cinemaAudioIcon');
 const cinemaProgressBar = document.getElementById('cinemaProgressBar');
 const cinemaProgressFill = document.getElementById('cinemaProgressFill');
 const cinemaTimecode = document.getElementById('cinemaTimecode');
 const cinemaFullscreenBtn = document.getElementById('cinemaFullscreenBtn');
+
+// SVG Icon Helpers (Zero Emojis)
+const SVG_AUDIO_ON = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+const SVG_AUDIO_OFF = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
+const SVG_PAUSE = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+const SVG_PLAY = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
 
 // --------------------------------------------------------------------------
 // 1. Synthesized Web Audio Sound Design Engine
@@ -297,33 +301,269 @@ function initDotMatrix() {
 }
 
 // --------------------------------------------------------------------------
-// 3. User Authentication & Multi-Tenant State Isolation
+// 3. 60FPS Holographic Cybernetic Cinema Visualizer Engine
+// --------------------------------------------------------------------------
+
+let cinemaPlaying = true;
+let cinemaCurrentSec = 28;
+let cinemaDuration = 140;
+let cinemaAudioMuted = true;
+
+function initCinemaVisualizer() {
+  if (!cinemaCanvas) return;
+  const ctx = cinemaCanvas.getContext('2d');
+
+  let width = (cinemaCanvas.width = 1060);
+  let height = (cinemaCanvas.height = 480);
+
+  // Holographic Nodes
+  const nodes = [];
+  const nodeCount = 38;
+  for (let i = 0; i < nodeCount; i++) {
+    nodes.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.8,
+      radius: Math.random() * 2.5 + 1.2,
+      glow: Math.random() > 0.6
+    });
+  }
+
+  // Telemetry Log Feed
+  const logs = [
+    "[BEDROCK] claude-3-5-sonnet: multi-turn agent active",
+    "[MCP-HTTP] tools/list: 7 executive endpoints verified",
+    "[GUARDRAIL] executive_liability_cap_v2.4: active monitoring",
+    "[MEMORY] episodic_graph: 4 corporate policies loaded",
+    "[CALENDAR] flight_buffer: UA 482 transit conflict resolved",
+    "[HITL-AUTH] Section 9.2 indemnification intercepted: token generated"
+  ];
+  let logOffset = 0;
+
+  let animFrame = 0;
+
+  function renderCinema() {
+    if (cinemaPlaying) {
+      animFrame++;
+      cinemaCurrentSec = (cinemaCurrentSec + 0.035) % cinemaDuration;
+      
+      const pct = (cinemaCurrentSec / cinemaDuration) * 100;
+      if (cinemaProgressFill) {
+        cinemaProgressFill.style.width = `${pct}%`;
+      }
+
+      if (cinemaTimecode) {
+        const mins = Math.floor(cinemaCurrentSec / 60).toString().padStart(2, '0');
+        const secs = Math.floor(cinemaCurrentSec % 60).toString().padStart(2, '0');
+        const frames = Math.floor((cinemaCurrentSec % 1) * 30).toString().padStart(2, '0');
+        cinemaTimecode.textContent = `00:${mins}:${secs}:${frames}`;
+      }
+    }
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Deep grid background
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < width; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < height; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Central 3D Rotating Quantum Singularity
+    const cx = width / 2;
+    const cy = height / 2;
+    const angle = animFrame * 0.015;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // Outer radial rings
+    for (let r = 1; r <= 3; r++) {
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 110 * r * 0.45, 45 * r * 0.45, angle * r, 0, Math.PI * 2);
+      ctx.strokeStyle = r === 2 ? 'rgba(255, 92, 122, 0.7)' : 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = r === 2 ? 1.8 : 1;
+      ctx.stroke();
+    }
+
+    // Glowing core
+    const coreGlow = Math.sin(animFrame * 0.05) * 4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 14 + coreGlow, 0, Math.PI * 2);
+    ctx.fillStyle = '#FF5C7A';
+    ctx.shadowColor = '#FF5C7A';
+    ctx.shadowBlur = 24;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+
+    ctx.restore();
+
+    // Neural Graph Nodes & Laser Links
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (cinemaPlaying) {
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x < 0 || node.x > width) node.vx *= -1;
+        if (node.y < 0 || node.y > height) node.vy *= -1;
+      }
+
+      // Draw connections
+      for (let j = i + 1; j < nodes.length; j++) {
+        const other = nodes[j];
+        const dist = Math.hypot(node.x - other.x, node.y - other.y);
+        if (dist < 110) {
+          ctx.beginPath();
+          ctx.moveTo(node.x, node.y);
+          ctx.lineTo(other.x, other.y);
+          ctx.strokeStyle = `rgba(255, 92, 122, ${(1 - dist / 110) * 0.28})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      // Draw node point
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+      ctx.fillStyle = node.glow ? '#FF5C7A' : 'rgba(255, 255, 255, 0.5)';
+      if (node.glow) {
+        ctx.shadowColor = '#FF5C7A';
+        ctx.shadowBlur = 10;
+      }
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // Audio Waveform Spectrum Bars along bottom
+    const barsCount = 64;
+    const barWidth = 4;
+    const barGap = 6;
+    const totalSpectrumWidth = barsCount * (barWidth + barGap);
+    const startX = (width - totalSpectrumWidth) / 2;
+
+    for (let b = 0; b < barsCount; b++) {
+      const noise = Math.sin(animFrame * 0.08 + b * 0.2) * Math.cos(animFrame * 0.04 + b * 0.1);
+      const barHeight = Math.abs(noise) * 44 + 6;
+      const x = startX + b * (barWidth + barGap);
+      const y = height - 50 - barHeight;
+
+      const grad = ctx.createLinearGradient(0, y, 0, y + barHeight);
+      grad.addColorStop(0, '#FF5C7A');
+      grad.addColorStop(1, 'rgba(255, 92, 122, 0.1)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, barWidth, barHeight);
+    }
+
+    // Streaming HUD Telemetry on Left Edge
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+    for (let l = 0; l < logs.length; l++) {
+      const logY = 60 + l * 20;
+      ctx.fillText(logs[l], 40, logY);
+    }
+
+    requestAnimationFrame(renderCinema);
+  }
+
+  requestAnimationFrame(renderCinema);
+
+  // Controls Event Listeners
+  if (cinemaPlayToggleBtn) {
+    cinemaPlayToggleBtn.addEventListener('click', toggleCinemaPlayback);
+  }
+
+  if (cinemaAudioToggleBtn) {
+    cinemaAudioToggleBtn.addEventListener('click', () => {
+      cinemaAudioMuted = !cinemaAudioMuted;
+      cinemaAudioIcon.innerHTML = cinemaAudioMuted ? SVG_AUDIO_OFF : SVG_AUDIO_ON;
+      if (!cinemaAudioMuted) {
+        playSound('shockwave');
+      } else {
+        playSound('click');
+      }
+    });
+  }
+
+  if (cinemaFullscreenBtn) {
+    cinemaFullscreenBtn.addEventListener('click', () => {
+      const frame = document.querySelector('.cinema-theater-frame');
+      if (frame && frame.requestFullscreen) {
+        frame.requestFullscreen();
+      }
+    });
+  }
+}
+
+function toggleCinemaPlayback() {
+  cinemaPlaying = !cinemaPlaying;
+  playSound('click');
+  if (cinemaPlayIcon) {
+    cinemaPlayIcon.innerHTML = cinemaPlaying ? SVG_PAUSE : SVG_PLAY;
+  }
+}
+
+function seekCinemaChapter(seconds, title) {
+  playSound('execute');
+  cinemaCurrentSec = seconds;
+  cinemaPlaying = true;
+  if (cinemaPlayIcon) cinemaPlayIcon.innerHTML = SVG_PAUSE;
+
+  document.querySelectorAll('.chapter-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.textContent.includes(title.split(' ')[1]));
+  });
+}
+
+function handleScrubClick(e) {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const pct = Math.max(0, Math.min(clickX / rect.width, 1));
+  cinemaCurrentSec = pct * cinemaDuration;
+  playSound('click');
+}
+
+// --------------------------------------------------------------------------
+// 4. User Authentication & Multi-Tenant State Isolation
 // --------------------------------------------------------------------------
 
 function updateUserDisplay() {
   if (currentUser.is_demo) {
     userPill.classList.add('demo-mode');
-    userNameDisplay.textContent = 'Alex Mercer (CEO • Demo Sandbox)';
+    userNameDisplay.textContent = 'Alex Mercer (CEO • Demo)';
     workspaceBadgeText.textContent = 'Wednesday, October 21, 2026 • Live Sandbox';
     workspaceStatusDot.style.background = '#FF5C7A';
-    authBtnIcon.textContent = '⚡';
-    authBtnText.textContent = 'Accounts & Demo';
+    authBtnText.textContent = 'Accounts';
   } else {
     userPill.classList.remove('demo-mode');
     userNameDisplay.textContent = `${currentUser.name} (${currentUser.organization})`;
     workspaceBadgeText.textContent = `Wednesday, October 21, 2026 • Private Workspace`;
     workspaceStatusDot.style.background = '#10B981';
-    authBtnIcon.textContent = '👤';
-    authBtnText.textContent = '⚡ Try Demo Sandbox';
+    authBtnText.textContent = 'Sandbox';
   }
 
-  // Refresh current view
   switchWorkspaceTab(activeTab);
 }
 
 function openAuthPortal() {
   playSound('click');
   authPortalDialog.showModal();
+  // By default, activate Sign In tab first
+  switchAuthTab('signin');
 }
 
 function closeAuthPortal() {
@@ -338,15 +578,15 @@ function switchAuthTab(tab) {
   document.getElementById('panelSignIn').style.display = 'none';
   document.getElementById('panelRegister').style.display = 'none';
 
-  if (tab === 'demo') {
-    document.getElementById('tabDemoMode').classList.add('active');
-    document.getElementById('panelDemo').style.display = 'flex';
-  } else if (tab === 'signin') {
+  if (tab === 'signin') {
     document.getElementById('tabSignIn').classList.add('active');
     document.getElementById('panelSignIn').style.display = 'flex';
   } else if (tab === 'register') {
     document.getElementById('tabRegister').classList.add('active');
     document.getElementById('panelRegister').style.display = 'flex';
+  } else if (tab === 'demo') {
+    document.getElementById('tabDemoMode').classList.add('active');
+    document.getElementById('panelDemo').style.display = 'flex';
   }
 }
 
@@ -420,79 +660,11 @@ async function handleUserRegister() {
 function simulateBiometricAuth() {
   playSound('shockwave');
   const btn = event.currentTarget;
-  btn.textContent = "Verifying TouchID Passkey...";
+  btn.textContent = "Verifying Passkey...";
   setTimeout(() => {
-    btn.textContent = "✓ Biometric Key Verified";
+    btn.textContent = "Passkey Verified";
     handleUserSignIn();
   }, 750);
-}
-
-// --------------------------------------------------------------------------
-// 4. Cinematic Architecture Video Showcase Controller
-// --------------------------------------------------------------------------
-
-function initCinemaVideo() {
-  if (!cinemaVideoPlayer) return;
-
-  cinemaVideoPlayer.addEventListener('timeupdate', () => {
-    const current = cinemaVideoPlayer.currentTime;
-    const duration = cinemaVideoPlayer.duration || 120;
-    const pct = (current / duration) * 100;
-    if (cinemaProgressFill) {
-      cinemaProgressFill.style.width = `${pct}%`;
-    }
-
-    if (cinemaTimecode) {
-      const mins = Math.floor(current / 60).toString().padStart(2, '0');
-      const secs = Math.floor(current % 60).toString().padStart(2, '0');
-      const frames = Math.floor((current % 1) * 30).toString().padStart(2, '0');
-      cinemaTimecode.textContent = `00:${mins}:${secs}:${frames}`;
-    }
-  });
-
-  if (cinemaPlayToggleBtn) {
-    cinemaPlayToggleBtn.addEventListener('click', toggleCinemaPlayback);
-  }
-
-  if (cinemaAudioToggleBtn) {
-    cinemaAudioToggleBtn.addEventListener('click', () => {
-      cinemaVideoPlayer.muted = !cinemaVideoPlayer.muted;
-      cinemaAudioIcon.textContent = cinemaVideoPlayer.muted ? '🔇' : '🔊';
-      playSound('click');
-    });
-  }
-
-  if (cinemaFullscreenBtn) {
-    cinemaFullscreenBtn.addEventListener('click', () => {
-      if (cinemaVideoPlayer.requestFullscreen) {
-        cinemaVideoPlayer.requestFullscreen();
-      }
-    });
-  }
-}
-
-function toggleCinemaPlayback() {
-  playSound('click');
-  if (cinemaVideoPlayer.paused) {
-    cinemaVideoPlayer.play();
-    cinemaPlayIcon.textContent = '❚❚';
-  } else {
-    cinemaVideoPlayer.pause();
-    cinemaPlayIcon.textContent = '▶';
-  }
-}
-
-function seekCinemaChapter(seconds, title) {
-  playSound('execute');
-  if (cinemaVideoPlayer) {
-    cinemaVideoPlayer.currentTime = seconds;
-    if (cinemaVideoPlayer.paused) cinemaVideoPlayer.play();
-    cinemaPlayIcon.textContent = '❚❚';
-  }
-
-  document.querySelectorAll('.chapter-pill').forEach(pill => {
-    pill.classList.toggle('active', pill.textContent.includes(title.split(' ')[1]));
-  });
 }
 
 // --------------------------------------------------------------------------
@@ -510,8 +682,8 @@ function apply3DCardTilt() {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       
-      const rotateX = ((y - centerY) / centerY) * -3.5;
-      const rotateY = ((x - centerX) / centerX) * 3.5;
+      const rotateX = ((y - centerY) / centerY) * -3.2;
+      const rotateY = ((x - centerX) / centerX) * 3.2;
 
       card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.006, 1.006, 1.006)`;
     });
@@ -551,7 +723,7 @@ function toggleViewMode() {
     if (scrollPrompt) scrollPrompt.style.display = 'none';
   } else {
     viewModeToggleBtn.classList.remove('active-mode');
-    viewModeText.textContent = 'Dossier View';
+    viewModeText.textContent = 'Dossier';
     if (dossierDeck) dossierDeck.style.opacity = '1';
     if (cinemaShowcase) cinemaShowcase.style.opacity = '1';
     if (scrollPrompt) scrollPrompt.style.display = 'flex';
@@ -671,7 +843,7 @@ async function sendQuery(promptText) {
     triggerMatrixShockwave(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2);
   }
 
-  speechText.innerHTML = `<span style="color:var(--color-primary); font-weight:600;">✦ ChronoOS Bedrock Agent Reasoning...</span> Evaluating tools via Model Context Protocol for ${currentUser.name}.`;
+  speechText.innerHTML = `<span style="color:var(--color-primary); font-weight:600;">ChronoOS Bedrock Agent Reasoning...</span> Evaluating tools via Model Context Protocol for ${currentUser.name}.`;
   speechTimestamp.textContent = 'Streaming...';
 
   const startTime = performance.now();
@@ -909,9 +1081,9 @@ function renderPersonalBriefingCard(card) {
           Use voice or command inputs to schedule your real meetings, add memory context, or inspect your own contracts.
         </p>
         <div style="display:flex; gap:10px; margin-top:8px;">
-          <button class="btn-raycast-action" onclick="sendQuery('Alexa, schedule team sync today at 2:00 PM')">+ Schedule First Meeting</button>
-          <button class="btn-raycast-action" onclick="sendQuery('Alexa, remember that board deck is due on Friday')">+ Add Strategic Memory Note</button>
-          <button class="btn-raycast-action" onclick="openAuthPortal()">⚡ Switch to Demo Sandbox</button>
+          <button class="btn-raycast-action" onclick="sendQuery('Alexa, schedule team sync today at 2:00 PM')">+ Schedule Meeting</button>
+          <button class="btn-raycast-action" onclick="sendQuery('Alexa, remember that board deck is due on Friday')">+ Add Strategic Note</button>
+          <button class="btn-raycast-action" onclick="openAuthPortal()">Switch to Demo Sandbox</button>
         </div>
       </div>
     </div>
@@ -1240,7 +1412,9 @@ function initEventListeners() {
 
   soundToggleBtn.addEventListener('click', () => {
     soundEnabled = !soundEnabled;
-    soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+    if (soundIconWrapper) {
+      soundIconWrapper.innerHTML = soundEnabled ? SVG_AUDIO_ON : SVG_AUDIO_OFF;
+    }
     if (soundEnabled) playSound('click');
   });
 
@@ -1319,7 +1493,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDotMatrix();
   initClock();
   initSpeechRecognition();
-  initCinemaVideo();
+  initCinemaVisualizer();
   initEventListeners();
   apply3DCardTilt();
   updateUserDisplay();
