@@ -1,47 +1,44 @@
 /* ==========================================================================
-   ChronoOS • RAYCAST DARK DESIGN SYSTEM
-   Strictly generated from raycast.com-design.md
-   - Canvas: Near-black (#07080A) with focused neon pink-red glow (#FF5C7A / #FF3D5C)
-   - Surface: #0B0D10 (Lifted dark containers, inputs, cards)
-   - Secondary: #9C9C9D (Graphite text, muted chrome)
-   - Tertiary: #FFFFFF (Clean white for standout primary CTAs and headlines)
-   - Outlines: Translucent #FFFFFF0F (rgba(255, 255, 255, 0.06)) & #9C9C9D33
-   - Typography: Inter exclusively, medium/semibold, 0.2px letter spacing
-   - Radii: md: 6px (buttons & inputs), lg: 12px (cards & panels), full: 9999px (chips)
-   - Heights: 41px for buttons & inputs
+   ChronoOS • Raycast Ultra Design System
+   Highest-Level Frontend & Creative Technology Polish
+   - Canvas: Near-black #07080A
+   - Accent: Raycast Neon Pink-Red #FF5C7A / Crimson #FF3D5C
+   - Surface: Deep Slate #0B0D10 & Elevated #11141A
+   - Progressive Disclosure: Zen Spotlight Mode vs Scroll-Driven Executive Dossier
+   - 3D Card Tilt & Traveling Neon Border Beam
    ========================================================================== */
 
 :root {
   --color-primary: #FF5C7A;
   --color-primary-strong: #FF3D5C;
+  --color-primary-glow: rgba(255, 92, 122, 0.35);
+  --color-primary-faint: rgba(255, 92, 122, 0.08);
   --color-secondary: #9C9C9D;
   --color-tertiary: #FFFFFF;
   --color-neutral: #07080A;
   --color-surface: #0B0D10;
-  --color-surface-hover: #12151A;
-  --color-on-surface: #FFFFFF;
-  --color-outline: rgba(255, 255, 255, 0.06);
-  --color-outline-focus: rgba(255, 92, 122, 0.45);
+  --color-surface-elevated: #11141A;
+  --color-surface-hover: #161A22;
+  --color-on-surface: #F8FAFC;
+  --color-outline: rgba(255, 255, 255, 0.08);
+  --color-outline-focus: rgba(255, 92, 122, 0.65);
   --color-muted-outline: rgba(156, 156, 157, 0.2);
   --color-error: #FF4D4F;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
 
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --radius-none: 0px;
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 12px;
-  --radius-xl: 20px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 22px;
   --radius-full: 9999px;
 
-  --space-xs: 6px;
-  --space-sm: 16px;
-  --space-md: 32px;
-  --space-lg: 50px;
-  --space-xl: 72px;
-
-  --transition: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
@@ -51,128 +48,229 @@
   -webkit-font-smoothing: antialiased;
 }
 
-body.raycast-theme {
+html {
+  scroll-behavior: smooth;
+}
+
+body.raycast-supreme {
   font-family: var(--font-family);
   background-color: var(--color-neutral);
-  background-image: 
-    radial-gradient(ellipse 65% 50% at 50% -12%, rgba(255, 92, 122, 0.18) 0%, transparent 65%),
-    radial-gradient(circle 600px at 85% 85%, rgba(255, 61, 92, 0.05) 0%, transparent 70%);
   color: var(--color-on-surface);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  letter-spacing: 0.2px;
+  position: relative;
+  letter-spacing: 0.15px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-neutral);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }
 
 /* --------------------------------------------------------------------------
-   Raycast Top Navigation
+   Background Dot Matrix Canvas & Dynamic Radial Beams
    -------------------------------------------------------------------------- */
-.raycast-navbar {
+#dotMatrixCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ambient-light-beam {
+  position: fixed;
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(60px);
+  border-radius: 50%;
+}
+
+.primary-beam {
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1000px;
+  height: 550px;
+  background: radial-gradient(ellipse 65% 55% at 50% 30%, rgba(255, 92, 122, 0.22) 0%, rgba(255, 61, 92, 0.06) 50%, transparent 75%);
+  animation: beamBreathe 8s ease-in-out infinite alternate;
+}
+
+.secondary-beam {
+  bottom: -200px;
+  right: 10%;
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 92, 122, 0.08) 0%, transparent 70%);
+  animation: beamDrift 14s ease-in-out infinite alternate;
+}
+
+@keyframes beamBreathe {
+  0% { opacity: 0.65; transform: translateX(-50%) scale(0.95); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+}
+
+@keyframes beamDrift {
+  0% { transform: translateY(0) scale(0.9); }
+  100% { transform: translateY(-40px) scale(1.1); }
+}
+
+/* --------------------------------------------------------------------------
+   Top Raycast Header Bar
+   -------------------------------------------------------------------------- */
+.raycast-top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(7, 8, 10, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--color-outline);
-  padding: 14px 36px;
+  padding: 12px 36px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(11, 13, 16, 0.82);
-  backdrop-filter: blur(16px);
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  transition: var(--transition-fast);
 }
 
-.raycast-brand {
+.nav-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
-.raycast-icon-box {
-  width: 28px;
-  height: 28px;
+.raycast-logo-orb {
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 16px rgba(255, 92, 122, 0.4);
+  box-shadow: 0 0 22px rgba(255, 92, 122, 0.5);
   color: white;
+  cursor: pointer;
+  transition: var(--transition-smooth);
 }
 
-.raycast-title {
+.raycast-logo-orb:hover {
+  transform: scale(1.1) rotate(6deg);
+  box-shadow: 0 0 32px rgba(255, 92, 122, 0.8);
+}
+
+.brand-text-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-on-surface);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
 }
 
-.raycast-title span {
+.brand-title span {
   color: var(--color-primary);
+  text-shadow: 0 0 12px rgba(255, 92, 122, 0.5);
 }
 
-.raycast-badge-tag {
-  font-size: 12px;
+.brand-sub {
+  font-size: 11px;
   color: var(--color-secondary);
-  border-left: 1px solid var(--color-muted-outline);
-  padding-left: 12px;
   font-weight: 400;
 }
 
-.nav-actions {
+.nav-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
 }
 
-.status-pill {
-  display: inline-flex;
+.live-user-pill {
+  display: flex;
   align-items: center;
   gap: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 500;
   color: var(--color-secondary);
-  background: var(--color-surface);
-  border: 1px solid var(--color-outline);
-  padding: 6px 12px;
-  border-radius: var(--radius-full);
 }
 
-.pulse-dot {
+.pill-divider {
+  opacity: 0.3;
+}
+
+.live-indicator-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--color-primary);
   box-shadow: 0 0 8px var(--color-primary);
-  animation: raycastGlow 2s infinite;
+  animation: pulseDot 2s infinite;
 }
 
-@keyframes raycastGlow {
+@keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.3); }
+  50% { opacity: 0.3; transform: scale(1.4); }
 }
 
-.btn-nav-utility {
+.btn-header-tool {
   background: transparent;
   border: 1px solid var(--color-outline);
   color: var(--color-secondary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  padding: 6px 12px;
+  padding: 6px 13px;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: var(--transition);
+  gap: 7px;
+  transition: var(--transition-fast);
 }
 
-.btn-nav-utility:hover {
+.btn-header-tool:hover {
   background: var(--color-surface-hover);
   color: var(--color-on-surface);
   border-color: var(--color-muted-outline);
 }
 
-.kbd {
+.btn-header-tool.active-mode {
+  background: var(--color-primary-faint);
+  border-color: rgba(255, 92, 122, 0.4);
+  color: var(--color-primary);
+}
+
+.inspector-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+.kbd-badge {
   font-family: var(--font-mono);
   font-size: 10px;
   background: rgba(255, 255, 255, 0.08);
@@ -183,9 +281,11 @@ body.raycast-theme {
 }
 
 /* --------------------------------------------------------------------------
-   Raycast Center Viewport Layout
+   App Stage Wrapper
    -------------------------------------------------------------------------- */
-.raycast-body {
+.raycast-app-wrapper {
+  position: relative;
+  z-index: 10;
   flex: 1;
   display: flex;
   max-width: 1400px;
@@ -193,95 +293,207 @@ body.raycast-theme {
   margin: 0 auto;
 }
 
-.raycast-center-column {
+.main-stage-viewport {
   flex: 1;
-  padding: 36px 44px;
+  padding: 40px 48px 100px 48px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 56px;
 }
 
 /* --------------------------------------------------------------------------
-   Raycast Launcher / Command Palette Input (Component: input 41px / rounded md)
+   STAGE 1: Hero / Zen Command Cluster (Clean, Uncluttered Entry)
    -------------------------------------------------------------------------- */
-.raycast-command-container {
+.hero-launcher-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 0 20px 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  position: relative;
+}
+
+.hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-faint);
+  border: 1px solid rgba(255, 92, 122, 0.3);
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.badge-pulsar {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 8px var(--color-primary);
+  animation: pulseDot 1.8s infinite;
+}
+
+.hero-super-title {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -1.3px;
+  color: var(--color-on-surface);
+  margin-bottom: 14px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #FFFFFF 30%, var(--color-primary) 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 40px rgba(255, 92, 122, 0.3);
+}
+
+.hero-lead-text {
+  font-size: 16px;
+  color: var(--color-secondary);
+  max-width: 680px;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Centerpiece: Raycast Command Palette Bar
+   -------------------------------------------------------------------------- */
+.master-command-deck {
+  width: 100%;
+  max-width: 860px;
   background: var(--color-surface);
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-lg);
-  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 92, 122, 0.08);
   overflow: hidden;
-  transition: var(--transition);
+  transition: var(--transition-smooth);
+  position: relative;
 }
 
-.raycast-command-container:focus-within {
+.master-command-deck:focus-within {
   border-color: var(--color-outline-focus);
-  box-shadow: 0 20px 45px -10px rgba(255, 92, 122, 0.2);
+  box-shadow: 0 32px 80px -10px rgba(255, 92, 122, 0.28), 0 0 0 1px var(--color-primary);
+  transform: translateY(-2px);
 }
 
-.command-row {
+.command-input-slot {
   display: flex;
   align-items: center;
-  padding: 10px 16px;
-  gap: 12px;
-  height: 56px;
+  padding: 12px 20px;
+  gap: 16px;
+  height: 64px;
   border-bottom: 1px solid var(--color-outline);
 }
 
-/* Microphone Activation Button (Raycast Neon Accent) */
-.btn-mic-raycast {
-  background: rgba(255, 92, 122, 0.12);
+.btn-mic-trigger {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-faint);
   border: 1px solid rgba(255, 92, 122, 0.3);
   color: var(--color-primary);
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-fast);
   flex-shrink: 0;
+  position: relative;
+  outline: none;
 }
 
-.btn-mic-raycast:hover {
+.btn-mic-trigger:hover {
   background: var(--color-primary);
   color: white;
-  box-shadow: 0 0 16px rgba(255, 92, 122, 0.5);
+  box-shadow: 0 0 22px rgba(255, 92, 122, 0.6);
+  transform: scale(1.05);
 }
 
-.btn-mic-raycast.active {
+.btn-mic-trigger.recording {
   background: var(--color-primary-strong);
   color: white;
-  box-shadow: 0 0 22px rgba(255, 61, 92, 0.8);
-  animation: micPulse 1.2s infinite;
+  animation: micOrbPulse 1.2s infinite;
 }
 
-@keyframes micPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+.mic-ripple-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-primary);
+  opacity: 0;
+  pointer-events: none;
 }
 
-.command-field {
+.btn-mic-trigger.recording .ring-1 {
+  animation: rippleRing 1.6s infinite ease-out;
+}
+.btn-mic-trigger.recording .ring-2 {
+  animation: rippleRing 1.6s infinite ease-out 0.8s;
+}
+
+@keyframes rippleRing {
+  0% { width: 100%; height: 100%; opacity: 0.8; }
+  100% { width: 220%; height: 220%; opacity: 0; }
+}
+
+@keyframes micOrbPulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(255, 61, 92, 0.7); transform: scale(1); }
+  50% { box-shadow: 0 0 34px rgba(255, 61, 92, 1); transform: scale(1.1); }
+}
+
+.command-main-field {
   flex: 1;
   background: transparent;
   border: none;
   outline: none;
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   color: var(--color-on-surface);
 }
 
-.command-field::placeholder {
+.command-main-field::placeholder {
   color: var(--color-secondary);
 }
 
-/* Raycast Standout Secondary Button (Component: button-secondary: tertiary #FFF background, neutral #07080A text, 41px height) */
-.btn-raycast-cta {
+.command-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-clear-input {
+  background: transparent;
+  border: none;
+  color: var(--color-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.btn-clear-input:hover {
+  color: var(--color-on-surface);
+}
+
+.btn-execute-key {
   background: var(--color-tertiary);
   color: var(--color-neutral);
   border: none;
   border-radius: var(--radius-md);
-  height: 41px;
+  height: 40px;
   padding: 0 16px;
   font-size: 13px;
   font-weight: 600;
@@ -289,68 +501,92 @@ body.raycast-theme {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-fast);
   flex-shrink: 0;
 }
 
-.btn-raycast-cta:hover {
-  background: #E5E7EB;
+.btn-execute-key:hover {
+  background: #E2E8F0;
+  transform: translateY(-1px);
 }
 
-/* Quick Inquiry Chips (Component: chip: surface, secondary text, rounded full, 6px 10px) */
-.chips-bar {
+.btn-kbd {
+  background: #07080A;
+  color: #FFF;
+  border: none;
+}
+
+/* Quick Inquiry Capsules */
+.command-quick-capsules {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(7, 8, 10, 0.4);
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(7, 8, 10, 0.6);
   overflow-x: auto;
 }
 
-.chips-label {
+.capsule-prefix {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
-.chip-btn {
+.capsule-chip {
   background: var(--color-surface);
   color: var(--color-secondary);
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-full);
   font-size: 12px;
-  font-weight: 400;
-  padding: 6px 12px;
+  font-weight: 500;
+  padding: 6px 13px;
   cursor: pointer;
   white-space: nowrap;
-  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
 }
 
-.chip-btn:hover {
+.capsule-chip .key-hint {
+  font-size: 10px;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.capsule-chip:hover {
   background: var(--color-surface-hover);
   color: var(--color-on-surface);
-  border-color: var(--color-muted-outline);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 92, 122, 0.15);
 }
 
 /* --------------------------------------------------------------------------
-   Agent Voice Feedback Strip
+   Live Voice / Response Banner
    -------------------------------------------------------------------------- */
-.raycast-banner {
+.raycast-response-banner {
+  width: 100%;
+  max-width: 860px;
   background: var(--color-surface);
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-lg);
-  padding: 18px 22px;
+  padding: 18px 24px;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 16px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  margin-top: 24px;
+  transition: var(--transition-smooth);
 }
 
-.raycast-banner::before {
+.raycast-response-banner::before {
   content: '';
   position: absolute;
   top: 0;
@@ -360,421 +596,815 @@ body.raycast-theme {
   background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-strong));
 }
 
-.banner-icon {
-  width: 28px;
-  height: 28px;
+.banner-star-icon {
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-md);
-  background: rgba(255, 92, 122, 0.12);
+  background: var(--color-primary-faint);
   border: 1px solid rgba(255, 92, 122, 0.25);
   color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
   flex-shrink: 0;
 }
 
-.banner-body {
+.banner-body-text {
   flex: 1;
 }
 
-.banner-meta-row {
+.banner-meta-tagline {
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
 }
 
-.banner-sender {
+.banner-sender-name {
   font-size: 12px;
   font-weight: 600;
   color: var(--color-primary);
 }
 
-.banner-time-label {
+.banner-time-ticker {
   font-size: 11px;
   color: var(--color-secondary);
 }
 
-.banner-text-speech {
+.banner-speech-output {
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--color-on-surface);
 }
 
+/* Scroll-Explore Prompt */
+.scroll-explore-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 36px;
+  color: var(--color-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.scroll-explore-prompt:hover {
+  color: var(--color-primary);
+}
+
+.scroll-chevron-bounce {
+  animation: chevronBounce 2s infinite;
+}
+
+@keyframes chevronBounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(6px); }
+  60% { transform: translateY(3px); }
+}
+
 /* --------------------------------------------------------------------------
-   Raycast Dynamic Cards (Component: card: neutral/surface, outline, rounded lg: 12px, padding 24px)
+   STAGE 2: EXECUTIVE DOSSIER (Scroll-Driven Interactive Deck)
    -------------------------------------------------------------------------- */
-.raycast-card-box {
+.executive-dossier-deck {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  transition: opacity 0.4s ease;
+}
+
+.tab-controls-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 1px solid var(--color-outline);
+  padding-bottom: 14px;
+}
+
+.tab-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition-fast);
+}
+
+.tab-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+.tab-btn.active {
+  background: var(--color-surface);
+  border-color: var(--color-outline);
+  color: var(--color-on-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.tab-btn.active .tab-dot {
+  background: var(--color-primary);
+  box-shadow: 0 0 6px var(--color-primary);
+}
+
+.dossier-meta-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.workspace-date-label {
+  font-size: 13px;
+  color: var(--color-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Dynamic 3D Tilt Cards with Traveling Neon Border Beam
+   -------------------------------------------------------------------------- */
+.dynamic-cards-viewport {
+  width: 100%;
+  perspective: 1200px;
+}
+
+.raycast-3d-card {
   background: var(--color-surface);
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, border-color 0.25s ease;
+  transform-style: preserve-3d;
+  position: relative;
+  overflow: hidden;
 }
 
-.card-heading-bar {
+.raycast-3d-card:hover {
+  border-color: rgba(255, 92, 122, 0.35);
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.85), 0 0 35px rgba(255, 92, 122, 0.1);
+}
+
+/* Card Beam Glow (Laser travelling effect) */
+.card-beam-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--color-primary) 50%, transparent 100%);
+  opacity: 0.6;
+}
+
+.card-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--color-outline);
-  padding-bottom: 12px;
+  padding-bottom: 16px;
 }
 
-.card-title-cluster {
+.card-title-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.badge-tag-small {
+.card-badge {
   font-size: 11px;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--color-outline);
   color: var(--color-secondary);
-  padding: 3px 8px;
+  padding: 3px 9px;
   border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.card-title-text {
-  font-size: 17px;
-  font-weight: 500;
+.card-main-title {
+  font-size: 19px;
+  font-weight: 600;
   color: var(--color-on-surface);
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
 }
 
-.card-date-meta {
+.card-subtitle-tag {
   font-size: 12px;
   color: var(--color-secondary);
 }
 
 /* Metric Tiles Grid */
-.metrics-row-raycast {
+.raycast-metrics-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 16px;
 }
 
-.metric-tile-card {
+.metric-tile {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
-  padding: 16px;
-}
-
-.metric-tile-name {
-  font-size: 12px;
-  color: var(--color-secondary);
-  margin-bottom: 6px;
-}
-
-.metric-tile-number {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--color-on-surface);
-  letter-spacing: -0.3px;
-  margin-bottom: 4px;
-}
-
-.metric-tile-highlight {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-primary);
-}
-
-/* Alert List (Raycast Search Result Style) */
-.alerts-stack {
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
+  transition: var(--transition-fast);
 }
 
-.alert-card-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--color-outline);
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
-  transition: var(--transition);
-}
-
-.alert-card-row:hover {
+.metric-tile:hover {
   background: var(--color-surface-hover);
-  border-color: var(--color-muted-outline);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
 }
 
-.dot-critical {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  box-shadow: 0 0 8px var(--color-primary);
-  flex-shrink: 0;
-  margin-right: 12px;
-}
-
-.dot-warning {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #f59e0b;
-  flex-shrink: 0;
-  margin-right: 12px;
-}
-
-.alert-content-wrap {
-  flex: 1;
-}
-
-.alert-line-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-on-surface);
-  margin-bottom: 3px;
-}
-
-.alert-line-snippet {
-  font-size: 13px;
-  color: var(--color-secondary);
-}
-
-.btn-utility-action {
-  background: transparent;
-  border: 1px solid var(--color-outline);
-  color: var(--color-on-surface);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.btn-utility-action:hover {
-  background: var(--color-tertiary);
-  color: var(--color-neutral);
-}
-
-/* Schedule Stack */
-.schedule-subheading {
+.metric-tile-label {
   font-size: 12px;
   font-weight: 500;
   color: var(--color-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
 }
 
-.schedule-list-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.schedule-row-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.01);
-  font-size: 13px;
-}
-
-.schedule-row-item.active {
-  background: rgba(255, 92, 122, 0.08);
-  border: 1px solid rgba(255, 92, 122, 0.25);
-}
-
-.schedule-clock {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--color-secondary);
-  width: 120px;
-}
-
-.schedule-title {
-  flex: 1;
+.metric-tile-val {
+  font-size: 26px;
+  font-weight: 700;
   color: var(--color-on-surface);
-  font-weight: 500;
+  letter-spacing: -0.5px;
 }
 
-.schedule-tag {
+.metric-tile-val.alert-red {
+  color: var(--color-primary);
+  text-shadow: 0 0 14px rgba(255, 92, 122, 0.4);
+}
+
+.metric-tile-tag {
   font-size: 11px;
   color: var(--color-secondary);
 }
 
-/* --------------------------------------------------------------------------
-   Thought Inspector Drawer (Raycast DevTools Sidebar)
-   -------------------------------------------------------------------------- */
-.raycast-drawer {
-  width: 440px;
-  border-left: 1px solid var(--color-outline);
-  background: var(--color-surface);
+.metric-tile-tag.highlight-tag {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Alert Stack */
+.raycast-alert-list {
   display: flex;
   flex-direction: column;
-  transition: var(--transition);
+  gap: 12px;
 }
 
-.raycast-drawer.collapsed {
-  display: none;
-}
-
-.drawer-header {
-  border-bottom: 1px solid var(--color-outline);
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.drawer-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-on-surface);
-}
-
-.btn-drawer-close {
-  background: transparent;
-  border: none;
-  font-size: 16px;
-  color: var(--color-secondary);
-  cursor: pointer;
-}
-
-.btn-drawer-close:hover {
-  color: var(--color-on-surface);
-}
-
-.drawer-body {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.spec-grid {
+.raycast-alert-item {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
-  padding: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: var(--transition-fast);
+}
+
+.raycast-alert-item:hover {
+  background: var(--color-surface-hover);
+  border-color: rgba(255, 92, 122, 0.3);
+}
+
+.alert-dot-critical {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary);
+  flex-shrink: 0;
+}
+
+.alert-dot-warning {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-warning);
+  box-shadow: 0 0 10px var(--color-warning);
+  flex-shrink: 0;
+}
+
+.alert-text-body {
+  flex: 1;
+}
+
+.alert-row-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin-bottom: 3px;
+}
+
+.alert-row-desc {
+  font-size: 12px;
+  color: var(--color-secondary);
+  line-height: 1.45;
+}
+
+.btn-raycast-action {
+  background: transparent;
+  border: 1px solid var(--color-outline);
+  color: var(--color-on-surface);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-raycast-action:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.action-arrow {
+  transition: transform 0.15s ease;
+}
+.btn-raycast-action:hover .action-arrow {
+  transform: translateX(3px);
+}
+
+/* Schedule Stack */
+.schedule-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.schedule-stack {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.spec-line {
+.schedule-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  transition: var(--transition-fast);
+}
+
+.schedule-entry:hover {
+  background: var(--color-surface-hover);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.schedule-entry.active-stakes {
+  border-color: rgba(255, 92, 122, 0.4);
+  background: rgba(255, 92, 122, 0.04);
+}
+
+.time-slot {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-secondary);
+  width: 110px;
+}
+
+.entry-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--color-on-surface);
+}
+
+.entry-badge {
+  font-size: 11px;
+  color: var(--color-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.stakes-badge {
+  color: var(--color-primary) !important;
+  background: rgba(255, 92, 122, 0.12) !important;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   M&A Redlines & Risk Card Styles
+   -------------------------------------------------------------------------- */
+.redline-diff-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.redline-diff-header {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  align-items: center;
 }
 
-.spec-line .label {
-  color: var(--color-secondary);
+.redline-columns-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  font-size: 13px;
 }
 
-.spec-line .value {
-  font-family: var(--font-mono);
-  color: var(--color-primary);
+.diff-col-box {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  line-height: 1.5;
+}
+
+.diff-original {
+  background: #07080A;
+  border: 1px solid var(--color-outline);
+}
+
+.diff-violation {
+  background: rgba(255, 92, 122, 0.06);
+  border: 1px solid rgba(255, 92, 122, 0.35);
+  color: var(--color-on-surface);
   font-weight: 500;
 }
 
-.trace-items-container {
+.diff-strike {
+  text-decoration: line-through;
+  color: var(--color-secondary);
+  opacity: 0.7;
+}
+
+.diff-alert-val {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255, 92, 122, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   Calendar Travel Buffer Timeline Card Styles
+   -------------------------------------------------------------------------- */
+.travel-timeline-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.travel-conflict-banner {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.travel-steps-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  position: relative;
+}
+
+.travel-step-node {
+  flex: 1;
+  background: #07080A;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.travel-step-node.delayed {
+  border-color: var(--color-warning);
+}
+
+.travel-step-node.clash {
+  border-color: var(--color-primary);
+  background: rgba(255, 92, 122, 0.05);
+}
+
+/* --------------------------------------------------------------------------
+   Thought Inspector Sidebar (DevTools / Telemetry Pane)
+   -------------------------------------------------------------------------- */
+.raycast-inspector {
+  width: 380px;
+  background: rgba(11, 13, 16, 0.95);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-left: 1px solid var(--color-outline);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 57px;
+  right: 0;
+  bottom: 41px;
+  z-index: 90;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -15px 0 45px rgba(0, 0, 0, 0.7);
+}
+
+.raycast-inspector.collapsed {
+  transform: translateX(100%);
+}
+
+.inspector-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.inspector-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.telemetry-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+.inspector-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.btn-close-raycast {
+  background: transparent;
+  border: none;
+  color: var(--color-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.btn-close-raycast:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
+}
+
+.inspector-body-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.inspector-card-section {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.trace-node {
-  border-left: 2px solid var(--color-primary);
-  padding-left: 12px;
+.inspector-sec-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.trace-node-title {
-  font-size: 13px;
+.raycast-spec-table {
+  background: #07080A;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.raycast-spec-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.raycast-spec-row:last-child {
+  border-bottom: none;
+}
+
+.raycast-spec-row .label {
+  color: var(--color-secondary);
+}
+
+.raycast-spec-row .val {
+  font-family: var(--font-mono);
   font-weight: 500;
   color: var(--color-on-surface);
-  margin-bottom: 2px;
 }
 
-.trace-node-desc {
+.raycast-spec-row .highlight-val {
+  color: var(--color-primary);
+}
+
+.raycast-trace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.raycast-trace-item {
+  background: #07080A;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
   font-size: 12px;
+}
+
+.trace-item-header {
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.tool-tag {
+  color: var(--color-primary);
+}
+
+.trace-item-body {
   color: var(--color-secondary);
+  font-size: 12px;
   line-height: 1.4;
 }
 
-.mcp-code-block {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.5;
+.mcp-json-pre {
   background: #07080A;
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   padding: 14px;
-  color: #a5b4fc;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #38bdf8;
   overflow-x: auto;
-  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Hotkey Status Footer (Raycast Footer Bar)
+   -------------------------------------------------------------------------- */
+.raycast-footer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: rgba(7, 8, 10, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--color-outline);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 36px;
+  z-index: 100;
+  font-size: 12px;
+}
+
+.footer-keys-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.footer-key-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-secondary);
 }
 
 /* --------------------------------------------------------------------------
    Raycast Confirmation Sheet (<dialog>)
    -------------------------------------------------------------------------- */
-.raycast-modal {
-  margin: auto;
-  background: transparent;
+.raycast-sheet {
   border: none;
-  outline: none;
-  max-width: 620px;
+  background: transparent;
+  padding: 0;
+  max-width: 600px;
   width: 90%;
+  margin: auto;
+  z-index: 200;
 }
 
-.raycast-modal::backdrop {
-  background: rgba(7, 8, 10, 0.82);
-  backdrop-filter: blur(8px);
+.raycast-sheet::backdrop {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-.modal-window {
+.sheet-window {
   background: var(--color-surface);
-  border: 1px solid var(--color-outline-focus);
+  border: 1px solid rgba(255, 92, 122, 0.4);
   border-radius: var(--radius-lg);
   padding: 28px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 92, 122, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 92, 122, 0.2);
+  position: relative;
+  overflow: hidden;
 }
 
-.modal-badge-red {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
+.sheet-top-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-strong));
+}
+
+.sheet-badge {
+  font-size: 10px;
+  font-weight: 700;
   color: var(--color-primary);
-  background: rgba(255, 92, 122, 0.12);
-  border: 1px solid rgba(255, 92, 122, 0.3);
-  padding: 3px 8px;
+  background: var(--color-primary-faint);
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
-  margin-bottom: 12px;
+  align-self: flex-start;
+  letter-spacing: 0.8px;
 }
 
-.modal-header-text {
-  font-size: 22px;
+.sheet-heading {
+  font-size: 20px;
   font-weight: 600;
   color: var(--color-on-surface);
-  margin-bottom: 8px;
-  letter-spacing: -0.3px;
 }
 
-.modal-caption {
-  font-size: 14px;
-  line-height: 1.5;
+.sheet-desc {
+  font-size: 13px;
   color: var(--color-secondary);
-  margin-bottom: 20px;
+  line-height: 1.5;
 }
 
-.modal-data-box {
+.sheet-meta-box {
   background: #07080A;
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
@@ -782,51 +1412,117 @@ body.raycast-theme {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 24px;
 }
 
-.modal-field-title {
+.sheet-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sheet-field-title {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-secondary);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.modal-field-content {
+.sheet-field-text {
   font-size: 13px;
   color: var(--color-on-surface);
 }
 
-.modal-payload-pre {
+.code-token {
   font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.5;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px;
-  border-radius: var(--radius-sm);
-  color: #e2e8f0;
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
-.modal-button-row {
+.sheet-payload-code {
+  font-size: 12px;
+  line-height: 1.55;
+  color: #E2E8F0;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+  border: 1px solid var(--color-outline);
+}
+
+.sheet-actions-row {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  margin-top: 6px;
 }
 
-.btn-secondary-flat {
+.btn-sheet-cancel {
   background: transparent;
-  color: var(--color-secondary);
   border: 1px solid var(--color-outline);
+  color: var(--color-secondary);
+  padding: 10px 18px;
   border-radius: var(--radius-md);
-  height: 41px;
-  padding: 0 18px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-fast);
 }
 
-.btn-secondary-flat:hover {
+.btn-sheet-cancel:hover {
   background: var(--color-surface-hover);
   color: var(--color-on-surface);
+}
+
+.btn-sheet-approve {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 20px rgba(255, 92, 122, 0.4);
+  transition: var(--transition-fast);
+}
+
+.btn-sheet-approve:hover {
+  box-shadow: 0 0 30px rgba(255, 92, 122, 0.7);
+  transform: translateY(-1px);
+}
+
+.btn-arrow {
+  transition: transform 0.15s ease;
+}
+.btn-sheet-approve:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Media Queries
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .raycast-top-nav {
+    padding: 12px 20px;
+  }
+  .main-stage-viewport {
+    padding: 24px 20px 80px 20px;
+  }
+  .hero-super-title {
+    font-size: 32px;
+  }
+  .raycast-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .redline-columns-grid {
+    grid-template-columns: 1fr;
+  }
+  .raycast-inspector {
+    width: 100%;
+    top: 50px;
+  }
 }

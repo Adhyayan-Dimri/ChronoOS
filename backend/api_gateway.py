@@ -126,7 +126,7 @@ async def alexa_chat_endpoint(payload: Dict[str, Any]):
     Primary conversational endpoint for the Echo Show Simulator.
     Processes user voice input via the Amazon Bedrock Orchestrator.
     """
-    user_query = payload.get("query", "").strip()
+    user_query = (payload.get("query") or payload.get("prompt") or "").strip()
     if not user_query:
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
     
