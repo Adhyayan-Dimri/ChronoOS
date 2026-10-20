@@ -8,9 +8,49 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=raycast-v5-pro">
+  <link rel="stylesheet" href="style.css?v=raycast-v7-kinetic">
 </head>
 <body class="raycast-supreme">
+
+  <!-- ===================================================================
+       KINETIC TYPOGRAPHY BOOT SPLASH SCREEN
+       =================================================================== -->
+  <div class="kinetic-splash-screen" id="kineticSplash">
+    <div class="splash-ambient-aura"></div>
+    <div class="splash-center-content">
+      <div class="splash-logo-symbol">
+        <svg viewBox="0 0 40 40" width="54" height="54" fill="none">
+          <circle cx="20" cy="20" r="18" stroke="rgba(255,92,122,0.4)" stroke-width="1.5" stroke-dasharray="3 4"/>
+          <ellipse cx="20" cy="20" rx="15" ry="6" stroke="#FF5C7A" stroke-width="2" transform="rotate(-30 20 20)"/>
+          <ellipse cx="20" cy="20" rx="15" ry="6" stroke="#FFFFFF" stroke-width="1.2" transform="rotate(30 20 20)"/>
+          <circle cx="20" cy="20" r="4" fill="#FF5C7A" class="splash-core-pulse"/>
+          <circle cx="20" cy="20" r="1.5" fill="#FFFFFF"/>
+        </svg>
+      </div>
+
+      <!-- Kinetic Words Container -->
+      <div class="kinetic-text-viewport">
+        <div class="kinetic-word active" id="kw1">CHRONO<span>OS</span></div>
+        <div class="kinetic-word" id="kw2">AUTONOMOUS CHIEF OF STAFF</div>
+        <div class="kinetic-word" id="kw3">AMAZON BEDROCK REASONING</div>
+        <div class="kinetic-word" id="kw4">MODEL CONTEXT PROTOCOL</div>
+        <div class="kinetic-word" id="kw5">ENTERPRISE ENGINE READY</div>
+      </div>
+
+      <!-- Progress Ticker & Bar -->
+      <div class="splash-progress-cluster">
+        <div class="splash-progress-track">
+          <div class="splash-progress-fill" id="splashProgressFill"></div>
+        </div>
+        <div class="splash-meta-row">
+          <span class="splash-status-log" id="splashStatusLog">BOOTING NEURAL KERNEL...</span>
+          <span class="splash-pct" id="splashPct">00%</span>
+        </div>
+      </div>
+
+      <button class="btn-skip-splash" id="skipSplashBtn">Skip Intro (↵)</button>
+    </div>
+  </div>
 
   <!-- Interactive Dynamic Dot Matrix Canvas Background -->
   <canvas id="dotMatrixCanvas"></canvas>
@@ -21,7 +61,7 @@
 
   <!-- Ultra-Sleek Top Navigation Bar -->
   <header class="raycast-top-nav" id="topNav">
-    <!-- Left: Bespoke ChronoOS Quantum Logo & Brand -->
+    <!-- Left: Bespoke ChronoOS Quantum Logo & Brand (v2.4 removed) -->
     <div class="nav-left">
       <div class="chrono-logo-container" id="logoOrb" title="ChronoOS Executive Architecture">
         <svg viewBox="0 0 40 40" width="30" height="30" fill="none" class="chrono-brand-svg">
@@ -35,7 +75,7 @@
         </svg>
       </div>
       <div class="brand-text-block">
-        <div class="brand-title">Chrono<span>OS</span> <span class="version-tag">v2.4</span></div>
+        <div class="brand-title">Chrono<span>OS</span></div>
         <span class="brand-sub">Autonomous Chief of Staff • Alexa+ & Bedrock</span>
       </div>
     </div>
@@ -50,11 +90,11 @@
       </div>
     </div>
 
-    <!-- Right: Workspace Pill & Action Buttons -->
+    <!-- Right: Workspace Pill & Action Buttons (Dynamic User Name) -->
     <div class="nav-right">
-      <div class="live-user-pill demo-mode" id="userPill">
+      <div class="live-user-pill" id="userPill">
         <span class="live-indicator-dot"></span>
-        <span id="userNameDisplay">Alex Mercer (CEO • Demo)</span>
+        <span id="userNameDisplay">Executive Workspace</span>
         <span class="pill-divider">|</span>
         <span id="deviceClock">Wed, Oct 21 • 08:30 AM</span>
       </div>
@@ -188,7 +228,7 @@
               <span class="banner-time-ticker" id="speechTimestamp">Just now</span>
             </div>
             <p class="banner-speech-output" id="speechText">
-              "Good morning, Alex. Executive streams are active. You have four key commitments scheduled today with two critical alerts requiring attention before 2:00 PM."
+              "Good morning. Executive streams are active. Your private workspace is clear today with zero active alerts."
             </p>
           </div>
         </div>
@@ -227,103 +267,18 @@
           </div>
           <div class="dossier-meta-badge">
             <span class="status-pulse-dot" id="workspaceStatusDot"></span>
-            <span class="workspace-date-label" id="workspaceBadgeText">Wednesday, October 21, 2026 • Live Sandbox</span>
+            <span class="workspace-date-label" id="workspaceBadgeText">Wednesday, October 21, 2026 • Private Workspace</span>
           </div>
         </div>
 
         <!-- Dynamic Multimodal Viewport with 3D Tilt Effect -->
         <div class="dynamic-cards-viewport" id="multimodalWidgetArea">
-          <!-- Default: Executive Briefing Card -->
-          <div class="raycast-3d-card scroll-reveal-card" id="briefingCard">
-            <div class="card-beam-glow"></div>
-            
-            <div class="card-topbar">
-              <div class="card-title-group">
-                <span class="card-badge" id="cardCategoryBadge">Daily Digest</span>
-                <h2 class="card-main-title" id="cardMainTitle">Executive Intelligence Briefing</h2>
-              </div>
-              <span class="card-subtitle-tag" id="cardSubtitleTag">Aether Dynamics Inc. • Demo Sandbox</span>
-            </div>
-
-            <!-- Metric Tiles Grid -->
-            <div class="raycast-metrics-grid" id="metricsGridArea">
-              <div class="metric-tile" data-stat="commitments">
-                <div class="metric-tile-label">Meetings Today</div>
-                <div class="metric-tile-val">4 Commitments</div>
-                <div class="metric-tile-tag highlight-tag">High Stakes at 2:00 PM</div>
-              </div>
-              <div class="metric-tile" data-stat="alerts">
-                <div class="metric-tile-label">Active Alerts</div>
-                <div class="metric-tile-val alert-red">2 Urgent</div>
-                <div class="metric-tile-tag">Legal Redline & Flight Delay</div>
-              </div>
-              <div class="metric-tile" data-stat="runway">
-                <div class="metric-tile-label">ARR & Runway</div>
-                <div class="metric-tile-val">$64.2M</div>
-                <div class="metric-tile-tag">+34% YoY • 29.4 mo</div>
-              </div>
-            </div>
-
-            <!-- Urgent Alert Stack -->
-            <div class="raycast-alert-list" id="alertStackArea">
-              <div class="raycast-alert-item critical-alert">
-                <span class="alert-dot-critical"></span>
-                <div class="alert-text-body">
-                  <div class="alert-row-heading">Acme Corp Merger: $12M Indemnification Cap Redline</div>
-                  <div class="alert-row-desc">General Counsel Sarah Chen flagged Section 9.2: Acme altered cap from $5M to $12M. Decision required before 2:00 PM negotiation call.</div>
-                </div>
-                <button class="btn-raycast-action alert-action-btn" onclick="sendQuery('Alexa, inspect the Acme merger redline from Sarah')">
-                  <span>Inspect Redline</span>
-                  <span class="action-arrow">→</span>
-                </button>
-              </div>
-
-              <div class="raycast-alert-item warning-alert">
-                <span class="alert-dot-warning"></span>
-                <div class="alert-text-body">
-                  <div class="alert-row-heading">Flight UA 482 SFO → JFK Delayed 45m</div>
-                  <div class="alert-row-desc">United Airlines alert: Arrival pushed to 08:35 AM EDT. Conflicts with 9:00 AM keynote prep buffer at Midtown HQ.</div>
-                </div>
-                <button class="btn-raycast-action alert-action-btn" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">
-                  <span>Resolve Buffer</span>
-                  <span class="action-arrow">→</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Schedule Stack -->
-            <div class="schedule-container" id="scheduleContainerArea">
-              <div class="schedule-section-label">Today's Executive Commitments</div>
-              <div class="schedule-stack" id="scheduleStackList">
-                <div class="schedule-entry">
-                  <span class="time-slot">09:00 - 09:30</span>
-                  <span class="entry-name">Executive Leadership Daily Standup</span>
-                  <span class="entry-badge">Internal Leadership</span>
-                </div>
-                <div class="schedule-entry">
-                  <span class="time-slot">11:00 - 12:15</span>
-                  <span class="entry-name">Q3 Board Deck Final Review (Elena Rostova)</span>
-                  <span class="entry-badge">Board Governance</span>
-                </div>
-                <div class="schedule-entry active-stakes">
-                  <span class="time-slot">14:00 - 15:00</span>
-                  <span class="entry-name">Project Apex: M&A Due Diligence & Legal Call</span>
-                  <span class="entry-badge stakes-badge">High Stakes Negotiation</span>
-                </div>
-                <div class="schedule-entry">
-                  <span class="time-slot">16:30 - 17:30</span>
-                  <span class="entry-name">Global Partner Ecosystem Keynote Rehearsal</span>
-                  <span class="entry-badge">External Keynote</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
+          <!-- Default will be rendered dynamically by app.js based on user -->
         </div>
       </section>
 
       <!-- ===================================================================
-           STAGE 3: CINEMATIC ARCHITECTURE FILM SHOWCASE (Self-Contained 60FPS Reel)
+           STAGE 3: CINEMATIC ARCHITECTURE FILM SHOWCASE (Dynamic Multi-Scene Engine)
            =================================================================== -->
       <section class="cinema-showcase-section" id="cinemaShowcase">
         <div class="cinema-header-group">
@@ -332,37 +287,35 @@
             <span>4K HDR • 60 FPS • LIVE MCP ARCHITECTURE REEL</span>
           </div>
           <h2 class="cinema-main-title">Autonomous Intelligence in Motion.</h2>
-          <p class="cinema-lead-text">
-            Watch Amazon Bedrock orchestrate episodic memory, multi-turn tool calling, and human-in-the-loop guardrails across high-stakes enterprise systems.
+          <p class="cinema-lead-text" id="cinemaSceneDescription">
+            Scene 1: Morning Executive Triage — Global synchronization, calendar commitment verification, and stakeholder episodic graph alignment.
           </p>
         </div>
 
         <div class="cinema-theater-frame">
-          <div class="cinema-ambient-glow"></div>
+          <div class="cinema-ambient-glow" id="cinemaAmbientGlow"></div>
           
           <!-- Cinema HUD Top Bar -->
           <div class="cinema-hud-bar">
             <div class="hud-left">
               <span class="hud-rec-dot"></span>
-              <span class="hud-tag">STREAMABLE HTTP / MCP 2.0</span>
+              <span class="hud-tag" id="cinemaSceneTag">SCENE 1: EXECUTIVE TRIAGE</span>
               <span class="hud-divider">|</span>
-              <span class="hud-timecode" id="cinemaTimecode">00:01:24:16</span>
+              <span class="hud-timecode" id="cinemaTimecode">00:00:24:16</span>
             </div>
             <div class="hud-center">
-              <span class="hud-tag" style="color:var(--color-primary);">BEDROCK CLAUDE 3.5 SONNET & NOVA PRO</span>
+              <span class="hud-tag" style="color:var(--color-primary);">AMAZON BEDROCK & STREAMABLE MCP 2.0</span>
             </div>
             <div class="hud-right">
-              <span class="hud-tag">BITRATE: 38.4 MBPS</span>
+              <span class="hud-tag">STREAM: 38.4 MBPS</span>
               <span class="hud-badge-4k">4K 60FPS</span>
             </div>
           </div>
 
-          <!-- Cinema Viewport (Real 60FPS High-Tech Canvas Visualizer + Video Support) -->
+          <!-- Cinema Viewport (Real 60FPS Dynamic Multi-Scene Holographic Engine) -->
           <div class="cinema-screen-viewport">
-            <!-- Dedicated Canvas for Guaranteed 60FPS Holographic Visualizer -->
             <canvas id="cinemaCanvas" width="1060" height="480"></canvas>
             
-            <!-- Scanline & Holographic HUD Overlay -->
             <div class="cinema-scanlines"></div>
             <div class="cinema-hud-crosshairs">
               <div class="hud-bracket top-left"></div>
@@ -384,15 +337,15 @@
           <!-- Cinema Controls & Chapter Navigator -->
           <div class="cinema-bottom-deck">
             <div class="cinema-progress-wrapper" id="cinemaProgressTrack" onclick="handleScrubClick(event)">
-              <div class="cinema-progress-fill" id="cinemaProgressFill" style="width: 25%;"></div>
+              <div class="cinema-progress-fill" id="cinemaProgressFill" style="width: 15%;"></div>
             </div>
 
             <div class="cinema-toolbar-row">
               <div class="cinema-chapters-list">
-                <span class="chapters-label">Reel Chapters:</span>
+                <span class="chapters-label">Reel Phases:</span>
                 <button class="chapter-pill active" onclick="seekCinemaChapter(0, '01 Morning Triage')">01 Morning Triage</button>
-                <button class="chapter-pill" onclick="seekCinemaChapter(30, '02 Legal Redline')">02 Legal Redline</button>
-                <button class="chapter-pill" onclick="seekCinemaChapter(65, '03 Guardrail Intercept')">03 Guardrail Intercept</button>
+                <button class="chapter-pill" onclick="seekCinemaChapter(35, '02 Legal Redline')">02 Legal Redline</button>
+                <button class="chapter-pill" onclick="seekCinemaChapter(70, '03 Guardrail Intercept')">03 Guardrail Intercept</button>
                 <button class="chapter-pill" onclick="seekCinemaChapter(105, '04 Authorization')">04 Authorization</button>
               </div>
 
@@ -691,6 +644,6 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
     </div>
   </dialog>
 
-  <script src="app.js?v=raycast-v5-pro"></script>
+  <script src="app.js?v=raycast-v7-kinetic"></script>
 </body>
 </html>
