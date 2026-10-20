@@ -175,6 +175,18 @@
         <span class="kbd-badge">⌘P</span>
       </button>
 
+      <!-- Echo Show 15 Smart Display Mode Toggle (⌘E) -->
+      <button class="btn-header-tool echo-accent-btn" id="echoModeToggleBtn" onclick="toggleEchoShowMode()" title="Toggle Echo Show 15 Smart Display Mode (⌘E)">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+          <circle cx="12" cy="7" r="1"></circle>
+        </svg>
+        <span>Echo Show 15</span>
+        <span class="kbd-badge">⌘E</span>
+      </button>
+
       <!-- Inspector Toggle -->
       <button class="btn-header-tool" id="inspectorToggleBtn" title="Toggle Bedrock & MCP Thought Inspector (⌘I)">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -697,6 +709,145 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
     </div>
   </dialog>
 
-  <script src="app.js?v=raycast-v10-voice-gateway"></script>
+  <!-- ===================================================================
+       ECHO SHOW 15 MULTIMODAL SMART DISPLAY SIMULATOR
+       =================================================================== -->
+  <div class="echo-show-overlay" id="echoShowOverlay" style="display:none;">
+    <div class="echo-show-backdrop" onclick="toggleEchoShowMode(false)"></div>
+    <div class="echo-show-kiosk-wrapper">
+      
+      <!-- Realistic Echo Show 15 Frame & Metallic Bezel -->
+      <div class="echo-show-bezel">
+        <!-- Top Bezel Hardware Elements: Dual Mic Pinholes & Camera Lens -->
+        <div class="echo-top-bezel-hardware">
+          <div class="echo-mic-pinhole" title="Far-Field Microphone Array (Left)"></div>
+          <div class="echo-camera-housing" title="Front-Facing Camera & Privacy Shutter">
+            <div class="echo-camera-lens"></div>
+            <div class="echo-shutter-toggle" title="Camera Shutter Active"></div>
+          </div>
+          <div class="echo-mic-pinhole" title="Far-Field Microphone Array (Right)"></div>
+          <button class="btn-echo-exit" id="echoExitBtn" onclick="toggleEchoShowMode(false)" title="Exit Echo Show Mode (Esc or ⌘E)">
+            <span>Exit Echo Mode ✕</span>
+          </button>
+        </div>
+
+        <!-- 15.6" Full HD Smart Screen Canvas (1920x1080 Aspect Ratio) -->
+        <div class="echo-smart-screen">
+          
+          <!-- Ambient Smart Screen Header -->
+          <header class="echo-screen-header">
+            <div class="echo-header-left">
+              <span class="echo-alexa-badge">
+                <span class="echo-pulse-dot"></span>
+                <span>Alexa+ Smart Display • ChronoOS</span>
+              </span>
+              <span class="echo-device-location">Executive Suite • Echo Show 15</span>
+            </div>
+            <div class="echo-header-center">
+              <span class="echo-time-display" id="echoClockTime">10:45 AM</span>
+              <span class="echo-date-display" id="echoClockDate">Wednesday, October 21</span>
+            </div>
+            <div class="echo-header-right">
+              <span class="echo-weather-tag">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <span>72°F Seattle HQ</span>
+              </span>
+            </div>
+          </header>
+
+          <!-- Echo Show Main Multimodal Split Stage -->
+          <div class="echo-screen-body">
+            
+            <!-- Left Side: Voice Assistant Ambient Hub & Quick Glance Widgets -->
+            <div class="echo-glance-column">
+              <!-- Giant Alexa Voice Orb & Live Waveform -->
+              <div class="echo-voice-hub-tile">
+                <button type="button" class="echo-orb-trigger" id="echoMicOrbBtn" onclick="toggleListening()">
+                  <div class="echo-orb-glow"></div>
+                  <div class="echo-orb-core">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="#00CAFF">
+                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                  </div>
+                </button>
+                <div class="echo-voice-status" id="echoVoiceStatus">Tap orb or say "Alexa..."</div>
+                <div class="echo-speech-transcript" id="echoSpeechTranscript">"Good morning. Executive streams are active."</div>
+              </div>
+
+              <!-- Next Event Countdown Widget -->
+              <div class="echo-widget-card">
+                <div class="echo-widget-head">
+                  <span class="echo-widget-title">UPCOMING COMMITMENT</span>
+                  <span class="echo-widget-badge">IN 45M</span>
+                </div>
+                <div class="echo-event-name">Project Apex Strategy Review</div>
+                <div class="echo-event-meta">11:00 AM - 12:00 PM • Board Room A</div>
+                <div class="echo-event-note">Shifted +30m due to SFO departure delay</div>
+              </div>
+
+              <!-- Transit & Airport Buffer Widget -->
+              <div class="echo-widget-card echo-alert-border">
+                <div class="echo-widget-head">
+                  <span class="echo-widget-title" style="color:#FF5C7A;">TRAVEL ALERT</span>
+                  <span class="echo-widget-badge alert-badge">+45M DELAY</span>
+                </div>
+                <div class="echo-event-name">United UA 482 (SFO → JFK)</div>
+                <div class="echo-event-note">Tight airport buffer: 25 minutes to keynote rehearsal</div>
+              </div>
+            </div>
+
+            <!-- Right Side: Synchronized Multimodal Card Viewport (APL Presentation) -->
+            <div class="echo-multimodal-column" id="echoMultimodalViewport">
+              <!-- Dynamically populated with active executive card -->
+            </div>
+
+          </div>
+
+          <!-- Echo Suggestion Quick Action Capsules -->
+          <footer class="echo-screen-footer">
+            <span class="echo-footer-label">Try saying:</span>
+            <div class="echo-suggestion-chips">
+              <button class="echo-chip" onclick="sendQuery('Alexa, give me my morning briefing')">
+                <span class="echo-chip-dot"></span>
+                <span>Morning Briefing</span>
+              </button>
+              <button class="echo-chip" onclick="sendQuery('Alexa, inspect the Acme merger redline from Sarah')">
+                <span class="echo-chip-dot"></span>
+                <span>Acme M&A Redlines</span>
+              </button>
+              <button class="echo-chip" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
+                <span class="echo-chip-dot"></span>
+                <span>Draft Counter-Offer</span>
+              </button>
+              <button class="echo-chip" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">
+                <span class="echo-chip-dot"></span>
+                <span>Travel Conflicts</span>
+              </button>
+              <button class="echo-chip" onclick="sendQuery('Open YouTube')">
+                <span class="echo-chip-dot"></span>
+                <span>Open YouTube</span>
+              </button>
+            </div>
+          </footer>
+
+          <!-- The Iconic Alexa Cyan Light Bar across the bottom of the screen -->
+          <div class="echo-alexa-lightbar" id="echoLightBar">
+            <div class="echo-lightbar-glow"></div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Bezel Hardware: Subtle Amazon Logo -->
+        <div class="echo-bottom-bezel">
+          <div class="echo-amazon-smile">amazon</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js?v=raycast-v11-echo-show"></script>
 </body>
 </html>

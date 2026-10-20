@@ -1385,6 +1385,12 @@ function initSpeechRecognition() {
   speechRecognition.onstart = () => {
     isListening = true;
     micOrbBtn.classList.add('recording');
+    const echoOrb = document.getElementById('echoMicOrbBtn');
+    if (echoOrb) echoOrb.classList.add('recording');
+    const echoLight = document.getElementById('echoLightBar');
+    if (echoLight) echoLight.classList.add('active');
+    const echoStatus = document.getElementById('echoVoiceStatus');
+    if (echoStatus) echoStatus.textContent = 'Listening...';
     playSound('shockwave');
   };
 
@@ -1394,6 +1400,10 @@ function initSpeechRecognition() {
     playSound('execute');
     isListening = false;
     micOrbBtn.classList.remove('recording');
+    const echoOrb = document.getElementById('echoMicOrbBtn');
+    if (echoOrb) echoOrb.classList.remove('recording');
+    const echoStatus = document.getElementById('echoVoiceStatus');
+    if (echoStatus) echoStatus.textContent = 'Processing with Bedrock...';
     try { speechRecognition.stop(); } catch (e) {}
     sendQuery(transcript);
   };
@@ -1401,11 +1411,23 @@ function initSpeechRecognition() {
   speechRecognition.onerror = (event) => {
     isListening = false;
     micOrbBtn.classList.remove('recording');
+    const echoOrb = document.getElementById('echoMicOrbBtn');
+    if (echoOrb) echoOrb.classList.remove('recording');
+    const echoLight = document.getElementById('echoLightBar');
+    if (echoLight) echoLight.classList.remove('active');
+    const echoStatus = document.getElementById('echoVoiceStatus');
+    if (echoStatus) echoStatus.textContent = 'Tap orb or say "Alexa..."';
   };
 
   speechRecognition.onend = () => {
     isListening = false;
     micOrbBtn.classList.remove('recording');
+    const echoOrb = document.getElementById('echoMicOrbBtn');
+    if (echoOrb) echoOrb.classList.remove('recording');
+    const echoLight = document.getElementById('echoLightBar');
+    if (echoLight) echoLight.classList.remove('active');
+    const echoStatus = document.getElementById('echoVoiceStatus');
+    if (echoStatus) echoStatus.textContent = 'Tap orb or say "Alexa..."';
   };
 }
 
@@ -1519,11 +1541,21 @@ function speakAgentResponse(text) {
   utterance.onstart = () => {
     isSpeaking = true;
     micOrbBtn.classList.add('speaking');
+    const echoOrb = document.getElementById('echoMicOrbBtn');
+    if (echoOrb) echoOrb.classList.add('speaking');
+    const echoLight = document.getElementById('echoLightBar');
+    if (echoLight) echoLight.classList.add('active');
+    const echoTranscript = document.getElementById('echoSpeechTranscript');
+    if (echoTranscript) echoTranscript.textContent = `"${cleanText}"`;
   };
 
   utterance.onend = () => {
     isSpeaking = false;
     micOrbBtn.classList.remove('speaking');
+    const echoOrb = document.getElementById('echoMicOrbBtn');
+    if (echoOrb) echoOrb.classList.remove('speaking');
+    const echoLight = document.getElementById('echoLightBar');
+    if (echoLight) echoLight.classList.remove('active');
     window._activeUtterance = null;
     if (keepAliveInterval) {
       clearInterval(keepAliveInterval);
@@ -1535,6 +1567,10 @@ function speakAgentResponse(text) {
     console.warn('Speech synthesis event error:', e);
     isSpeaking = false;
     micOrbBtn.classList.remove('speaking');
+    const echoOrb = document.getElementById('echoMicOrbBtn');
+    if (echoOrb) echoOrb.classList.remove('speaking');
+    const echoLight = document.getElementById('echoLightBar');
+    if (echoLight) echoLight.classList.remove('active');
     window._activeUtterance = null;
     if (keepAliveInterval) {
       clearInterval(keepAliveInterval);
@@ -1757,6 +1793,7 @@ function renderCardContent(card, data) {
   }
 
   apply3DCardTilt();
+  syncEchoShowContent();
 }
 
 function renderInspectorTelemetry(data) {
@@ -2838,17 +2875,66 @@ function renderTasksCard() {
 
 function initClock() {
   const clockEl = document.getElementById('deviceClock');
+  const echoClockTime = document.getElementById('echoClockTime');
+  const echoClockDate = document.getElementById('echoClockDate');
+
   const updateTime = () => {
     const now = new Date();
     const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    clockEl.textContent = now.toLocaleDateString('en-US', options);
+    if (clockEl) clockEl.textContent = now.toLocaleDateString('en-US', options);
+
+    if (echoClockTime) {
+      echoClockTime.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+    if (echoClockDate) {
+      echoClockDate.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    }
   };
   updateTime();
   setInterval(updateTime, 10000);
 }
 
 // --------------------------------------------------------------------------
-// 16. App Bootstrapping
+// 16. Echo Show 15 Multimodal Smart Display Logic
+// --------------------------------------------------------------------------
+
+let isEchoShowMode = false;
+
+function toggleEchoShowMode(forceState) {
+  if (typeof forceState === 'boolean') {
+    isEchoShowMode = forceState;
+  } else {
+    isEchoShowMode = !isEchoShowMode;
+  }
+
+  const overlay = document.getElementById('echoShowOverlay');
+  if (!overlay) return;
+
+  if (isEchoShowMode) {
+    overlay.style.display = 'flex';
+    playSound('shockwave');
+    syncEchoShowContent();
+  } else {
+    overlay.style.display = 'none';
+    playSound('click');
+  }
+}
+
+function syncEchoShowContent() {
+  const currentCard = multimodalWidgetArea ? multimodalWidgetArea.innerHTML : '';
+  const echoViewport = document.getElementById('echoMultimodalViewport');
+  if (echoViewport && currentCard) {
+    echoViewport.innerHTML = currentCard;
+  }
+
+  const echoTranscript = document.getElementById('echoSpeechTranscript');
+  if (echoTranscript && speechText) {
+    echoTranscript.textContent = speechText.textContent;
+  }
+}
+
+// --------------------------------------------------------------------------
+// 17. App Bootstrapping
 // --------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2866,10 +2952,28 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pipBtn) {
     pipBtn.addEventListener('click', togglePipAssistant);
   }
+
+  // Wire Echo Show 15 Smart Display Button & Keybind (⌘E)
+  const echoBtn = document.getElementById('echoModeToggleBtn');
+  if (echoBtn) {
+    echoBtn.addEventListener('click', () => toggleEchoShowMode());
+  }
+
   window.addEventListener('keydown', (e) => {
+    // ⌘P: Toggle PiP Floating Assistant
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p') {
       e.preventDefault();
       togglePipAssistant();
+    }
+    // ⌘E: Toggle Echo Show 15 Smart Display Mode
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'e') {
+      e.preventDefault();
+      toggleEchoShowMode();
+    }
+    // Escape: Close Echo Show Mode if open
+    if (e.key === 'Escape' && isEchoShowMode) {
+      e.preventDefault();
+      toggleEchoShowMode(false);
     }
   });
 });
