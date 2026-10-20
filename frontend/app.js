@@ -344,8 +344,19 @@ function initCinemaVisualizer() {
   if (!cinemaCanvas) return;
   const ctx = cinemaCanvas.getContext('2d');
 
-  let width = (cinemaCanvas.width = 1060);
-  let height = (cinemaCanvas.height = 480);
+  // 4K Retina High-DPI Resolution Scaling
+  const dpr = Math.min(window.devicePixelRatio || 2, 2.5);
+  const logicalWidth = 1060;
+  const logicalHeight = 480;
+
+  cinemaCanvas.width = Math.round(logicalWidth * dpr);
+  cinemaCanvas.height = Math.round(logicalHeight * dpr);
+  cinemaCanvas.style.width = '100%';
+  cinemaCanvas.style.height = '100%';
+  ctx.scale(dpr, dpr);
+
+  let width = logicalWidth;
+  let height = logicalHeight;
 
   // Holographic particles for background atmosphere
   const dustParticles = [];
@@ -1323,6 +1334,43 @@ async function sendQuery(promptText) {
     triggerMatrixShockwave(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2);
   }
 
+  // 1. Direct Client-Side Action: Open YouTube
+  const cleanQuery = promptText.trim().toLowerCase();
+  if (cleanQuery.includes('open youtube') || cleanQuery.includes('launch youtube') || cleanQuery === 'youtube') {
+    speechText.textContent = "Opening YouTube for you now in a new tab.";
+    speechTimestamp.textContent = 'Just now';
+    speakAgentResponse("Opening YouTube for you now in a new tab.");
+    window.open('https://www.youtube.com', '_blank');
+    renderCardContent({
+      type: 'ACTION_EXECUTED',
+      title: 'Application Launched: YouTube',
+      receipt: 'ACT-APP-YT-01',
+      status: 'Chrome Browser Navigation Hook Executed',
+      details: 'Successfully launched https://www.youtube.com in an external browser tab.'
+    }, {});
+    return;
+  }
+
+  // 2. Direct Client-Side Action: Open Google / Search
+  if (cleanQuery.includes('open google') || cleanQuery.includes('launch google')) {
+    speechText.textContent = "Opening Google in a new tab.";
+    speechTimestamp.textContent = 'Just now';
+    speakAgentResponse("Opening Google in a new tab.");
+    window.open('https://www.google.com', '_blank');
+    return;
+  }
+
+  // 3. Direct Task Management Hook ("add task ...", "help me do this task ...")
+  if (cleanQuery.startsWith('add task') || cleanQuery.startsWith('create task') || cleanQuery.includes('add this task')) {
+    const taskText = promptText.replace(/^(alexa,\s*)?(add task|create task|add this task|help me do this task)\s*/i, '').trim() || "Executive Follow-up Action";
+    addExecutiveTask(taskText);
+    const respMsg = `Added task to your active executive queue: "${taskText}".`;
+    speechText.textContent = respMsg;
+    speechTimestamp.textContent = 'Just now';
+    speakAgentResponse(respMsg);
+    return;
+  }
+
   speechText.innerHTML = `<span style="color:var(--color-primary); font-weight:600;">ChronoOS Bedrock Agent Reasoning...</span> Evaluating tools via Model Context Protocol for ${currentUser.name}.`;
   speechTimestamp.textContent = 'Streaming...';
 
@@ -1980,41 +2028,199 @@ function initEventListeners() {
 }
 
 // --------------------------------------------------------------------------
-// 13. Kinetic Typography Boot Sequence Controller
+// 13. High-Impact Kinetic Typography & Hyperspace Boot Sequence
 // --------------------------------------------------------------------------
+
+function playCinematicBootBoom() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(95, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(34, ctx.currentTime + 1.2);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 1.4);
+  } catch (e) {}
+}
 
 function initKineticSplash() {
   const splash = document.getElementById('kineticSplash');
   if (!splash) return;
 
-  const words = [
-    document.getElementById('kw1'),
-    document.getElementById('kw2'),
-    document.getElementById('kw3'),
-    document.getElementById('kw4'),
-    document.getElementById('kw5')
-  ];
-
+  const warpCanvas = document.getElementById('splashWarpCanvas');
+  const dynamicTextEl = document.getElementById('kineticDynamicText');
+  const subTickerEl = document.getElementById('kineticSubTicker');
   const fill = document.getElementById('splashProgressFill');
   const pctEl = document.getElementById('splashPct');
   const logEl = document.getElementById('splashStatusLog');
   const skipBtn = document.getElementById('skipSplashBtn');
+  const cryptHashEl = document.getElementById('splashCryptHash');
+  const memAllocEl = document.getElementById('splashMemAlloc');
 
-  const logs = [
-    'BOOTING NEURAL KERNEL...',
-    'INITIALIZING AMAZON BEDROCK REASONING...',
-    'CONNECTING MODEL CONTEXT PROTOCOL (MCP 2.0)...',
-    'COMPILING EPISODIC EXECUTIVE GRAPH...',
-    'ENTERPRISE CHIEF OF STAFF ONLINE.'
-  ];
+  // Trigger cinematic bass sweep
+  playCinematicBootBoom();
 
-  let currentWordIdx = 0;
   let progress = 0;
   let dismissed = false;
+
+  // Hyperspace 3D Starfield Warp Simulation
+  let warpAnimationId = null;
+  if (warpCanvas) {
+    const ctx = warpCanvas.getContext('2d');
+    let w = (warpCanvas.width = window.innerWidth);
+    let h = (warpCanvas.height = window.innerHeight);
+
+    const stars = [];
+    const numStars = 220;
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: (Math.random() - 0.5) * w * 2.5,
+        y: (Math.random() - 0.5) * h * 2.5,
+        z: Math.random() * 1000,
+        pz: 1000
+      });
+    }
+
+    function renderWarp() {
+      if (dismissed) return;
+      ctx.fillStyle = 'rgba(3, 4, 6, 0.35)';
+      ctx.fillRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const warpSpeed = 1.5 + (progress / 100) * 16;
+
+      for (let star of stars) {
+        star.pz = star.z;
+        star.z -= warpSpeed;
+
+        if (star.z <= 0) {
+          star.z = 1000;
+          star.pz = 1000;
+          star.x = (Math.random() - 0.5) * w * 2.5;
+          star.y = (Math.random() - 0.5) * h * 2.5;
+        }
+
+        const k = 420 / star.z;
+        const px = cx + star.x * k;
+        const py = cy + star.y * k;
+
+        const pk = 420 / star.pz;
+        const ppx = cx + star.x * pk;
+        const ppy = cy + star.y * pk;
+
+        if (px >= 0 && px <= w && py >= 0 && py <= h) {
+          ctx.beginPath();
+          ctx.moveTo(ppx, ppy);
+          ctx.lineTo(px, py);
+          const alpha = Math.min(1, (1 - star.z / 1000) * 1.4);
+          ctx.strokeStyle = `rgba(255, 92, 122, ${alpha})`;
+          ctx.lineWidth = Math.max(1, (1 - star.z / 1000) * 2.5);
+          ctx.stroke();
+        }
+      }
+
+      warpAnimationId = requestAnimationFrame(renderWarp);
+    }
+    renderWarp();
+
+    window.addEventListener('resize', () => {
+      w = warpCanvas.width = window.innerWidth;
+      h = warpCanvas.height = window.innerHeight;
+    }, { once: true });
+  }
+
+  // Hacker Text Decryptor Sequence
+  const sequenceStages = [
+    {
+      pct: 0,
+      title: "CHRONOOS",
+      accent: "OS",
+      sub: "AUTONOMOUS CHIEF OF STAFF // BEDROCK 2.0",
+      log: "BOOTING NEURAL RTOS KERNEL..."
+    },
+    {
+      pct: 25,
+      title: "REASONING MATRIX",
+      accent: "MATRIX",
+      sub: "STREAMABLE MODEL CONTEXT PROTOCOL (MCP 2.0)",
+      log: "STREAMING MCP PROTOCOL (7 CORE ENDPOINTS)..."
+    },
+    {
+      pct: 50,
+      title: "EPISODIC GRAPH",
+      accent: "GRAPH",
+      sub: "EXECUTIVE LONG-TERM MEMORY // ISOLATED TENANT",
+      log: "CALCULATING EPISODIC STAKEHOLDER MEMORY..."
+    },
+    {
+      pct: 75,
+      title: "AMAZON BEDROCK",
+      accent: "BEDROCK",
+      sub: "CLAUDE 3.5 SONNET // GUARDRAIL DEFENSE ACTIVE",
+      log: "VERIFYING ANTHROPIC CLAUDE-3-5 GUARDRAILS..."
+    },
+    {
+      pct: 95,
+      title: "ENTERPRISE READY",
+      accent: "READY",
+      sub: "CHIEF OF STAFF ONLINE // READY TO ENGAGE",
+      log: "ENTERPRISE ENGINE ONLINE. ENGAGING WORKSPACE."
+    }
+  ];
+
+  let currentStageIdx = -1;
+  const glyphs = "01XZ9AF§∆◊•#@%$¢";
+
+  function scrambleDecryptText(targetTitle, targetAccent, targetSub) {
+    if (!dynamicTextEl) return;
+    let iterations = 0;
+    const maxIterations = 14;
+
+    const interval = setInterval(() => {
+      if (dismissed) {
+        clearInterval(interval);
+        return;
+      }
+      iterations++;
+      
+      let scrambled = targetTitle
+        .split('')
+        .map((char, index) => {
+          if (char === ' ') return ' ';
+          if (index < (iterations / maxIterations) * targetTitle.length) {
+            return char;
+          }
+          return glyphs[Math.floor(Math.random() * glyphs.length)];
+        })
+        .join('');
+
+      // Replace targetAccent part with accent span
+      if (targetAccent && scrambled.includes(targetAccent)) {
+        scrambled = scrambled.replace(targetAccent, `<span class="accent-text">${targetAccent}</span>`);
+      } else {
+        scrambled = scrambled.replace(/OS|MATRIX|GRAPH|BEDROCK|READY/, match => `<span class="accent-text">${match}</span>`);
+      }
+
+      dynamicTextEl.innerHTML = scrambled;
+      if (subTickerEl) subTickerEl.textContent = targetSub;
+
+      if (iterations >= maxIterations) {
+        clearInterval(interval);
+        playSound('click');
+      }
+    }, 35);
+  }
 
   function dismissSplash() {
     if (dismissed) return;
     dismissed = true;
+    if (warpAnimationId) cancelAnimationFrame(warpAnimationId);
     playSound('shockwave');
     splash.classList.add('dismissed');
     setTimeout(() => {
@@ -2026,7 +2232,7 @@ function initKineticSplash() {
     skipBtn.addEventListener('click', dismissSplash);
   }
 
-  // Allow Enter, Space, or Escape to skip immediately
+  // Keyboard dismiss: Enter, Space, Escape
   const handleKey = (e) => {
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
       dismissSplash();
@@ -2035,32 +2241,10 @@ function initKineticSplash() {
   };
   window.addEventListener('keydown', handleKey);
 
-  // Kinetic typography word transitions
-  const wordInterval = setInterval(() => {
+  // High-Frequency Progress Dial
+  const timer = setInterval(() => {
     if (dismissed) {
-      clearInterval(wordInterval);
-      return;
-    }
-
-    if (words[currentWordIdx]) {
-      words[currentWordIdx].classList.remove('active');
-      words[currentWordIdx].classList.add('exiting');
-      const prevIdx = currentWordIdx;
-      setTimeout(() => {
-        if (words[prevIdx]) words[prevIdx].classList.remove('exiting');
-      }, 450);
-    }
-
-    currentWordIdx = (currentWordIdx + 1) % words.length;
-    if (words[currentWordIdx]) {
-      words[currentWordIdx].classList.add('active');
-    }
-  }, 750);
-
-  // Dynamic progress counter & telemetry status logs
-  const progressTimer = setInterval(() => {
-    if (dismissed) {
-      clearInterval(progressTimer);
+      clearInterval(timer);
       return;
     }
 
@@ -2070,19 +2254,29 @@ function initKineticSplash() {
     if (fill) fill.style.width = `${progress}%`;
     if (pctEl) pctEl.textContent = `${progress.toString().padStart(2, '0')}%`;
 
-    if (progress % 14 === 0) {
+    // Rolling Hex Token in Corner HUD
+    if (cryptHashEl && progress % 4 === 0) {
+      const hex = Math.random().toString(16).substring(2, 8).toUpperCase();
+      cryptHashEl.textContent = `TOKEN: 0x${hex}`;
+    }
+
+    if (memAllocEl && progress % 8 === 0) {
+      memAllocEl.textContent = `TELEMETRY: 60 FPS • ${(42 + (progress * 0.12)).toFixed(1)}MB HEAP`;
+    }
+
+    // Check if we hit a new stage
+    const matchedStageIdx = sequenceStages.findLastIndex(s => progress >= s.pct);
+    if (matchedStageIdx !== -1 && matchedStageIdx !== currentStageIdx) {
+      currentStageIdx = matchedStageIdx;
+      const stage = sequenceStages[currentStageIdx];
+      scrambleDecryptText(stage.title, stage.accent, stage.sub);
+      if (logEl) logEl.textContent = stage.log;
       playSound('click');
     }
 
-    const logIdx = Math.min(Math.floor((progress / 100) * logs.length), logs.length - 1);
-    if (logEl && logs[logIdx]) {
-      logEl.textContent = logs[logIdx];
-    }
-
     if (progress >= 100) {
-      clearInterval(progressTimer);
-      clearInterval(wordInterval);
-      setTimeout(dismissSplash, 600);
+      clearInterval(timer);
+      setTimeout(dismissSplash, 550);
     }
   }, 65);
 }
@@ -2094,6 +2288,198 @@ window.replayBootSequence = function() {
   splash.classList.remove('dismissed');
   initKineticSplash();
 };
+
+// --------------------------------------------------------------------------
+// 14. Always-on-Top Floating Desktop Micro-Assistant (Document PiP)
+// --------------------------------------------------------------------------
+
+let pipWindow = null;
+
+async function togglePipAssistant() {
+  if (pipWindow) {
+    pipWindow.close();
+    pipWindow = null;
+    return;
+  }
+
+  if ('documentPictureInPicture' in window) {
+    try {
+      pipWindow = await window.documentPictureInPicture.requestWindow({
+        width: 360,
+        height: 250
+      });
+
+      // Inject custom PiP Desktop Assistant
+      pipWindow.document.body.innerHTML = `
+        <div class="pip-desktop-container">
+          <div class="pip-header">
+            <div class="pip-brand">
+              <span class="pip-dot"></span>
+              <strong style="color:#FFF;">ChronoOS Assistant</strong>
+              <span class="pip-badge">Always on Top</span>
+            </div>
+            <button class="pip-close-btn" onclick="window.close()">✕</button>
+          </div>
+
+          <div class="pip-mic-card">
+            <button class="pip-orb-btn" id="pipOrb" title="Speak to ChronoOS">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+              </svg>
+            </button>
+            <div class="pip-speech-preview" id="pipSpeechText">"Click mic or ask to open YouTube / add task..."</div>
+          </div>
+
+          <div class="pip-actions-row">
+            <button class="pip-action-pill" id="pipBtnBriefing">Briefing</button>
+            <button class="pip-action-pill" id="pipBtnYoutube">Open YouTube</button>
+            <button class="pip-action-pill" id="pipBtnTask">+ Task</button>
+          </div>
+        </div>
+      `;
+
+      // Style PiP Container
+      const pipStyle = pipWindow.document.createElement('style');
+      pipStyle.textContent = `
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { margin:0; padding:12px; background:#07080A; color:#F8FAFC; font-family:'Inter', -apple-system, sans-serif; overflow:hidden; user-select:none; }
+        .pip-desktop-container { display:flex; flex-direction:column; gap:10px; height:100%; justify-content:space-between; }
+        .pip-header { display:flex; justify-content:space-between; align-items:center; }
+        .pip-brand { display:flex; align-items:center; gap:7px; font-size:12px; }
+        .pip-dot { width:7px; height:7px; border-radius:50%; background:#FF5C7A; box-shadow:0 0 10px #FF5C7A; animation:pulseDot 1.2s infinite; }
+        .pip-badge { font-size:9px; background:rgba(255,92,122,0.15); color:#FF5C7A; padding:2px 6px; border-radius:4px; font-weight:700; border:1px solid rgba(255,92,122,0.3); }
+        .pip-close-btn { background:none; border:none; color:#9C9C9D; cursor:pointer; font-size:14px; padding:2px; }
+        .pip-mic-card { display:flex; align-items:center; gap:12px; background:#11141A; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); }
+        .pip-orb-btn { width:40px; height:40px; border-radius:50%; background:#FF5C7A; border:none; color:white; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 0 16px rgba(255,92,122,0.5); flex-shrink:0; transition:0.15s; }
+        .pip-orb-btn:hover { transform:scale(1.05); }
+        .pip-orb-btn:active { transform:scale(0.92); }
+        .pip-speech-preview { font-size:11.5px; color:#9C9C9D; line-height:1.45; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+        .pip-actions-row { display:flex; gap:6px; }
+        .pip-action-pill { flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#F8FAFC; padding:7px 0; border-radius:6px; font-size:11px; cursor:pointer; font-weight:500; transition:0.2s; }
+        .pip-action-pill:hover { background:rgba(255,92,122,0.2); border-color:#FF5C7A; color:#FFF; }
+        @keyframes pulseDot { 0% { opacity:0.6; } 100% { opacity:1; } }
+      `;
+      pipWindow.document.head.appendChild(pipStyle);
+
+      // Event Listeners inside Desktop PiP
+      const pipOrb = pipWindow.document.getElementById('pipOrb');
+      const pipSpeechText = pipWindow.document.getElementById('pipSpeechText');
+      const pipBtnBriefing = pipWindow.document.getElementById('pipBtnBriefing');
+      const pipBtnYoutube = pipWindow.document.getElementById('pipBtnYoutube');
+      const pipBtnTask = pipWindow.document.getElementById('pipBtnTask');
+
+      pipOrb.onclick = () => {
+        toggleListening();
+        pipSpeechText.textContent = "Listening to voice input...";
+      };
+
+      pipBtnBriefing.onclick = () => {
+        sendQuery("Alexa, give me my morning briefing");
+        pipSpeechText.textContent = "Loading morning briefing...";
+      };
+
+      pipBtnYoutube.onclick = () => {
+        sendQuery("Alexa, open YouTube");
+        pipSpeechText.textContent = "Opening YouTube...";
+      };
+
+      pipBtnTask.onclick = () => {
+        const desc = prompt("Enter executive task description:");
+        if (desc) {
+          sendQuery(`add task ${desc}`);
+          pipSpeechText.textContent = `Task added: "${desc}"`;
+        }
+      };
+
+      pipWindow.addEventListener('pagehide', () => {
+        pipWindow = null;
+      });
+
+      playSound('shockwave');
+    } catch (e) {
+      console.warn('PiP launch error, falling back:', e);
+      alert('Desktop Always-on-Top Widget: Click anywhere on page first to grant PiP permission.');
+    }
+  } else {
+    alert('Always-on-Top Floating PiP is supported in Google Chrome, Edge, and Arc on macOS. For Safari, use Command+K or the main voice orb!');
+  }
+}
+
+// --------------------------------------------------------------------------
+// 15. Executive Live Task Manager
+// --------------------------------------------------------------------------
+
+let executiveTasks = [
+  { id: 1, text: "Review Acme Corp Section 9.2 counter-offer draft", done: false, priority: "Urgent" },
+  { id: 2, text: "Confirm flight UA 482 ground transportation buffer", done: false, priority: "High" },
+  { id: 3, text: "Align with board advisor Elena Rostova on Q3 runway", done: true, priority: "Normal" }
+];
+
+try {
+  const savedTasks = localStorage.getItem('chrono_tasks');
+  if (savedTasks) executiveTasks = JSON.parse(savedTasks);
+} catch (e) {}
+
+function addExecutiveTask(desc, priority = 'High') {
+  executiveTasks.unshift({
+    id: Date.now(),
+    text: desc,
+    done: false,
+    priority: priority
+  });
+  localStorage.setItem('chrono_tasks', JSON.stringify(executiveTasks));
+  renderTasksCard();
+  playSound('success');
+}
+
+function toggleTaskStatus(id) {
+  const task = executiveTasks.find(t => t.id === id);
+  if (task) {
+    task.done = !task.done;
+    localStorage.setItem('chrono_tasks', JSON.stringify(executiveTasks));
+    renderTasksCard();
+    playSound('click');
+  }
+}
+
+function renderTasksCard() {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#38BDF8; border-color:rgba(56,189,248,0.3);">Task Queue</span>
+          <h2 class="card-main-title">Executive Action Items & Tasks</h2>
+        </div>
+        <span class="card-subtitle-tag">${executiveTasks.filter(t => !t.done).length} Pending Items</span>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:16px;">
+        <input type="text" id="newTaskInput" placeholder="Add a new executive task (e.g. 'Draft board reply')..." style="flex:1; background:#07080A; border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:10px 14px; color:#FFF; font-size:13px; outline:none;">
+        <button class="btn-raycast-action" onclick="const v = document.getElementById('newTaskInput').value.trim(); if(v) { addExecutiveTask(v); }">Add Task</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        ${executiveTasks.map(t => `
+          <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.02); border:1px solid ${t.done ? 'rgba(255,255,255,0.04)' : 'var(--color-outline)'}; border-radius:var(--radius-md); padding:12px 14px; transition:0.2s; ${t.done ? 'opacity:0.5;' : ''}">
+            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskStatus(${t.id})" style="accent-color:var(--color-primary); width:16px; height:16px; cursor:pointer;">
+            <span style="flex:1; font-size:13px; color:${t.done ? 'var(--color-secondary)' : 'var(--color-on-surface)'}; text-decoration:${t.done ? 'line-through' : 'none'};">${t.text}</span>
+            <span style="font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; font-family:var(--font-mono); ${t.priority === 'Urgent' ? 'background:rgba(255,77,79,0.15); color:#FF4D4F;' : 'background:rgba(56,189,248,0.15); color:#38BDF8;'}">${t.priority}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:12px; color:var(--color-secondary);">Say "Alexa, open YouTube" or "Alexa, add task..." to execute automatically.</span>
+        <button class="btn-raycast-action" onclick="sendQuery('Alexa, give me my morning briefing')">← Return to Briefing</button>
+      </div>
+    </div>
+  `;
+}
 
 function initClock() {
   const clockEl = document.getElementById('deviceClock');
@@ -2107,7 +2493,7 @@ function initClock() {
 }
 
 // --------------------------------------------------------------------------
-// 14. App Bootstrapping
+// 16. App Bootstrapping
 // --------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2119,4 +2505,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
   apply3DCardTilt();
   updateUserDisplay();
+
+  // Wire PiP Floating Assistant Button & Keybind (⌘P)
+  const pipBtn = document.getElementById('pipAssistantBtn');
+  if (pipBtn) {
+    pipBtn.addEventListener('click', togglePipAssistant);
+  }
+  window.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p') {
+      e.preventDefault();
+      togglePipAssistant();
+    }
+  });
 });

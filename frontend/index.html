@@ -8,42 +8,73 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=raycast-v7-kinetic">
+  <link rel="stylesheet" href="style.css?v=raycast-v8-ultra">
 </head>
 <body class="raycast-supreme">
 
   <!-- ===================================================================
-       KINETIC TYPOGRAPHY BOOT SPLASH SCREEN
+       NEXT-LEVEL KINETIC TYPOGRAPHY BOOT SPLASH SCREEN (WARP STARFIELD + DECRYPTION)
        =================================================================== -->
   <div class="kinetic-splash-screen" id="kineticSplash">
+    <!-- Real-Time High-Velocity Hyperspace Warp Canvas -->
+    <canvas id="splashWarpCanvas"></canvas>
+    
     <div class="splash-ambient-aura"></div>
+    <div class="splash-scanlines"></div>
+
+    <!-- Precision Corner HUD Telemetry Brackets -->
+    <div class="splash-hud-bracket top-left">
+      <div class="hud-hud-line"></div>
+      <span class="hud-mono-label">SYS_KERNEL // CHRONO_OS</span>
+      <span class="hud-mono-sub">ARCH: AARCH64_RTOS • ENCRYPT: 4096-BIT</span>
+    </div>
+    <div class="splash-hud-bracket top-right">
+      <div class="hud-hud-line"></div>
+      <span class="hud-mono-label">AMAZON BEDROCK ENGINE</span>
+      <span class="hud-mono-sub">MODEL: CLAUDE-3-5-SONNET • NOVA PRO</span>
+    </div>
+    <div class="splash-hud-bracket bottom-left">
+      <div class="hud-hud-line"></div>
+      <span class="hud-mono-label">STREAMABLE MCP 2.0 PROTOCOL</span>
+      <span class="hud-mono-sub" id="splashMemAlloc">TELEMETRY: 60 FPS • 14ms LATENCY</span>
+    </div>
+    <div class="splash-hud-bracket bottom-right">
+      <div class="hud-hud-line"></div>
+      <span class="hud-mono-label">BYPASS KEY: [↵ ENTER]</span>
+      <span class="hud-mono-sub" id="splashCryptHash">TOKEN: 0x7F89B2</span>
+    </div>
+
+    <!-- Center Creative Technology Nucleus -->
     <div class="splash-center-content">
+      <!-- Quantum Orbital Ring Logo with Rotating Particle Ring -->
       <div class="splash-logo-symbol">
-        <svg viewBox="0 0 40 40" width="54" height="54" fill="none">
-          <circle cx="20" cy="20" r="18" stroke="rgba(255,92,122,0.4)" stroke-width="1.5" stroke-dasharray="3 4"/>
-          <ellipse cx="20" cy="20" rx="15" ry="6" stroke="#FF5C7A" stroke-width="2" transform="rotate(-30 20 20)"/>
-          <ellipse cx="20" cy="20" rx="15" ry="6" stroke="#FFFFFF" stroke-width="1.2" transform="rotate(30 20 20)"/>
-          <circle cx="20" cy="20" r="4" fill="#FF5C7A" class="splash-core-pulse"/>
-          <circle cx="20" cy="20" r="1.5" fill="#FFFFFF"/>
+        <svg viewBox="0 0 60 60" width="72" height="72" fill="none" class="splash-quantum-svg">
+          <circle cx="30" cy="30" r="27" stroke="rgba(255,92,122,0.25)" stroke-width="1.5" stroke-dasharray="3 4"/>
+          <circle cx="30" cy="30" r="21" stroke="rgba(56,189,248,0.3)" stroke-width="1" stroke-dasharray="8 6"/>
+          <ellipse cx="30" cy="30" rx="24" ry="9" stroke="#FF5C7A" stroke-width="2" transform="rotate(-30 30 30)"/>
+          <ellipse cx="30" cy="30" rx="24" ry="9" stroke="#FFFFFF" stroke-width="1.4" transform="rotate(30 30 30)"/>
+          <circle cx="30" cy="30" r="5" fill="#FF5C7A" class="splash-core-pulse"/>
+          <circle cx="30" cy="30" r="2" fill="#FFFFFF"/>
         </svg>
       </div>
 
-      <!-- Kinetic Words Container -->
+      <!-- Kinetic Typography Viewport with Hacker Decrypter Effect -->
       <div class="kinetic-text-viewport">
-        <div class="kinetic-word active" id="kw1">CHRONO<span>OS</span></div>
-        <div class="kinetic-word" id="kw2">AUTONOMOUS CHIEF OF STAFF</div>
-        <div class="kinetic-word" id="kw3">AMAZON BEDROCK REASONING</div>
-        <div class="kinetic-word" id="kw4">MODEL CONTEXT PROTOCOL</div>
-        <div class="kinetic-word" id="kw5">ENTERPRISE ENGINE READY</div>
+        <div class="kinetic-hero-title" id="kineticDynamicText">
+          CHRONO<span class="accent-text">OS</span>
+        </div>
+        <div class="kinetic-sub-ticker" id="kineticSubTicker">
+          AUTONOMOUS CHIEF OF STAFF • REASONING PLATFORM
+        </div>
       </div>
 
-      <!-- Progress Ticker & Bar -->
+      <!-- Biometric Progress Cluster & Real-Time Hex Telemetry -->
       <div class="splash-progress-cluster">
         <div class="splash-progress-track">
           <div class="splash-progress-fill" id="splashProgressFill"></div>
         </div>
         <div class="splash-meta-row">
-          <span class="splash-status-log" id="splashStatusLog">BOOTING NEURAL KERNEL...</span>
+          <span class="splash-status-log" id="splashStatusLog">INITIALIZING NEURAL KERNEL...</span>
           <span class="splash-pct" id="splashPct">00%</span>
         </div>
       </div>
@@ -130,6 +161,18 @@
           </svg>
         </span>
         <span>Audio</span>
+      </button>
+
+      <!-- Always-on-Top Floating Desktop Micro-Assistant (PiP) -->
+      <button class="btn-header-tool pip-accent-btn" id="pipAssistantBtn" title="Float Always-on-Top Desktop Micro-Assistant (⌘P)">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <rect x="12" y="9" width="8" height="6" rx="1" ry="1"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <span>Float PiP</span>
+        <span class="kbd-badge">⌘P</span>
       </button>
 
       <!-- Inspector Toggle -->
@@ -644,6 +687,6 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
     </div>
   </dialog>
 
-  <script src="app.js?v=raycast-v7-kinetic"></script>
+  <script src="app.js?v=raycast-v8-ultra"></script>
 </body>
 </html>

@@ -2129,7 +2129,7 @@ body.raycast-supreme {
 
 /* --------------------------------------------------------------------------
    Kinetic Typography Boot Splash Screen
-   Ultra-high level creative technology boot sequence
+   High-End Creative Technology Agency Architecture
    -------------------------------------------------------------------------- */
 .kinetic-splash-screen {
   position: fixed;
@@ -2137,136 +2137,220 @@ body.raycast-supreme {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #050608;
+  background: #030406;
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), filter 0.85s ease;
   transform: scale(1);
 }
 
 .kinetic-splash-screen.dismissed {
   opacity: 0;
-  transform: scale(1.08);
+  transform: scale(1.15);
+  filter: blur(12px);
   pointer-events: none;
+}
+
+#splashWarpCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .splash-ambient-aura {
   position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255, 92, 122, 0.28) 0%, rgba(255, 61, 92, 0.08) 40%, transparent 75%);
-  filter: blur(80px);
+  width: 750px;
+  height: 750px;
+  background: radial-gradient(circle, rgba(255, 92, 122, 0.22) 0%, rgba(56, 189, 248, 0.08) 35%, transparent 70%);
+  filter: blur(90px);
   pointer-events: none;
-  animation: splashAuraPulse 3s ease-in-out infinite alternate;
+  z-index: 2;
+  animation: splashAuraPulse 3.5s ease-in-out infinite alternate;
 }
 
-@keyframes splashAuraPulse {
-  0% { transform: scale(0.85); opacity: 0.6; }
-  100% { transform: scale(1.25); opacity: 0.95; }
+.splash-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), radial-gradient(circle at center, transparent 40%, rgba(3, 4, 6, 0.8) 100%);
+  background-size: 100% 4px, 100% 100%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.75;
 }
 
+/* Precision Corner HUD Telemetry Brackets */
+.splash-hud-bracket {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-secondary);
+  pointer-events: none;
+  letter-spacing: 0.5px;
+}
+
+.splash-hud-bracket .hud-hud-line {
+  width: 32px;
+  height: 2px;
+  background: var(--color-primary);
+  margin-bottom: 4px;
+  box-shadow: 0 0 8px var(--color-primary);
+}
+
+.splash-hud-bracket.top-left {
+  top: 36px;
+  left: 40px;
+}
+.splash-hud-bracket.top-right {
+  top: 36px;
+  right: 40px;
+  text-align: right;
+  align-items: flex-end;
+}
+.splash-hud-bracket.top-right .hud-hud-line {
+  background: #38BDF8;
+  box-shadow: 0 0 8px #38BDF8;
+}
+.splash-hud-bracket.bottom-left {
+  bottom: 36px;
+  left: 40px;
+}
+.splash-hud-bracket.bottom-right {
+  bottom: 36px;
+  right: 40px;
+  text-align: right;
+  align-items: flex-end;
+}
+.splash-hud-bracket.bottom-right .hud-hud-line {
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.hud-mono-label {
+  color: #F8FAFC;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.hud-mono-sub {
+  color: rgba(156, 156, 157, 0.7);
+  font-size: 9.5px;
+}
+
+/* Central Nucleus Content */
 .splash-center-content {
   position: relative;
-  z-index: 2;
+  z-index: 6;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 28px;
+  gap: 32px;
   width: 100%;
-  max-width: 960px;
+  max-width: 980px;
   padding: 0 24px;
 }
 
 .splash-logo-symbol {
-  width: 64px;
-  height: 64px;
+  width: 76px;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: splashLogoFloat 2.5s ease-in-out infinite alternate;
+  position: relative;
+}
+
+.splash-quantum-svg {
+  animation: splashLogoFloat 3s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 24px rgba(255, 92, 122, 0.6));
 }
 
 @keyframes splashLogoFloat {
-  0% { transform: translateY(0); filter: drop-shadow(0 0 16px rgba(255, 92, 122, 0.4)); }
-  100% { transform: translateY(-6px); filter: drop-shadow(0 0 28px rgba(255, 92, 122, 0.8)); }
+  0% { transform: translateY(0) scale(0.96); filter: drop-shadow(0 0 16px rgba(255, 92, 122, 0.4)); }
+  100% { transform: translateY(-5px) scale(1.04); filter: drop-shadow(0 0 32px rgba(255, 92, 122, 0.85)); }
 }
 
 .splash-core-pulse {
-  animation: pulseDot 1s infinite alternate;
+  animation: pulseDot 0.8s infinite alternate;
 }
 
 .kinetic-text-viewport {
   position: relative;
   width: 100%;
-  height: 100px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  perspective: 1000px;
+  min-height: 120px;
 }
 
-.kinetic-word {
-  position: absolute;
+.kinetic-hero-title {
   font-family: var(--font-family);
-  font-size: clamp(26px, 5.2vw, 54px);
+  font-size: clamp(34px, 6.2vw, 72px);
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #FFFFFF;
-  white-space: nowrap;
-  opacity: 0;
-  transform: scale(0.5) translateZ(-150px) rotateX(35deg);
-  filter: blur(16px);
-  transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  line-height: 1.1;
+  text-shadow: 0 0 45px rgba(255, 92, 122, 0.6), -2px 0 3px rgba(255, 61, 92, 0.5), 2px 0 3px rgba(56, 189, 248, 0.5);
   user-select: none;
-  text-shadow: 0 0 40px rgba(255, 92, 122, 0.5), 0 0 80px rgba(255, 61, 92, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.kinetic-word span {
+.kinetic-hero-title .accent-text {
   color: var(--color-primary);
-  text-shadow: 0 0 25px var(--color-primary);
+  text-shadow: 0 0 30px var(--color-primary);
 }
 
-.kinetic-word.active {
-  opacity: 1;
-  transform: scale(1) translateZ(0) rotateX(0deg);
-  filter: blur(0px);
-}
-
-.kinetic-word.exiting {
-  opacity: 0;
-  transform: scale(1.4) translateZ(100px) rotateX(-20deg);
-  filter: blur(14px);
+.kinetic-sub-ticker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #38BDF8;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin-top: 14px;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+  opacity: 0.9;
 }
 
 .splash-progress-cluster {
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .splash-progress-track {
   width: 100%;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.08);
+  height: 4px;
+  background: rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-full);
   overflow: hidden;
   position: relative;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
 }
 
 .splash-progress-fill {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #FF3D5C, #FF5C7A, #38BDF8);
-  box-shadow: 0 0 16px var(--color-primary);
+  background: linear-gradient(90deg, #FF3D5C 0%, #FF5C7A 50%, #38BDF8 100%);
+  box-shadow: 0 0 20px var(--color-primary), 0 0 35px #38BDF8;
   border-radius: var(--radius-full);
-  transition: width 0.12s linear;
+  transition: width 0.08s linear;
 }
 
 .splash-meta-row {
@@ -2282,42 +2366,56 @@ body.raycast-supreme {
   letter-spacing: 0.5px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .splash-status-log::before {
   content: "";
   display: inline-block;
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #38BDF8;
-  box-shadow: 0 0 8px #38BDF8;
+  box-shadow: 0 0 10px #38BDF8;
 }
 
 .splash-pct {
   color: var(--color-primary);
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  font-size: 13px;
 }
 
 .btn-skip-splash {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: var(--color-secondary);
-  padding: 8px 18px;
+  padding: 9px 22px;
   border-radius: var(--radius-full);
   font-size: 11px;
   font-family: var(--font-mono);
   cursor: pointer;
   transition: var(--transition-fast);
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .btn-skip-splash:hover {
-  background: rgba(255, 92, 122, 0.12);
-  border-color: rgba(255, 92, 122, 0.4);
-  color: var(--color-on-surface);
+  background: rgba(255, 92, 122, 0.15);
+  border-color: rgba(255, 92, 122, 0.6);
+  color: #FFFFFF;
+  box-shadow: 0 0 20px rgba(255, 92, 122, 0.35);
+  transform: translateY(-1px);
+}
+
+/* PiP Floating Assistant Button Accent */
+.pip-accent-btn {
+  border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+.pip-accent-btn:hover {
+  border-color: #38BDF8 !important;
+  color: #38BDF8 !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.3) !important;
   transform: translateY(-1px);
 }
 
