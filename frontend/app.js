@@ -1,10 +1,10 @@
 /**
- * ChronoOS • Lusion Minimal Editorial Client
+ * ChronoOS • Raycast Dark Edition Client
  * Implements:
  * - Web Speech API (STT & TTS)
- * - Lusion Minimal card rendering (Oversized typography, 8px radius, 1px borders, pill buttons)
+ * - Raycast Dark card rendering (Neon pink-red highlights, 6px/12px radii, Inter typography)
  * - Real-Time Bedrock Agent & MCP Thought Inspector Telemetry
- * - Human-in-the-Loop Native Modal (<dialog>) Authorization
+ * - Human-in-the-Loop Native Sheet (<dialog>) Authorization
  */
 
 const API_BASE = window.location.origin;
@@ -19,6 +19,7 @@ let currentPendingAction = null;
 const micOrbBtn = document.getElementById('micOrbBtn');
 const voiceTextInput = document.getElementById('voiceTextInput');
 const speechText = document.getElementById('speechText');
+const speechTimestamp = document.getElementById('speechTimestamp');
 const multimodalWidgetArea = document.getElementById('multimodalWidgetArea');
 const inspectorToggleBtn = document.getElementById('inspectorToggleBtn');
 const displayInspectorPane = document.getElementById('displayInspectorPane');
@@ -66,7 +67,7 @@ function initSpeechRecognition() {
 
     speechRecognition.onstart = () => {
       isListening = true;
-      micOrbBtn.classList.add('recording');
+      micOrbBtn.classList.add('active');
     };
 
     speechRecognition.onresult = (event) => {
@@ -105,7 +106,7 @@ function toggleListening() {
 
 function stopListening() {
   isListening = false;
-  micOrbBtn.classList.remove('recording');
+  micOrbBtn.classList.remove('active');
 }
 
 // -------------------------------------------------------------
@@ -130,13 +131,13 @@ function speakResponse(text) {
 
   utterance.onstart = () => {
     isSpeaking = true;
-    micOrbBtn.classList.add('recording');
+    micOrbBtn.classList.add('active');
   };
 
   utterance.onend = () => {
     isSpeaking = false;
     if (!isListening) {
-      micOrbBtn.classList.remove('recording');
+      micOrbBtn.classList.remove('active');
     }
   };
 
@@ -157,7 +158,8 @@ async function handleFormSubmit() {
 
 async function sendQuery(queryText) {
   stopListening();
-  speechText.innerHTML = `<em>"Analyzing with Amazon Bedrock & MCP Tools..."</em>`;
+  speechText.innerHTML = `<em>"Querying Amazon Bedrock & MCP Tools..."</em>`;
+  speechTimestamp.textContent = 'Thinking...';
 
   try {
     const res = await fetch(`${API_BASE}/api/chat`, {
@@ -176,12 +178,13 @@ async function sendQuery(queryText) {
 }
 
 // -------------------------------------------------------------
-// 4. Rendering Lusion Minimal Cards & Telemetry
+// 4. Rendering Raycast Dark Cards & Telemetry
 // -------------------------------------------------------------
 
 function renderAgentTurn(data) {
-  // 1. Update Editorial Quote Box & Voice
+  // 1. Update Agent Banner & Voice
   speechText.textContent = `"${data.voice_response}"`;
+  speechTimestamp.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   speakResponse(data.voice_response);
 
   // 2. Render Telemetry & Thought Stream
@@ -215,10 +218,10 @@ function renderInspectorTelemetry(data) {
   traceFeed.innerHTML = '';
   data.trace_events.forEach(evt => {
     const item = document.createElement('div');
-    item.className = 'trace-item-editorial';
+    item.className = 'raycast-trace-item';
     item.innerHTML = `
-      <div class="trace-item-stage">${evt.stage} ${evt.tool ? `• [${evt.tool}]` : ''}</div>
-      <div class="trace-item-desc">${evt.detail || (evt.args ? JSON.stringify(evt.args) : 'Operation executed.')}</div>
+      <div class="trace-item-header">${evt.stage} ${evt.tool ? `• <span style="color:var(--color-primary)">${evt.tool}</span>` : ''}</div>
+      <div class="trace-item-body">${evt.detail || (evt.args ? JSON.stringify(evt.args) : 'Operation executed.')}</div>
     `;
     traceFeed.appendChild(item);
   });
@@ -232,44 +235,44 @@ function renderInspectorTelemetry(data) {
 
 function renderContractRedlineCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="lusion-card">
-      <div class="card-title-row">
-        <div>
-          <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--color-primary-60);">Legal Risk Assessment</span>
-          <h2 class="card-heading" style="margin-top:4px;">${card.title}</h2>
+    <div class="raycast-card">
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:var(--color-primary); border-color:rgba(255,92,122,0.3);">Legal Risk Assessment</span>
+          <h2 class="card-main-title">${card.title}</h2>
         </div>
-        <span class="card-timestamp">${card.parties}</span>
+        <span class="card-meta-date">${card.parties}</span>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:20px; margin-bottom:28px;">
+      <div style="display:flex; flex-direction:column; gap:16px;">
         ${card.critical_clauses.map(clause => `
-          <div style="border:1px solid var(--color-secondary); border-radius:8px; padding:24px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:baseline;">
-              <strong style="font-size:15px; font-weight:600; color:var(--color-primary);">${clause.section}</strong>
-              <span style="font-size:11px; font-weight:700; border:1px solid var(--color-primary); padding:2px 8px; border-radius:4px;">${clause.guardrail_status}</span>
+          <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:8px; padding:18px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:baseline;">
+              <strong style="font-size:14px; font-weight:600; color:var(--color-on-surface);">${clause.section}</strong>
+              <span style="font-size:11px; font-weight:600; color:var(--color-primary); background:rgba(255,92,122,0.12); padding:2px 8px; border-radius:4px;">${clause.guardrail_status}</span>
             </div>
             
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px; font-size:14px;">
-              <div style="background:#fafafa; border:1px solid var(--color-secondary); padding:14px; border-radius:4px;">
-                <div style="font-size:11px; color:var(--color-primary-60); text-transform:uppercase; font-weight:600; margin-bottom:6px;">Original Mandate</div>
-                <div style="line-height:1.5;">${clause.original}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; font-size:13px;">
+              <div style="background:#07080A; border:1px solid var(--color-outline); padding:12px; border-radius:6px;">
+                <div style="font-size:10px; color:var(--color-secondary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Approved Board Mandate</div>
+                <div style="line-height:1.4;">${clause.original}</div>
               </div>
-              <div style="background:#fef2f2; border:1px solid #000; padding:14px; border-radius:4px;">
-                <div style="font-size:11px; color:#000; text-transform:uppercase; font-weight:700; margin-bottom:6px;">Acme Proposed Redline (Violation)</div>
-                <div style="line-height:1.5; font-weight:500;">${clause.redline}</div>
+              <div style="background:rgba(255,92,122,0.06); border:1px solid rgba(255,92,122,0.3); padding:12px; border-radius:6px;">
+                <div style="font-size:10px; color:var(--color-primary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Acme Proposed Redline (Violation)</div>
+                <div style="line-height:1.4; color:var(--color-on-surface);">${clause.redline}</div>
               </div>
             </div>
 
-            <div style="font-size:13px; color:var(--color-primary); border-left:2px solid var(--color-primary); padding-left:12px; line-height:1.5;">
-              <strong>Strategic Recommendation:</strong> ${clause.recommendation}
+            <div style="font-size:12px; color:var(--color-secondary); border-left:2px solid var(--color-primary); padding-left:10px; line-height:1.4;">
+              <strong style="color:var(--color-on-surface);">Autonomous Recommendation:</strong> ${clause.recommendation}
             </div>
           </div>
         `).join('')}
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-secondary); padding-top:20px;">
-        <span style="font-size:13px; color:var(--color-primary-60);">${card.action_prompt}</span>
-        <button class="btn-inline-pill" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px;">
+        <span style="font-size:12px; color:var(--color-secondary);">${card.action_prompt}</span>
+        <button class="command-enter-btn" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
           Draft Counter-Offer Now
         </button>
       </div>
@@ -279,26 +282,26 @@ function renderContractRedlineCard(card) {
 
 function renderConfirmationCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="lusion-card" style="border:2px solid var(--color-primary);">
-      <div class="card-title-row">
-        <div>
-          <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--color-primary);">Authorization Mandated</span>
-          <h2 class="card-heading" style="margin-top:4px;">${card.title}</h2>
+    <div class="raycast-card" style="border-color:rgba(255,92,122,0.4);">
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:var(--color-primary); background:rgba(255,92,122,0.1);">Authorization Mandated</span>
+          <h2 class="card-main-title">${card.title}</h2>
         </div>
-        <span class="card-timestamp" style="font-family:var(--font-mono); font-weight:600;">${card.token}</span>
+        <span class="card-meta-date" style="font-family:var(--font-mono); color:var(--color-primary);">${card.token}</span>
       </div>
 
-      <div style="border:1px solid var(--color-secondary); border-radius:8px; padding:24px; margin-bottom:24px;">
-        <div style="font-size:11px; color:var(--color-primary-60); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Target Recipient</div>
-        <div style="font-size:14px; font-weight:500; margin-bottom:16px;">${card.recipient}</div>
+      <div style="background:#07080A; border:1px solid var(--color-outline); border-radius:8px; padding:18px; margin-bottom:16px;">
+        <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Target Recipient</div>
+        <div style="font-size:13px; font-weight:500; margin-bottom:14px;">${card.recipient}</div>
 
-        <div style="font-size:11px; color:var(--color-primary-60); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Drafted Response</div>
-        <div style="font-size:14px; line-height:1.6; white-space:pre-wrap; background:#fafafa; border:1px solid var(--color-secondary); padding:16px; border-radius:4px;">${card.payload}</div>
+        <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Drafted Response</div>
+        <div style="font-size:13px; line-height:1.5; white-space:pre-wrap; background:rgba(255,255,255,0.02); padding:12px; border-radius:6px; color:#e2e8f0;">${card.payload}</div>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:16px;">
-        <button class="btn-secondary-pill" onclick="sendQuery('Alexa, cancel this action')">Reject Action</button>
-        <button class="btn-primary-pill" onclick="openHitlDialogCurrent()">Review & Authorize</button>
+      <div style="display:flex; justify-content:flex-end; gap:12px;">
+        <button class="btn-sheet-cancel" onclick="sendQuery('Alexa, cancel this action')">Reject Action</button>
+        <button class="command-enter-btn" onclick="openHitlDialogCurrent()">Review & Authorize</button>
       </div>
     </div>
   `;
@@ -306,21 +309,21 @@ function renderConfirmationCard(card) {
 
 function renderExecutionCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="lusion-card">
-      <div class="card-title-row">
-        <div>
-          <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--color-primary);">Action Finalized</span>
-          <h2 class="card-heading" style="margin-top:4px;">${card.title}</h2>
+    <div class="raycast-card">
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">Execution Receipt</span>
+          <h2 class="card-main-title">${card.title}</h2>
         </div>
-        <span class="card-timestamp" style="font-family:var(--font-mono); font-weight:600;">${card.receipt}</span>
+        <span class="card-meta-date" style="font-family:var(--font-mono); color:#10b981;">${card.receipt}</span>
       </div>
 
-      <div style="border:1px solid var(--color-primary); border-radius:8px; padding:24px; margin-bottom:24px;">
-        <div style="font-size:16px; font-weight:600; margin-bottom:6px;">${card.status}</div>
-        <div style="font-size:14px; color:var(--color-primary-60); line-height:1.5;">${card.details}</div>
+      <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:8px; padding:20px; margin-bottom:16px;">
+        <div style="font-size:15px; font-weight:600; color:var(--color-on-surface); margin-bottom:4px;">${card.status}</div>
+        <div style="font-size:13px; color:var(--color-secondary); line-height:1.5;">${card.details}</div>
       </div>
 
-      <button class="btn-inline-pill" onclick="sendQuery('Alexa, give me my morning briefing')">
+      <button class="btn-raycast-action" onclick="sendQuery('Alexa, give me my morning briefing')">
         ← Return to Briefing Dashboard
       </button>
     </div>
@@ -329,14 +332,14 @@ function renderExecutionCard(card) {
 
 function renderGenericCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="lusion-card">
-      <h2 class="card-heading" style="margin-bottom:12px;">${card.title}</h2>
-      <p style="font-size:15px; color:var(--color-primary-60); margin-bottom:20px; line-height:1.5;">${card.summary || ''}</p>
+    <div class="raycast-card">
+      <h2 class="card-main-title" style="margin-bottom:8px;">${card.title}</h2>
+      <p style="font-size:14px; color:var(--color-secondary); margin-bottom:16px; line-height:1.5;">${card.summary || ''}</p>
       ${card.relevant_memories ? `
-        <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
           ${card.relevant_memories.map(m => `
-            <div style="border:1px solid var(--color-secondary); border-radius:6px; padding:12px 16px; font-size:13px; line-height:1.5;">
-              <strong>${m.entity}:</strong> ${m.memory}
+            <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:6px; padding:10px 14px; font-size:13px;">
+              <strong style="color:var(--color-primary);">${m.entity}:</strong> ${m.memory}
             </div>
           `).join('')}
         </div>
@@ -386,7 +389,7 @@ async function confirmAction(decision) {
     });
     const result = await res.json();
     renderAgentTurn({
-      voice_response: `Action authorized and finalized. Your legal counter-offer has been officially dispatched to Sarah Chen and the Acme M&A advisory room.`,
+      voice_response: `Action authorized and dispatched. Your legal counter-offer has been officially communicated to Sarah Chen and the Acme M&A war room.`,
       visual_card: {
         type: 'ACTION_EXECUTED',
         title: 'Executive Action Executed',
@@ -418,5 +421,17 @@ function initEventListeners() {
 
   closeInspectorBtn.addEventListener('click', () => {
     displayInspectorPane.classList.add('collapsed');
+  });
+
+  // Global Keyboard Shortcuts (Raycast Style)
+  window.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      voiceTextInput.focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
+      e.preventDefault();
+      displayInspectorPane.classList.toggle('collapsed');
+    }
   });
 }

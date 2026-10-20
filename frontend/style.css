@@ -1,38 +1,44 @@
 /* ==========================================================================
-   ChronoOS • Lusion Minimal Editorial Design System
-   Based on lusion.co-design.md:
-   - Stark, high-contrast monochrome (Black on Pure White)
-   - Oversized typography, generous negative space, restrained geometry
-   - 1px #E5E7EB borders, flat depth (no heavy shadows/neon gradients)
-   - 8px card radius, 102px/9999px pill buttons with 65px primary heights
+   ChronoOS • Raycast Dark Design System
+   Based on raycast.com-design.md:
+   - Near-black canvas (#07080A) with vivid neon pink-red glow (#FF5C7A / #FF3D5C)
+   - Clean, developer-forward Inter typography
+   - Restrained geometry: 6px controls (md), 12px cards (lg), full-rounded pills
+   - Faint translucent outlines (#FFFFFF0F / #9C9C9D33)
+   - Fast, utility-driven command palette aesthetic
    ========================================================================== */
 
 :root {
-  --color-primary: #000000;
-  --color-surface: #ffffff;
-  --color-secondary: #e5e7eb;
-  --color-primary-60: #666666;
-  --color-primary-20: #cccccc;
-  --color-on-surface: #000000;
-  --color-border: #e5e7eb;
-  --color-border-dark: #000000;
-  
-  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-primary: #FF5C7A;
+  --color-primary-strong: #FF3D5C;
+  --color-secondary: #9C9C9D;
+  --color-tertiary: #FFFFFF;
+  --color-neutral: #07080A;
+  --color-surface: #0B0D10;
+  --color-surface-hover: #12151A;
+  --color-on-surface: #FFFFFF;
+  --color-outline: rgba(255, 255, 255, 0.06);
+  --color-outline-focus: rgba(255, 92, 122, 0.45);
+  --color-muted-outline: rgba(156, 156, 157, 0.2);
+  --color-error: #FF4D4F;
+
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 102px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   --space-xs: 6px;
-  --space-sm: 18px;
-  --space-md: 30px;
-  --space-lg: 68px;
-  --space-xl: 80px;
+  --space-sm: 16px;
+  --space-md: 32px;
+  --space-lg: 50px;
+  --space-xl: 72px;
 
-  --transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -42,774 +48,796 @@
   -webkit-font-smoothing: antialiased;
 }
 
-body.lusion-theme {
+body.raycast-theme {
   font-family: var(--font-family);
-  background-color: var(--color-surface);
+  background-color: var(--color-neutral);
+  background-image: 
+    radial-gradient(ellipse 65% 50% at 50% -15%, rgba(255, 92, 122, 0.14) 0%, transparent 70%),
+    radial-gradient(circle 800px at 90% 90%, rgba(255, 61, 92, 0.05) 0%, transparent 60%);
   color: var(--color-on-surface);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  letter-spacing: 0.2px;
 }
 
 /* --------------------------------------------------------------------------
-   Top Navigation / Minimal Header Bar
+   Top Navigation Bar (Raycast Sleek Header)
    -------------------------------------------------------------------------- */
-.lusion-header {
-  border-bottom: 1px solid var(--color-secondary);
-  padding: 24px 48px;
+.raycast-header {
+  border-bottom: 1px solid var(--color-outline);
+  padding: 16px 36px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--color-surface);
+  background: rgba(11, 13, 16, 0.75);
+  backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
-.brand-section {
+.brand-wrap {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon-raycast {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(255, 92, 122, 0.35);
+  color: white;
+}
+
+.brand-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  text-decoration: none;
+  letter-spacing: -0.3px;
+}
+
+.brand-name span {
+  color: var(--color-primary);
+}
+
+.brand-tagline {
+  font-size: 13px;
+  color: var(--color-secondary);
+  border-left: 1px solid var(--color-muted-outline);
+  padding-left: 12px;
+  font-weight: 400;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
   gap: 16px;
 }
 
-.brand-logo {
-  font-size: 28px;
-  font-weight: 500;
-  letter-spacing: -1px;
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-.brand-tag {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--color-primary-60);
-  letter-spacing: -0.2px;
-}
-
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.status-badge {
+.nav-pill-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  color: var(--color-primary);
-  border: 1px solid var(--color-secondary);
-  padding: 6px 16px;
+  color: var(--color-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  padding: 6px 14px;
   border-radius: var(--radius-full);
 }
 
-.status-dot {
+.nav-dot-online {
   width: 6px;
   height: 6px;
-  background: var(--color-primary);
   border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 8px var(--color-primary);
+  animation: raycastPulse 2s infinite;
 }
 
-.status-dot.active {
-  animation: pulseBlack 2s infinite;
+@keyframes raycastPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
 }
 
-@keyframes pulseBlack {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.4; }
-}
-
-.btn-inspector-toggle {
+.btn-raycast-inspector {
   background: transparent;
-  border: 1px solid var(--color-secondary);
-  color: var(--color-primary);
+  border: 1px solid var(--color-outline);
+  color: var(--color-secondary);
   font-size: 13px;
   font-weight: 500;
-  padding: 8px 18px;
-  border-radius: var(--radius-full);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: var(--transition);
+  transition: var(--transition-fast);
 }
 
-.btn-inspector-toggle:hover {
-  border-color: var(--color-primary);
-  background: #f9fafb;
+.btn-raycast-inspector:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
+  border-color: var(--color-muted-outline);
+}
+
+.kbd-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-outline);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  color: var(--color-secondary);
 }
 
 /* --------------------------------------------------------------------------
-   Main Editorial Layout
+   Main Raycast Launcher Canvas
    -------------------------------------------------------------------------- */
-.lusion-main {
+.raycast-main-container {
   flex: 1;
   display: flex;
-  max-width: 1700px;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
 }
 
-.lusion-content-pane {
+.raycast-viewport {
   flex: 1;
-  padding: 48px 64px 80px 64px;
+  padding: 40px 48px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
-  max-width: 1180px;
-}
-
-/* Editorial Hero & Persona Statement */
-.hero-statement {
-  border-bottom: 1px solid var(--color-secondary);
-  padding-bottom: 36px;
-}
-
-.hero-meta-label {
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--color-primary-60);
-  margin-bottom: 12px;
-}
-
-.hero-headline {
-  font-size: 55px;
-  line-height: 1.15;
-  font-weight: 400;
-  letter-spacing: -1.8px;
-  color: var(--color-primary);
-  margin-bottom: 20px;
-}
-
-.alexa-quote-box {
-  background: #fafafa;
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-md);
-  padding: 24px 30px;
-}
-
-.quote-author {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 8px;
-}
-
-.quote-text {
-  font-size: 20px;
-  line-height: 1.5;
-  font-weight: 400;
-  color: var(--color-primary);
+  gap: 24px;
 }
 
 /* --------------------------------------------------------------------------
-   Dynamic Cards (Lusion Minimal Spec: 8px radius, 1px border, flat)
+   Raycast Command Bar (Iconic Fast Launch Input)
    -------------------------------------------------------------------------- */
-.lusion-card {
+.raycast-command-bar {
   background: var(--color-surface);
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-md);
-  padding: 32px;
-}
-
-.card-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  border-bottom: 1px solid var(--color-secondary);
-  padding-bottom: 16px;
-  margin-bottom: 28px;
-}
-
-.card-heading {
-  font-size: 26px;
-  font-weight: 400;
-  letter-spacing: -0.8px;
-  color: var(--color-primary);
-}
-
-.card-timestamp {
-  font-size: 13px;
-  color: var(--color-primary-60);
-}
-
-/* Metrics Row (Oversized, Clean Numbers) */
-.lusion-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.metric-col {
-  border-right: 1px solid var(--color-secondary);
-  padding-right: 20px;
-}
-
-.metric-col:last-child {
-  border-right: none;
-}
-
-.metric-caption {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-primary-60);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.metric-number {
-  font-size: 34px;
-  font-weight: 400;
-  letter-spacing: -1px;
-  color: var(--color-primary);
-  margin-bottom: 6px;
-}
-
-.metric-status-tag {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  border: 1px solid var(--color-primary);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-}
-
-/* Urgent Notification Blocks */
-.lusion-alerts-section {
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 32px;
+  overflow: hidden;
+  transition: var(--transition-fast);
 }
 
-.alert-row {
+.raycast-command-bar:focus-within {
+  border-color: var(--color-outline-focus);
+  box-shadow: 0 20px 45px -10px rgba(255, 92, 122, 0.15);
+}
+
+.command-input-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  padding: 20px 24px;
-  background: var(--color-surface);
+  padding: 12px 18px;
+  gap: 14px;
+  height: 60px;
+  border-bottom: 1px solid var(--color-outline);
 }
 
-.alert-badge {
-  font-size: 11px;
-  font-weight: 700;
-  background: var(--color-primary);
-  color: var(--color-surface);
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  display: inline-block;
-  margin-bottom: 6px;
-}
-
-.alert-headline {
-  font-size: 16px;
-  font-weight: 500;
+.mic-raycast-btn {
+  background: rgba(255, 92, 122, 0.1);
+  border: 1px solid rgba(255, 92, 122, 0.25);
   color: var(--color-primary);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.mic-raycast-btn:hover {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 0 14px rgba(255, 92, 122, 0.4);
+}
+
+.mic-raycast-btn.active {
+  background: var(--color-primary-strong);
+  color: white;
+  box-shadow: 0 0 20px rgba(255, 61, 92, 0.7);
+  animation: micPulse 1.2s infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.command-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--color-on-surface);
+}
+
+.command-input::placeholder {
+  color: var(--color-secondary);
+}
+
+.command-enter-btn {
+  background: var(--color-tertiary);
+  color: var(--color-neutral);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.command-enter-btn:hover {
+  background: #E5E7EB;
+}
+
+/* Command Chips Bar */
+.command-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(11, 13, 16, 0.5);
+  overflow-x: auto;
+}
+
+.chip-tag-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.raycast-chip {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 400;
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-fast);
+}
+
+.raycast-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-on-surface);
+  border-color: var(--color-muted-outline);
+}
+
+/* --------------------------------------------------------------------------
+   Agent Voice Banner (Raycast Hero Feedback)
+   -------------------------------------------------------------------------- */
+.raycast-agent-banner {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.raycast-agent-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-strong));
+}
+
+.banner-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 92, 122, 0.15);
+  border: 1px solid rgba(255, 92, 122, 0.3);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.banner-content {
+  flex: 1;
+}
+
+.banner-meta {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 4px;
 }
 
-.alert-summary {
-  font-size: 14px;
-  color: var(--color-primary-60);
-  line-height: 1.5;
-}
-
-.btn-inline-pill {
-  background: var(--color-primary);
-  color: var(--color-surface);
-  border: none;
+.banner-title {
   font-size: 13px;
-  font-weight: 500;
-  padding: 10px 22px;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: var(--transition);
-}
-
-.btn-inline-pill:hover {
-  background: var(--color-primary-60);
-}
-
-/* Schedule Table */
-.schedule-table-wrap {
-  border-top: 1px solid var(--color-secondary);
-  padding-top: 24px;
-}
-
-.schedule-header-label {
-  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  color: var(--color-primary-60);
-  margin-bottom: 16px;
-}
-
-.schedule-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.schedule-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--color-secondary);
-  font-size: 14px;
-}
-
-.schedule-row:last-child {
-  border-bottom: none;
-}
-
-.schedule-time {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--color-primary-60);
-  width: 140px;
-}
-
-.schedule-name {
-  flex: 1;
-  font-weight: 500;
   color: var(--color-primary);
 }
 
-.schedule-badge {
+.banner-time {
   font-size: 11px;
-  border: 1px solid var(--color-secondary);
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  color: var(--color-primary-60);
+  color: var(--color-secondary);
 }
 
-.schedule-row.active {
-  font-weight: 600;
-}
-
-.schedule-row.active .schedule-badge {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  font-weight: 600;
+.banner-speech {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-on-surface);
 }
 
 /* --------------------------------------------------------------------------
-   Lusion Voice Command Bar (Stark, Oversized 65px Button Controls)
+   Raycast Dynamic Cards (lg: 12px radius, subtle outline, developer utility)
    -------------------------------------------------------------------------- */
-.lusion-voice-dock {
+.raycast-card {
   background: var(--color-surface);
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-md);
-  padding: 24px 30px;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.dock-controls-row {
+.card-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-outline);
+  padding-bottom: 14px;
+}
+
+.card-title-group {
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.card-badge {
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-outline);
+  color: var(--color-secondary);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.card-main-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-on-surface);
+  letter-spacing: -0.2px;
+}
+
+.card-meta-date {
+  font-size: 12px;
+  color: var(--color-secondary);
+}
+
+/* Metric Tiles Grid */
+.raycast-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
-/* Primary Button (65px height, pill radius per Lusion spec) */
-.btn-voice-primary {
-  height: 65px;
-  padding: 0 32px;
-  background: var(--color-primary);
-  color: var(--color-surface);
-  border: none;
-  border-radius: var(--radius-xl);
-  font-size: 16px;
+.metric-tile {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.metric-tile-label {
+  font-size: 12px;
+  color: var(--color-secondary);
+  margin-bottom: 6px;
+}
+
+.metric-tile-val {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  letter-spacing: -0.4px;
+  margin-bottom: 4px;
+}
+
+.metric-tile-tag {
+  font-size: 11px;
   font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: var(--transition);
-  flex-shrink: 0;
-}
-
-.btn-voice-primary:hover {
-  background: var(--color-primary-60);
-}
-
-.btn-voice-primary.recording {
-  background: #000000;
-  outline: 3px solid var(--color-primary);
-  outline-offset: 4px;
-}
-
-.audio-bars-monochrome {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  height: 16px;
-}
-
-.bar {
-  width: 3px;
-  height: 6px;
-  background: var(--color-surface);
-  border-radius: 2px;
-  transition: height 0.1s;
-}
-
-.btn-voice-primary.recording .bar {
-  animation: monoWave 0.8s ease-in-out infinite alternate;
-}
-
-.btn-voice-primary.recording .bar:nth-child(2) { animation-delay: 0.15s; }
-.btn-voice-primary.recording .bar:nth-child(3) { animation-delay: 0.3s; }
-.btn-voice-primary.recording .bar:nth-child(4) { animation-delay: 0.2s; }
-
-@keyframes monoWave {
-  0% { height: 4px; }
-  100% { height: 18px; }
-}
-
-.input-text-wrapper {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  height: 65px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-xl);
-  padding: 0 10px 0 24px;
-  transition: var(--transition);
-}
-
-.input-text-wrapper:focus-within {
-  border-color: var(--color-primary);
-}
-
-.input-editorial {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 16px;
   color: var(--color-primary);
-  font-family: inherit;
 }
 
-.input-editorial::placeholder {
-  color: var(--color-primary-60);
+/* Alert Rows (Raycast List Item Style) */
+.raycast-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.btn-submit-arrow {
-  width: 48px;
-  height: 48px;
+.raycast-alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  transition: var(--transition-fast);
+}
+
+.raycast-alert-item:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-muted-outline);
+}
+
+.alert-dot-critical {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--color-primary);
-  color: var(--color-surface);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition);
+  box-shadow: 0 0 8px var(--color-primary);
+  flex-shrink: 0;
+  margin-right: 12px;
 }
 
-.btn-submit-arrow:hover {
-  background: var(--color-primary-60);
+.alert-dot-warning {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+  margin-right: 12px;
 }
 
-/* Prompt Chips (Pill components per Lusion spec) */
-.prompt-chips-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+.alert-text-body {
+  flex: 1;
 }
 
-.chips-label-mono {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary-60);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.chip-pill {
-  background: var(--color-surface);
-  color: var(--color-primary);
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-full);
-  font-size: 13px;
+.alert-row-heading {
+  font-size: 14px;
   font-weight: 500;
-  padding: 8px 16px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: var(--transition);
+  color: var(--color-on-surface);
+  margin-bottom: 3px;
 }
 
-.chip-pill:hover {
-  background: var(--color-primary);
-  color: var(--color-surface);
-  border-color: var(--color-primary);
+.alert-row-desc {
+  font-size: 13px;
+  color: var(--color-secondary);
+}
+
+.btn-raycast-action {
+  background: transparent;
+  border: 1px solid var(--color-outline);
+  color: var(--color-on-surface);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-raycast-action:hover {
+  background: var(--color-tertiary);
+  color: var(--color-neutral);
+}
+
+/* Schedule List (Raycast Command List Items) */
+.schedule-section-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.schedule-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.schedule-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.01);
+  font-size: 13px;
+}
+
+.schedule-entry.active {
+  background: rgba(255, 92, 122, 0.08);
+  border: 1px solid rgba(255, 92, 122, 0.25);
+}
+
+.time-slot {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-secondary);
+  width: 120px;
+}
+
+.entry-name {
+  flex: 1;
+  color: var(--color-on-surface);
+  font-weight: 500;
+}
+
+.entry-badge {
+  font-size: 11px;
+  color: var(--color-secondary);
 }
 
 /* --------------------------------------------------------------------------
-   Thought Inspector Drawer (Stark Monochrome Telemetry)
+   Thought Inspector Drawer (Raycast DevTools Sidebar)
    -------------------------------------------------------------------------- */
-.lusion-inspector-pane {
-  width: 460px;
-  border-left: 1px solid var(--color-secondary);
+.raycast-inspector {
+  width: 440px;
+  border-left: 1px solid var(--color-outline);
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
-  transition: var(--transition);
+  transition: var(--transition-smooth);
 }
 
-.lusion-inspector-pane.collapsed {
+.raycast-inspector.collapsed {
   display: none;
 }
 
-.inspector-top {
-  border-bottom: 1px solid var(--color-secondary);
-  padding: 24px 32px;
+.inspector-header-bar {
+  border-bottom: 1px solid var(--color-outline);
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.inspector-heading {
-  font-size: 15px;
+.inspector-title {
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: -0.3px;
-  color: var(--color-primary);
+  color: var(--color-on-surface);
 }
 
-.btn-close-clean {
+.btn-close-raycast {
   background: transparent;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
+  color: var(--color-secondary);
   cursor: pointer;
-  color: var(--color-primary-60);
 }
 
-.btn-close-clean:hover {
-  color: var(--color-primary);
+.btn-close-raycast:hover {
+  color: var(--color-on-surface);
 }
 
-.inspector-content {
+.inspector-body-content {
   flex: 1;
-  padding: 32px;
+  padding: 24px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 }
 
-.spec-table {
-  border: 1px solid var(--color-secondary);
+.raycast-spec-table {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.spec-row {
+.raycast-spec-row {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
 }
 
-.spec-row .k {
-  color: var(--color-primary-60);
+.raycast-spec-row .label {
+  color: var(--color-secondary);
 }
 
-.spec-row .v {
+.raycast-spec-row .val {
   font-family: var(--font-mono);
-  font-weight: 500;
   color: var(--color-primary);
+  font-weight: 500;
 }
 
-.section-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--color-primary-60);
-  margin-bottom: 12px;
-}
-
-.trace-items-list {
+.raycast-trace-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-.trace-item-editorial {
+.raycast-trace-item {
   border-left: 2px solid var(--color-primary);
-  padding-left: 14px;
+  padding-left: 12px;
 }
 
-.trace-item-stage {
+.trace-item-header {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-weight: 500;
+  color: var(--color-on-surface);
   margin-bottom: 2px;
 }
 
-.trace-item-desc {
+.trace-item-body {
   font-size: 12px;
-  color: var(--color-primary-60);
+  color: var(--color-secondary);
   line-height: 1.4;
 }
 
-.mcp-json-block {
+.mcp-json-pre {
   font-family: var(--font-mono);
   font-size: 11px;
-  line-height: 1.6;
-  background: #f9fafb;
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-sm);
-  padding: 16px;
-  color: var(--color-primary);
+  line-height: 1.5;
+  background: #07080A;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  color: #a5b4fc;
   overflow-x: auto;
   white-space: pre-wrap;
 }
 
 /* --------------------------------------------------------------------------
-   Human-in-the-Loop Dialog (Lusion Stark Minimalist Modal)
+   Raycast Command Sheet / Confirmation Dialog
    -------------------------------------------------------------------------- */
-.lusion-dialog {
+.raycast-sheet {
   margin: auto;
   background: transparent;
   border: none;
   outline: none;
-  max-width: 680px;
+  max-width: 620px;
   width: 90%;
 }
 
-.lusion-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+.raycast-sheet::backdrop {
+  background: rgba(7, 8, 10, 0.8);
+  backdrop-filter: blur(8px);
 }
 
-.dialog-box {
+.sheet-window {
   background: var(--color-surface);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-outline-focus);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 92, 122, 0.15);
 }
 
-.dialog-badge-stark {
+.sheet-badge {
   display: inline-block;
   font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border: 1px solid var(--color-primary);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: rgba(255, 92, 122, 0.1);
+  border: 1px solid rgba(255, 92, 122, 0.3);
   padding: 3px 8px;
-  margin-bottom: 14px;
-}
-
-.dialog-headline {
-  font-size: 30px;
-  font-weight: 400;
-  letter-spacing: -1px;
+  border-radius: var(--radius-sm);
   margin-bottom: 12px;
 }
 
-.dialog-lead {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--color-primary-60);
-  margin-bottom: 24px;
+.sheet-heading {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
 }
 
-.dialog-meta-panel {
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-sm);
-  padding: 20px;
+.sheet-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+}
+
+.sheet-meta-box {
+  background: #07080A;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
-.meta-field-name {
+.sheet-field-title {
   font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--color-primary-60);
-}
-
-.meta-field-val {
-  font-size: 13px;
   font-weight: 500;
-  color: var(--color-primary);
+  color: var(--color-secondary);
+  text-transform: uppercase;
 }
 
-.meta-field-val.code {
-  font-family: var(--font-mono);
-}
-
-.meta-payload-text {
-  background: #f9fafb;
-  border: 1px solid var(--color-secondary);
-  border-radius: var(--radius-sm);
-  padding: 14px;
+.sheet-field-text {
   font-size: 13px;
-  line-height: 1.5;
-  color: var(--color-primary);
+  color: var(--color-on-surface);
 }
 
-.dialog-btn-row {
+.sheet-payload-code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  color: #e2e8f0;
+}
+
+.sheet-actions-row {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
+  gap: 12px;
 }
 
-.btn-secondary-pill {
-  height: 65px;
-  padding: 0 32px;
-  background: var(--color-surface);
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-xl);
-  font-size: 15px;
+.btn-sheet-cancel {
+  background: transparent;
+  color: var(--color-secondary);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 9px 18px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-fast);
 }
 
-.btn-secondary-pill:hover {
-  background: #f9fafb;
+.btn-sheet-cancel:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
 }
 
-.btn-primary-pill {
-  height: 65px;
-  padding: 0 36px;
-  background: var(--color-primary);
-  color: var(--color-surface);
+.btn-sheet-approve {
+  background: var(--color-tertiary);
+  color: var(--color-neutral);
   border: none;
-  border-radius: var(--radius-xl);
-  font-size: 15px;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-fast);
 }
 
-.btn-primary-pill:hover {
-  background: var(--color-primary-60);
+.btn-sheet-approve:hover {
+  background: #E5E7EB;
 }
