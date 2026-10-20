@@ -1,10 +1,10 @@
 /**
- * ChronoOS • Framer Dark Edition Client
+ * ChronoOS • Raycast Dark Edition Client
  * Implements:
  * - Web Speech API (STT & TTS)
- * - Framer Dark card rendering (Electric blue #0099FF highlights, 8px radii, 40px buttons)
+ * - Raycast Dark card rendering (Neon pink-red highlights, 6px/12px radii, Inter typography)
  * - Real-Time Bedrock Agent & MCP Thought Inspector Telemetry
- * - Human-in-the-Loop Framer Modal (<dialog>) Authorization
+ * - Human-in-the-Loop Native Sheet (<dialog>) Authorization
  */
 
 const API_BASE = window.location.origin;
@@ -158,7 +158,7 @@ async function handleFormSubmit() {
 
 async function sendQuery(queryText) {
   stopListening();
-  speechText.innerHTML = `<em>"Analyzing with Amazon Bedrock & MCP Tools..."</em>`;
+  speechText.innerHTML = `<em>"Querying Amazon Bedrock & MCP Tools..."</em>`;
   speechTimestamp.textContent = 'Thinking...';
 
   try {
@@ -178,7 +178,7 @@ async function sendQuery(queryText) {
 }
 
 // -------------------------------------------------------------
-// 4. Rendering Framer Dark Cards & Telemetry
+// 4. Rendering Raycast Dark Cards & Telemetry
 // -------------------------------------------------------------
 
 function renderAgentTurn(data) {
@@ -218,10 +218,10 @@ function renderInspectorTelemetry(data) {
   traceFeed.innerHTML = '';
   data.trace_events.forEach(evt => {
     const item = document.createElement('div');
-    item.className = 'trace-flow-step';
+    item.className = 'trace-node';
     item.innerHTML = `
-      <div class="flow-step-header">${evt.stage} ${evt.tool ? `• <span style="color:var(--color-primary)">${evt.tool}</span>` : ''}</div>
-      <div class="flow-step-desc">${evt.detail || (evt.args ? JSON.stringify(evt.args) : 'Operation executed.')}</div>
+      <div class="trace-node-title">${evt.stage} ${evt.tool ? `• <span style="color:var(--color-primary)">${evt.tool}</span>` : ''}</div>
+      <div class="trace-node-desc">${evt.detail || (evt.args ? JSON.stringify(evt.args) : 'Operation executed.')}</div>
     `;
     traceFeed.appendChild(item);
   });
@@ -235,44 +235,44 @@ function renderInspectorTelemetry(data) {
 
 function renderContractRedlineCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="framer-card">
-      <div class="framer-card-header">
-        <div>
-          <div class="card-tagline">Legal Risk Assessment</div>
-          <h2 class="card-headline">${card.title}</h2>
+    <div class="raycast-card-box">
+      <div class="card-heading-bar">
+        <div class="card-title-cluster">
+          <span class="badge-tag-small" style="color:var(--color-primary); border-color:rgba(255,92,122,0.3);">Legal Risk Assessment</span>
+          <h2 class="card-title-text">${card.title}</h2>
         </div>
         <span class="card-date-meta">${card.parties}</span>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; flex-direction:column; gap:14px;">
         ${card.critical_clauses.map(clause => `
-          <div style="background:var(--color-tertiary); border:1px solid var(--color-border); border-radius:8px; padding:18px;">
+          <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:6px; padding:18px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:baseline;">
-              <strong style="font-size:14px; font-weight:600; color:var(--color-secondary);">${clause.section}</strong>
-              <span style="font-size:11px; font-weight:600; color:var(--color-primary); background:rgba(0,153,255,0.12); border:1px solid var(--glow-border); padding:2px 8px; border-radius:4px;">${clause.guardrail_status}</span>
+              <strong style="font-size:14px; font-weight:600; color:var(--color-on-surface);">${clause.section}</strong>
+              <span style="font-size:11px; font-weight:600; color:var(--color-primary); background:rgba(255,92,122,0.12); padding:2px 8px; border-radius:4px;">${clause.guardrail_status}</span>
             </div>
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; font-size:13px;">
-              <div style="background:var(--color-neutral); border:1px solid var(--color-border); padding:12px; border-radius:6px;">
-                <div style="font-size:10px; color:var(--color-muted-text); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Approved Board Mandate</div>
+              <div style="background:#07080A; border:1px solid var(--color-outline); padding:12px; border-radius:6px;">
+                <div style="font-size:10px; color:var(--color-secondary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Approved Board Mandate</div>
                 <div style="line-height:1.4;">${clause.original}</div>
               </div>
-              <div style="background:rgba(255,77,77,0.06); border:1px solid rgba(255,77,77,0.3); padding:12px; border-radius:6px;">
-                <div style="font-size:10px; color:var(--color-error); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Acme Proposed Redline (Violation)</div>
-                <div style="line-height:1.4; color:var(--color-secondary);">${clause.redline}</div>
+              <div style="background:rgba(255,92,122,0.06); border:1px solid rgba(255,92,122,0.3); padding:12px; border-radius:6px;">
+                <div style="font-size:10px; color:var(--color-primary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Acme Proposed Redline (Violation)</div>
+                <div style="line-height:1.4; color:var(--color-on-surface);">${clause.redline}</div>
               </div>
             </div>
 
-            <div style="font-size:12px; color:var(--color-muted-text); border-left:2px solid var(--color-primary); padding-left:10px; line-height:1.4;">
-              <strong style="color:var(--color-secondary);">Autonomous Recommendation:</strong> ${clause.recommendation}
+            <div style="font-size:12px; color:var(--color-secondary); border-left:2px solid var(--color-primary); padding-left:10px; line-height:1.4;">
+              <strong style="color:var(--color-on-surface);">Autonomous Recommendation:</strong> ${clause.recommendation}
             </div>
           </div>
         `).join('')}
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.06); padding-top:16px;">
-        <span style="font-size:12px; color:var(--color-muted-text);">${card.action_prompt}</span>
-        <button class="btn-framer-primary" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px;">
+        <span style="font-size:12px; color:var(--color-secondary);">${card.action_prompt}</span>
+        <button class="btn-raycast-cta" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
           Draft Counter-Offer Now
         </button>
       </div>
@@ -282,26 +282,26 @@ function renderContractRedlineCard(card) {
 
 function renderConfirmationCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="framer-card" style="border-color:var(--glow-border);">
-      <div class="framer-card-header">
-        <div>
-          <div class="card-tagline">Authorization Mandated</div>
-          <h2 class="card-headline">${card.title}</h2>
+    <div class="raycast-card-box" style="border-color:rgba(255,92,122,0.4);">
+      <div class="card-heading-bar">
+        <div class="card-title-cluster">
+          <span class="badge-tag-small" style="color:var(--color-primary); background:rgba(255,92,122,0.1);">Authorization Mandated</span>
+          <h2 class="card-title-text">${card.title}</h2>
         </div>
         <span class="card-date-meta" style="font-family:var(--font-mono); color:var(--color-primary);">${card.token}</span>
       </div>
 
-      <div style="background:var(--color-tertiary); border:1px solid var(--color-border); border-radius:8px; padding:18px; margin-bottom:16px;">
-        <div style="font-size:11px; color:var(--color-muted-text); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Target Recipient</div>
+      <div style="background:#07080A; border:1px solid var(--color-outline); border-radius:6px; padding:18px; margin-bottom:16px;">
+        <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Target Recipient</div>
         <div style="font-size:13px; font-weight:500; margin-bottom:14px;">${card.recipient}</div>
 
-        <div style="font-size:11px; color:var(--color-muted-text); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Drafted Response</div>
-        <div style="font-size:13px; line-height:1.5; white-space:pre-wrap; background:var(--color-neutral); border:1px solid var(--color-border); padding:12px; border-radius:6px; color:#e2e8f0;">${card.payload}</div>
+        <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase; font-weight:600; margin-bottom:4px;">Drafted Response</div>
+        <div style="font-size:13px; line-height:1.5; white-space:pre-wrap; background:rgba(255,255,255,0.02); padding:12px; border-radius:6px; color:#e2e8f0;">${card.payload}</div>
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:12px;">
-        <button class="btn-framer-secondary" onclick="sendQuery('Alexa, cancel this action')">Reject Action</button>
-        <button class="btn-framer-primary" onclick="openHitlDialogCurrent()">Review & Authorize</button>
+        <button class="btn-secondary-flat" onclick="sendQuery('Alexa, cancel this action')">Reject Action</button>
+        <button class="btn-raycast-cta" onclick="openHitlDialogCurrent()">Review & Authorize</button>
       </div>
     </div>
   `;
@@ -309,21 +309,21 @@ function renderConfirmationCard(card) {
 
 function renderExecutionCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="framer-card">
-      <div class="framer-card-header">
-        <div>
-          <div class="card-tagline" style="color:#10b981;">Execution Receipt</div>
-          <h2 class="card-headline">${card.title}</h2>
+    <div class="raycast-card-box">
+      <div class="card-heading-bar">
+        <div class="card-title-cluster">
+          <span class="badge-tag-small" style="color:#10b981; border-color:rgba(16,185,129,0.3);">Execution Receipt</span>
+          <h2 class="card-title-text">${card.title}</h2>
         </div>
         <span class="card-date-meta" style="font-family:var(--font-mono); color:#10b981;">${card.receipt}</span>
       </div>
 
-      <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:8px; padding:20px; margin-bottom:16px;">
-        <div style="font-size:15px; font-weight:600; color:var(--color-secondary); margin-bottom:4px;">${card.status}</div>
-        <div style="font-size:13px; color:var(--color-muted-text); line-height:1.5;">${card.details}</div>
+      <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:6px; padding:20px; margin-bottom:16px;">
+        <div style="font-size:15px; font-weight:600; color:var(--color-on-surface); margin-bottom:4px;">${card.status}</div>
+        <div style="font-size:13px; color:var(--color-secondary); line-height:1.5;">${card.details}</div>
       </div>
 
-      <button class="btn-framer-secondary" onclick="sendQuery('Alexa, give me my morning briefing')">
+      <button class="btn-utility-action" onclick="sendQuery('Alexa, give me my morning briefing')">
         ← Return to Briefing Dashboard
       </button>
     </div>
@@ -332,13 +332,13 @@ function renderExecutionCard(card) {
 
 function renderGenericCard(card) {
   multimodalWidgetArea.innerHTML = `
-    <div class="framer-card">
-      <h2 class="card-headline" style="margin-bottom:8px;">${card.title}</h2>
-      <p style="font-size:14px; color:var(--color-muted-text); margin-bottom:16px; line-height:1.5;">${card.summary || ''}</p>
+    <div class="raycast-card-box">
+      <h2 class="card-title-text" style="margin-bottom:8px;">${card.title}</h2>
+      <p style="font-size:14px; color:var(--color-secondary); margin-bottom:16px; line-height:1.5;">${card.summary || ''}</p>
       ${card.relevant_memories ? `
         <div style="display:flex; flex-direction:column; gap:8px;">
           ${card.relevant_memories.map(m => `
-            <div style="background:var(--color-tertiary); border:1px solid var(--color-border); border-radius:6px; padding:10px 14px; font-size:13px;">
+            <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:6px; padding:10px 14px; font-size:13px;">
               <strong style="color:var(--color-primary);">${m.entity}:</strong> ${m.memory}
             </div>
           `).join('')}
@@ -349,7 +349,7 @@ function renderGenericCard(card) {
 }
 
 // -------------------------------------------------------------
-// 5. Human-in-the-Loop Native Dialog Control
+// 5. Human-in-the-Loop Native Sheet Control
 // -------------------------------------------------------------
 
 function openHitlDialog(action) {
@@ -423,7 +423,7 @@ function initEventListeners() {
     displayInspectorPane.classList.add('collapsed');
   });
 
-  // Global Keyboard Shortcuts
+  // Global Keyboard Shortcuts (Raycast Style)
   window.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();

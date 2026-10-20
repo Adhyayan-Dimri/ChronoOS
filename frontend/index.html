@@ -3,92 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChronoOS • Framer Edition</title>
-  <meta name="description" content="ChronoOS: Autonomous Executive Command Center powered by Framer Dark design system, Alexa+, and Amazon Bedrock.">
+  <title>ChronoOS • Raycast Edition</title>
+  <meta name="description" content="ChronoOS: Autonomous Executive Command Center powered by Raycast Dark design system, Alexa+, and Amazon Bedrock.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=raycast-dark">
 </head>
-<body class="framer-theme">
+<body class="raycast-theme">
 
-  <!-- Framer Header -->
-  <header class="framer-header">
-    <div class="framer-brand-group">
-      <div class="framer-logo-mark">F</div>
-      <a href="#" class="framer-brand-title">Chrono<span>OS</span></a>
-      <span class="framer-tag">Autonomous Chief of Staff • Alexa+ & AWS Bedrock</span>
+  <!-- Raycast Top Navigation -->
+  <header class="raycast-navbar">
+    <div class="raycast-brand">
+      <div class="raycast-icon-box">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 2L2 19.5h20L12 2zm0 4l6.5 11.5h-13L12 6z"/>
+        </svg>
+      </div>
+      <div class="raycast-title">Chrono<span>OS</span></div>
+      <span class="raycast-badge-tag">Autonomous Chief of Staff • Alexa+ & AWS Bedrock</span>
     </div>
 
-    <div class="framer-header-actions">
-      <div class="framer-status-badge">
-        <span class="framer-dot-electric"></span>
+    <div class="nav-actions">
+      <div class="status-pill">
+        <span class="pulse-dot"></span>
         <span id="deviceClock">Wed, Oct 21 • 08:30 AM</span>
       </div>
 
-      <button class="btn-framer-inspector" id="inspectorToggleBtn" title="Toggle Bedrock & MCP Thought Inspector">
+      <button class="btn-nav-utility" id="inspectorToggleBtn" title="Toggle Bedrock & MCP Thought Inspector">
         <span>Thought Inspector</span>
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
+        <span class="kbd">⌘I</span>
       </button>
     </div>
   </header>
 
-  <!-- Main Framer Layout -->
-  <main class="framer-layout">
+  <!-- Main Viewport -->
+  <main class="raycast-body">
     
-    <section class="framer-content-column">
+    <section class="raycast-center-column">
       
-      <!-- Framer Embedded Workspace & Command Panel -->
-      <div class="framer-command-panel">
-        <form class="command-bar-row" id="voiceTextForm" onsubmit="event.preventDefault(); handleFormSubmit();">
-          <button type="button" class="framer-mic-button" id="micOrbBtn" aria-label="Activate Voice Input" title="Click to speak or simulate voice command">
+      <!-- Raycast Command Palette Launcher -->
+      <div class="raycast-command-container">
+        <form class="command-row" id="voiceTextForm" onsubmit="event.preventDefault(); handleFormSubmit();">
+          <button type="button" class="btn-mic-raycast" id="micOrbBtn" aria-label="Activate Voice Input" title="Click to speak or simulate voice command">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
           </button>
-          <input type="text" id="voiceTextInput" class="framer-input-field" placeholder="Enter an executive instruction or speak to ChronoOS..." autocomplete="off">
-          <button type="submit" class="btn-framer-primary" id="sendPromptBtn">
-            <span>Execute Action</span>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+          <input type="text" id="voiceTextInput" class="command-field" placeholder="Search commands, executive tools, or say 'Alexa...' (⌘K)" autocomplete="off">
+          <button type="submit" class="btn-raycast-cta" id="sendPromptBtn">
+            <span>Execute</span>
+            <span class="kbd" style="background:#07080A; color:#FFF; border:none;">↵</span>
           </button>
         </form>
 
-        <!-- Command Quick Inquiries / Chips -->
-        <div class="framer-chips-bar">
+        <!-- Command Shortcut Chips -->
+        <div class="chips-bar">
           <span class="chips-label">Shortcuts:</span>
-          <button class="framer-chip" onclick="sendQuery('Alexa, give me my morning briefing')">
+          <button class="chip-btn" onclick="sendQuery('Alexa, give me my morning briefing')">
             Morning Briefing
           </button>
-          <button class="framer-chip" onclick="sendQuery('Alexa, inspect the Acme merger redline from Sarah')">
+          <button class="chip-btn" onclick="sendQuery('Alexa, inspect the Acme merger redline from Sarah')">
             Acme Merger Redline
           </button>
-          <button class="framer-chip" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
+          <button class="chip-btn" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
             Draft Counter-Offer
           </button>
-          <button class="framer-chip" onclick="sendQuery('Alexa, confirm action and dispatch to legal')">
+          <button class="chip-btn" onclick="sendQuery('Alexa, confirm action and dispatch to legal')">
             Authorize Action
           </button>
-          <button class="framer-chip" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">
+          <button class="chip-btn" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">
             Travel Conflicts
           </button>
         </div>
       </div>
 
-      <!-- Agent Voice Banner (Framer Workspace Status Box) -->
-      <div class="framer-agent-banner">
-        <div class="agent-icon-cube">⚡</div>
-        <div class="agent-text-wrap">
-          <div class="agent-meta-line">
-            <span class="agent-title">ChronoOS Chief of Staff</span>
-            <span class="agent-timestamp" id="speechTimestamp">Just now</span>
+      <!-- Agent Voice Banner -->
+      <div class="raycast-banner">
+        <div class="banner-icon">✦</div>
+        <div class="banner-body">
+          <div class="banner-meta-row">
+            <span class="banner-sender">ChronoOS Chief of Staff</span>
+            <span class="banner-time-label" id="speechTimestamp">Just now</span>
           </div>
-          <p class="agent-speech-p" id="speechText">
+          <p class="banner-text-speech" id="speechText">
             "Good morning, Alex. Executive streams are active. You have four meetings scheduled today with two critical alerts requiring attention before 2:00 PM."
           </p>
         </div>
@@ -96,78 +95,78 @@
 
       <!-- Dynamic Multimodal Widget Area -->
       <div id="multimodalWidgetArea">
-        <div class="framer-card" id="briefingCard">
-          <div class="framer-card-header">
-            <div>
-              <div class="card-tagline">Daily Briefing</div>
-              <h2 class="card-headline">Executive Intelligence Briefing</h2>
+        <div class="raycast-card-box" id="briefingCard">
+          <div class="card-heading-bar">
+            <div class="card-title-cluster">
+              <span class="badge-tag-small">Daily Digest</span>
+              <h2 class="card-title-text">Executive Intelligence Briefing</h2>
             </div>
             <span class="card-date-meta">Wednesday, October 21, 2026</span>
           </div>
 
           <!-- Metric Tiles Grid -->
-          <div class="framer-metrics-grid">
-            <div class="framer-metric-box">
-              <div class="metric-caption">Commitments Today</div>
-              <div class="metric-big-num">4 Meetings</div>
-              <div class="metric-highlight">Critical at 2:00 PM</div>
+          <div class="metrics-row-raycast">
+            <div class="metric-tile-card">
+              <div class="metric-tile-name">Meetings Today</div>
+              <div class="metric-tile-number">4 Commitments</div>
+              <div class="metric-tile-highlight">Critical at 2:00 PM</div>
             </div>
-            <div class="framer-metric-box">
-              <div class="metric-caption">Active Alerts</div>
-              <div class="metric-big-num">2 Urgent</div>
-              <div class="metric-highlight">Legal & Travel</div>
+            <div class="metric-tile-card">
+              <div class="metric-tile-name">Active Alerts</div>
+              <div class="metric-tile-number">2 Urgent</div>
+              <div class="metric-tile-highlight">Legal & Travel</div>
             </div>
-            <div class="framer-metric-box">
-              <div class="metric-caption">ARR & Cash Runway</div>
-              <div class="metric-big-num">$64.2M</div>
-              <div class="metric-highlight">+34% YoY • 29.4 mo</div>
+            <div class="metric-tile-card">
+              <div class="metric-tile-name">ARR & Runway</div>
+              <div class="metric-tile-number">$64.2M</div>
+              <div class="metric-tile-highlight">+34% YoY • 29.4 mo</div>
             </div>
           </div>
 
           <!-- Alert Stack -->
-          <div class="framer-alerts-container">
-            <div class="framer-alert-entry">
-              <span class="alert-dot-blue"></span>
-              <div class="alert-entry-content">
-                <div class="alert-entry-title">Acme Corp Merger: $12M Indemnification Cap Redline</div>
-                <div class="alert-entry-desc">General Counsel Sarah Chen flagged Section 9.2: Acme altered cap from $5M to $12M. Decision required before 2 PM call.</div>
+          <div class="alerts-stack">
+            <div class="alert-card-row">
+              <span class="dot-critical"></span>
+              <div class="alert-content-wrap">
+                <div class="alert-line-title">Acme Corp Merger: $12M Indemnification Cap Redline</div>
+                <div class="alert-line-snippet">General Counsel Sarah Chen flagged Section 9.2: Acme altered cap from $5M to $12M. Decision required before 2 PM call.</div>
               </div>
-              <button class="btn-framer-secondary" onclick="sendQuery('Alexa, inspect the Acme merger redline from Sarah')">Inspect</button>
+              <button class="btn-utility-action" onclick="sendQuery('Alexa, inspect the Acme merger redline from Sarah')">Inspect</button>
             </div>
 
-            <div class="framer-alert-entry">
-              <span class="alert-dot-blue" style="background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span>
-              <div class="alert-entry-content">
-                <div class="alert-entry-title">Flight UA 482 SFO → JFK Delayed 45m</div>
-                <div class="alert-entry-desc">United Airlines alert: Arrival delayed to 08:35 AM EDT. Conflicts with 9:00 AM keynote prep buffer.</div>
+            <div class="alert-card-row">
+              <span class="dot-warning"></span>
+              <div class="alert-content-wrap">
+                <div class="alert-line-title">Flight UA 482 SFO → JFK Delayed 45m</div>
+                <div class="alert-line-snippet">United Airlines alert: Arrival delayed to 08:35 AM EDT. Conflicts with 9:00 AM keynote prep buffer.</div>
               </div>
-              <button class="btn-framer-secondary" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">Resolve</button>
+              <button class="btn-utility-action" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">Resolve</button>
             </div>
           </div>
 
-          <!-- Schedule List -->
+          <!-- Schedule Stack -->
           <div>
-            <div class="schedule-group-label">Today's Executive Schedule</div>
-            <div class="schedule-rows-stack">
-              <div class="schedule-item-line">
-                <span class="item-time-stamp">09:00 - 09:30</span>
-                <span class="item-name-text">Executive Leadership Daily Standup</span>
-                <span class="item-badge-pill">Internal Leadership</span>
+            <div class="schedule-subheading">Today's Executive Schedule</div>
+            <div class="schedule-list-stack">
+              <div class="schedule-row-item">
+                <span class="schedule-clock">09:00 - 09:30</span>
+                <span class="schedule-title">Executive Leadership Daily Standup</span>
+                <span class="schedule-tag">Internal Leadership</span>
               </div>
-              <div class="schedule-item-line">
-                <span class="item-time-stamp">11:00 - 12:15</span>
-                <span class="item-name-text">Q3 Board Deck Final Review (Elena Rostova)</span>
-                <span class="item-badge-pill">Board Governance</span>
+              <div class="schedule-row-item">
+                <span class="schedule-clock">11:00 - 12:15</span>
+                <span class="schedule-title">Q3 Board Deck Final Review (Elena Rostova)</span>
+                <span class="schedule-tag">Board Governance</span>
               </div>
-              <div class="schedule-item-line active">
-                <span class="item-time-stamp">14:00 - 15:00</span>
-                <span class="item-name-text">Project Apex: M&A Due Diligence & Legal Call</span>
-                <span class="item-badge-pill" style="color:var(--color-primary); font-weight:600;">High Stakes Negotiation</span>
+              <div class="schedule-row-item active">
+                <span class="schedule-clock">14:00 - 15:00</span>
+                <span class="schedule-title">Project Apex: M&A Due Diligence & Legal Call</span>
+                <span class="schedule-tag" style="color:var(--color-primary); font-weight:600;">High Stakes Negotiation</span>
               </div>
-              <div class="schedule-item-line">
-                <span class="item-time-stamp">16:30 - 17:30</span>
-                <span class="item-name-text">Global Partner Ecosystem Keynote Rehearsal</span>
-                <span class="item-badge-pill">External Keynote</span>
+              <div class="schedule-row-item">
+                <span class="schedule-clock">16:30 - 17:30</span>
+                <span class="schedule-title">Global Partner Ecosystem Keynote Rehearsal</span>
+                <span class="schedule-tag">External Keynote</span>
               </div>
             </div>
           </div>
@@ -177,54 +176,54 @@
 
     </section>
 
-    <!-- Thought Inspector Sidebar (Framer DevTools Panel) -->
-    <aside class="framer-inspector-drawer" id="displayInspectorPane">
-      <div class="inspector-drawer-top">
-        <h3 class="drawer-headline">Bedrock Agent & MCP Telemetry</h3>
-        <button class="btn-close-framer" id="closeInspectorBtn" aria-label="Close Inspector">✕</button>
+    <!-- Thought Inspector Sidebar (Raycast DevTools Panel) -->
+    <aside class="raycast-drawer" id="displayInspectorPane">
+      <div class="drawer-header">
+        <h3 class="drawer-title">Bedrock Agent & MCP Telemetry</h3>
+        <button class="btn-drawer-close" id="closeInspectorBtn" aria-label="Close Inspector">✕</button>
       </div>
 
-      <div class="drawer-body-scroll">
+      <div class="drawer-body">
         
         <div>
-          <div class="schedule-group-label">Active Specifications</div>
-          <div class="framer-telemetry-box">
-            <div class="telemetry-entry">
-              <span class="key">Model:</span>
-              <span class="val" id="telemetryModel">anthropic.claude-3-5-sonnet</span>
+          <div class="schedule-subheading">Active Specifications</div>
+          <div class="spec-grid">
+            <div class="spec-line">
+              <span class="label">Model:</span>
+              <span class="value" id="telemetryModel">anthropic.claude-3-5-sonnet</span>
             </div>
-            <div class="telemetry-entry">
-              <span class="key">Transport:</span>
-              <span class="val">MCP Streamable HTTP</span>
+            <div class="spec-line">
+              <span class="label">Transport:</span>
+              <span class="value">MCP Streamable HTTP</span>
             </div>
-            <div class="telemetry-entry">
-              <span class="key">Guardrail Policy:</span>
-              <span class="val">Executive_Liability_Cap_v2.4</span>
+            <div class="spec-line">
+              <span class="label">Guardrail Policy:</span>
+              <span class="value">Executive_Liability_Cap_v2.4</span>
             </div>
-            <div class="telemetry-entry">
-              <span class="key">Roundtrip Latency:</span>
-              <span class="val" id="telemetryLatency">184 ms</span>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="schedule-group-label">Agent Thought Trace</div>
-          <div class="framer-trace-flow" id="traceFeed">
-            <div class="trace-flow-step">
-              <div class="flow-step-header">System Boot & Discovery</div>
-              <div class="flow-step-desc">Initialized 7 MCP tools over JSON-RPC 2.0. Episodic memory active.</div>
-            </div>
-            <div class="trace-flow-step">
-              <div class="flow-step-header">Amazon Bedrock Gateway</div>
-              <div class="flow-step-desc">Targeting Claude 3.5 Sonnet / Nova Pro with autonomous fallback.</div>
+            <div class="spec-line">
+              <span class="label">Roundtrip Latency:</span>
+              <span class="value" id="telemetryLatency">184 ms</span>
             </div>
           </div>
         </div>
 
         <div>
-          <div class="schedule-group-label">Active MCP JSON-RPC Payload</div>
-          <pre class="framer-json-code" id="mcpPayloadJson">{
+          <div class="schedule-subheading">Agent Thought Trace</div>
+          <div class="trace-items-container" id="traceFeed">
+            <div class="trace-node">
+              <div class="trace-node-title">System Boot & Discovery</div>
+              <div class="trace-node-desc">Initialized 7 MCP tools over JSON-RPC 2.0. Episodic memory active.</div>
+            </div>
+            <div class="trace-node">
+              <div class="trace-node-title">Amazon Bedrock Gateway</div>
+              <div class="trace-node-desc">Targeting Claude 3.5 Sonnet / Nova Pro with autonomous fallback.</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="schedule-subheading">Active MCP JSON-RPC Payload</div>
+          <pre class="mcp-code-block" id="mcpPayloadJson">{
   "tool": "get_executive_briefing",
   "arguments": {
     "urgency_filter": "high"
@@ -238,42 +237,42 @@
 
   </main>
 
-  <!-- Framer Confirmation Modal (<dialog>) -->
-  <dialog class="framer-modal-dialog" id="hitlDialog" closedby="any">
-    <div class="framer-modal-container">
-      <span class="modal-chip-tag">HUMAN-IN-THE-LOOP AUTHORIZATION REQUIRED</span>
-      <h2 class="modal-headline" id="dialogTitle">High-Stakes Legal Counter-Offer</h2>
-      <p class="modal-subtext">
+  <!-- Raycast Confirmation Sheet (<dialog>) -->
+  <dialog class="raycast-modal" id="hitlDialog" closedby="any">
+    <div class="modal-window">
+      <span class="modal-badge-red">HUMAN-IN-THE-LOOP AUTHORIZATION REQUIRED</span>
+      <h2 class="modal-header-text" id="dialogTitle">High-Stakes Legal Counter-Offer</h2>
+      <p class="modal-caption">
         Amazon Bedrock Guardrails intercepted this executive action because it commits corporate legal liability on Project Apex ($48M Transaction).
       </p>
 
       <div class="modal-data-box">
         <div>
-          <span class="box-field-label">Action Token:</span>
-          <span class="box-field-val" style="font-family:var(--font-mono); color:var(--color-primary);" id="dialogToken">ACT-AUTH-7F89B2</span>
+          <span class="modal-field-title">Action Token:</span>
+          <span class="modal-field-content" style="font-family:var(--font-mono); color:var(--color-primary);" id="dialogToken">ACT-AUTH-7F89B2</span>
         </div>
         <div>
-          <span class="box-field-label">Target Recipient:</span>
-          <span class="box-field-val" id="dialogRecipient">Sarah Chen &lt;sarah.chen@aetherdynamics.com&gt;</span>
+          <span class="modal-field-title">Target Recipient:</span>
+          <span class="modal-field-content" id="dialogRecipient">Sarah Chen &lt;sarah.chen@aetherdynamics.com&gt;</span>
         </div>
         <div>
-          <span class="box-field-label">Draft Counter-Offer:</span>
-          <div class="box-code-payload" id="dialogPayload">
+          <span class="modal-field-title">Draft Counter-Offer:</span>
+          <div class="modal-payload-pre" id="dialogPayload">
             SUBJECT: RE: Project Apex - Board Position on Section 9.2 & 12.4
             Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a hard $5.5M ceiling with reciprocal indemnification. On Section 12.4, strike the foundation model license entirely—Acme may only receive run-time rights. I will lead this position on our 2:00 PM call. - Alex Mercer, CEO
           </div>
         </div>
       </div>
 
-      <div class="modal-actions-row">
-        <button class="btn-framer-secondary" onclick="closeDialog('REJECTED')">Reject Action</button>
-        <button class="btn-framer-primary" id="dialogApproveBtn" onclick="confirmAction('APPROVED')">
+      <div class="modal-button-row">
+        <button class="btn-secondary-flat" onclick="closeDialog('REJECTED')">Reject Action</button>
+        <button class="btn-raycast-cta" id="dialogApproveBtn" onclick="confirmAction('APPROVED')">
           Approve & Dispatch via Bedrock
         </button>
       </div>
     </div>
   </dialog>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=raycast-dark"></script>
 </body>
 </html>

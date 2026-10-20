@@ -1,46 +1,47 @@
 /* ==========================================================================
-   ChronoOS • Framer Dark Design System
-   Based on framer.com-design.md:
-   - Base pure black (#000000) with deep blue-black surface (#0E1020 & #0B0B12)
-   - Electric Blue signature accent (#0099FF)
-   - Restrained cool gray borders (#374151) and muted text (#A1A1AA)
-   - 8px radii (md) for buttons/cards, 12px (lg) for panels, 9999px for chips
-   - Compact, crisp 40px buttons with high-contrast white primary CTAs
-   - Negative letter-spacing editorial typography
+   ChronoOS • RAYCAST DARK DESIGN SYSTEM
+   Strictly generated from raycast.com-design.md
+   - Canvas: Near-black (#07080A) with focused neon pink-red glow (#FF5C7A / #FF3D5C)
+   - Surface: #0B0D10 (Lifted dark containers, inputs, cards)
+   - Secondary: #9C9C9D (Graphite text, muted chrome)
+   - Tertiary: #FFFFFF (Clean white for standout primary CTAs and headlines)
+   - Outlines: Translucent #FFFFFF0F (rgba(255, 255, 255, 0.06)) & #9C9C9D33
+   - Typography: Inter exclusively, medium/semibold, 0.2px letter spacing
+   - Radii: md: 6px (buttons & inputs), lg: 12px (cards & panels), full: 9999px (chips)
+   - Heights: 41px for buttons & inputs
    ========================================================================== */
 
 :root {
-  --color-primary: #0099FF;
-  --color-secondary: #FFFFFF;
-  --color-tertiary: #0B0B12;
-  --color-neutral: #000000;
-  --color-surface: #0E1020;
-  --color-surface-hover: #14172e;
+  --color-primary: #FF5C7A;
+  --color-primary-strong: #FF3D5C;
+  --color-secondary: #9C9C9D;
+  --color-tertiary: #FFFFFF;
+  --color-neutral: #07080A;
+  --color-surface: #0B0D10;
+  --color-surface-hover: #12151A;
   --color-on-surface: #FFFFFF;
-  --color-border: #374151;
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
-  --color-muted-text: #A1A1AA;
-  --color-error: #FF4D4D;
-  
-  --glow-electric: rgba(0, 153, 255, 0.22);
-  --glow-border: rgba(0, 153, 255, 0.45);
+  --color-outline: rgba(255, 255, 255, 0.06);
+  --color-outline-focus: rgba(255, 92, 122, 0.45);
+  --color-muted-outline: rgba(156, 156, 157, 0.2);
+  --color-error: #FF4D4F;
 
-  --font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  --radius-none: 0px;
   --radius-sm: 4px;
-  --radius-md: 8px;
+  --radius-md: 6px;
   --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   --space-xs: 6px;
   --space-sm: 16px;
-  --space-md: 40px;
-  --space-lg: 60px;
-  --space-xl: 120px;
+  --space-md: 32px;
+  --space-lg: 50px;
+  --space-xl: 72px;
 
-  --transition: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -50,116 +51,113 @@
   -webkit-font-smoothing: antialiased;
 }
 
-body.framer-theme {
+body.raycast-theme {
   font-family: var(--font-family);
   background-color: var(--color-neutral);
   background-image: 
-    radial-gradient(ellipse 70% 45% at 50% -10%, rgba(0, 153, 255, 0.15) 0%, transparent 60%),
-    radial-gradient(circle 600px at 85% 90%, rgba(0, 153, 255, 0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 65% 50% at 50% -12%, rgba(255, 92, 122, 0.18) 0%, transparent 65%),
+    radial-gradient(circle 600px at 85% 85%, rgba(255, 61, 92, 0.05) 0%, transparent 70%);
   color: var(--color-on-surface);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  letter-spacing: -0.1px;
+  letter-spacing: 0.2px;
 }
 
 /* --------------------------------------------------------------------------
-   Framer Header Navigation
+   Raycast Top Navigation
    -------------------------------------------------------------------------- */
-.framer-header {
-  border-bottom: 1px solid var(--color-border-subtle);
-  padding: 16px 40px;
+.raycast-navbar {
+  border-bottom: 1px solid var(--color-outline);
+  padding: 14px 36px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(11, 11, 18, 0.85);
+  background: rgba(11, 13, 16, 0.82);
   backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
-.framer-brand-group {
+.raycast-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.framer-logo-mark {
-  width: 24px;
-  height: 24px;
-  background: var(--color-primary);
-  border-radius: var(--radius-sm);
+.raycast-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 14px var(--glow-electric);
-  color: #000;
-  font-weight: 800;
-  font-size: 13px;
+  box-shadow: 0 0 16px rgba(255, 92, 122, 0.4);
+  color: white;
 }
 
-.framer-brand-title {
-  font-size: 17px;
+.raycast-title {
+  font-size: 16px;
   font-weight: 600;
-  color: var(--color-secondary);
-  letter-spacing: -0.5px;
-  text-decoration: none;
+  color: var(--color-on-surface);
+  letter-spacing: -0.2px;
 }
 
-.framer-brand-title span {
+.raycast-title span {
   color: var(--color-primary);
 }
 
-.framer-tag {
+.raycast-badge-tag {
   font-size: 12px;
-  color: var(--color-muted-text);
-  border-left: 1px solid var(--color-border);
+  color: var(--color-secondary);
+  border-left: 1px solid var(--color-muted-outline);
   padding-left: 12px;
+  font-weight: 400;
 }
 
-.framer-header-actions {
+.nav-actions {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.framer-status-badge {
+.status-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-muted-text);
-  background: var(--color-tertiary);
-  border: 1px solid var(--color-border);
-  padding: 5px 12px;
+  color: var(--color-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  padding: 6px 12px;
   border-radius: var(--radius-full);
 }
 
-.framer-dot-electric {
+.pulse-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--color-primary);
   box-shadow: 0 0 8px var(--color-primary);
-  animation: framerPulse 2s infinite;
+  animation: raycastGlow 2s infinite;
 }
 
-@keyframes framerPulse {
+@keyframes raycastGlow {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.4); }
+  50% { opacity: 0.4; transform: scale(1.3); }
 }
 
-.btn-framer-inspector {
-  background: var(--color-tertiary);
-  border: 1px solid var(--color-border);
+.btn-nav-utility {
+  background: transparent;
+  border: 1px solid var(--color-outline);
   color: var(--color-secondary);
   font-size: 13px;
   font-weight: 500;
-  height: 38px;
-  padding: 0 14px;
+  padding: 6px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: inline-flex;
@@ -168,60 +166,75 @@ body.framer-theme {
   transition: var(--transition);
 }
 
-.btn-framer-inspector:hover {
-  background: #181926;
-  border-color: var(--color-primary);
+.btn-nav-utility:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
+  border-color: var(--color-muted-outline);
+}
+
+.kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-outline);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  color: var(--color-secondary);
 }
 
 /* --------------------------------------------------------------------------
-   Main Workspace Layout
+   Raycast Center Viewport Layout
    -------------------------------------------------------------------------- */
-.framer-layout {
+.raycast-body {
   flex: 1;
   display: flex;
-  max-width: 1440px;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
 }
 
-.framer-content-column {
+.raycast-center-column {
   flex: 1;
-  padding: 36px 48px;
+  padding: 36px 44px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 /* --------------------------------------------------------------------------
-   Framer Embedded Workspace & Command Bar
+   Raycast Launcher / Command Palette Input (Component: input 41px / rounded md)
    -------------------------------------------------------------------------- */
-.framer-command-panel {
+.raycast-command-container {
   background: var(--color-surface);
-  border: 1px solid var(--glow-border);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-lg);
-  box-shadow: 0 0 35px rgba(0, 153, 255, 0.08);
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.8);
   overflow: hidden;
   transition: var(--transition);
 }
 
-.command-bar-row {
-  display: flex;
-  align-items: center;
-  padding: 12px 18px;
-  gap: 12px;
-  background: rgba(11, 11, 18, 0.7);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+.raycast-command-container:focus-within {
+  border-color: var(--color-outline-focus);
+  box-shadow: 0 20px 45px -10px rgba(255, 92, 122, 0.2);
 }
 
-.framer-mic-button {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: rgba(0, 153, 255, 0.12);
-  border: 1px solid rgba(0, 153, 255, 0.35);
+.command-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 12px;
+  height: 56px;
+  border-bottom: 1px solid var(--color-outline);
+}
+
+/* Microphone Activation Button (Raycast Neon Accent) */
+.btn-mic-raycast {
+  background: rgba(255, 92, 122, 0.12);
+  border: 1px solid rgba(255, 92, 122, 0.3);
   color: var(--color-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -230,389 +243,414 @@ body.framer-theme {
   flex-shrink: 0;
 }
 
-.framer-mic-button:hover {
+.btn-mic-raycast:hover {
   background: var(--color-primary);
-  color: #000;
-  box-shadow: 0 0 16px var(--glow-electric);
+  color: white;
+  box-shadow: 0 0 16px rgba(255, 92, 122, 0.5);
 }
 
-.framer-mic-button.active {
-  background: var(--color-primary);
-  color: #000;
+.btn-mic-raycast.active {
+  background: var(--color-primary-strong);
+  color: white;
+  box-shadow: 0 0 22px rgba(255, 61, 92, 0.8);
   animation: micPulse 1.2s infinite;
 }
 
 @keyframes micPulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 14px var(--color-primary); }
-  50% { transform: scale(1.08); box-shadow: 0 0 24px var(--color-primary); }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
-.framer-input-field {
+.command-field {
   flex: 1;
   background: transparent;
   border: none;
   outline: none;
   font-size: 15px;
   font-family: inherit;
+  color: var(--color-on-surface);
+}
+
+.command-field::placeholder {
   color: var(--color-secondary);
 }
 
-.framer-input-field::placeholder {
-  color: var(--color-muted-text);
-}
-
-/* Primary Button: 40px height, 8px radius, white background per Framer spec */
-.btn-framer-primary {
-  height: 40px;
-  padding: 0 18px;
-  background: var(--color-secondary);
+/* Raycast Standout Secondary Button (Component: button-secondary: tertiary #FFF background, neutral #07080A text, 41px height) */
+.btn-raycast-cta {
+  background: var(--color-tertiary);
   color: var(--color-neutral);
   border: none;
   border-radius: var(--radius-md);
+  height: 41px;
+  padding: 0 16px;
   font-size: 13px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
   transition: var(--transition);
   flex-shrink: 0;
 }
 
-.btn-framer-primary:hover {
+.btn-raycast-cta:hover {
   background: #E5E7EB;
-  transform: translateY(-1px);
 }
 
-/* Chip Bar (Rounded Full per Framer chip spec) */
-.framer-chips-bar {
+/* Quick Inquiry Chips (Component: chip: surface, secondary text, rounded full, 6px 10px) */
+.chips-bar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  background: var(--color-tertiary);
+  padding: 8px 16px;
+  background: rgba(7, 8, 10, 0.4);
   overflow-x: auto;
 }
 
 .chips-label {
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
-.framer-chip {
-  background: var(--color-tertiary);
-  border: 1px solid var(--color-border);
-  color: var(--color-muted-text);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 5px 12px;
+.chip-btn {
+  background: var(--color-surface);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 400;
+  padding: 6px 12px;
   cursor: pointer;
   white-space: nowrap;
   transition: var(--transition);
 }
 
-.framer-chip:hover {
-  border-color: var(--color-primary);
-  color: var(--color-secondary);
-  background: rgba(0, 153, 255, 0.08);
+.chip-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
+  border-color: var(--color-muted-outline);
 }
 
 /* --------------------------------------------------------------------------
-   Agent Voice Banner (Framer Workspace Status Box)
+   Agent Voice Feedback Strip
    -------------------------------------------------------------------------- */
-.framer-agent-banner {
+.raycast-banner {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
   padding: 18px 22px;
   display: flex;
   align-items: flex-start;
   gap: 14px;
+  position: relative;
+  overflow: hidden;
 }
 
-.agent-icon-cube {
+.raycast-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-strong));
+}
+
+.banner-icon {
   width: 28px;
   height: 28px;
-  background: rgba(0, 153, 255, 0.15);
-  border: 1px solid var(--glow-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  background: rgba(255, 92, 122, 0.12);
+  border: 1px solid rgba(255, 92, 122, 0.25);
   color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
-.agent-text-wrap {
+.banner-body {
   flex: 1;
 }
 
-.agent-meta-line {
+.banner-meta-row {
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
 }
 
-.agent-title {
+.banner-sender {
   font-size: 12px;
   font-weight: 600;
   color: var(--color-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.agent-timestamp {
+.banner-time-label {
   font-size: 11px;
-  color: var(--color-muted-text);
-}
-
-.agent-speech-p {
-  font-size: 15px;
-  line-height: 1.5;
   color: var(--color-secondary);
 }
 
+.banner-text-speech {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-on-surface);
+}
+
 /* --------------------------------------------------------------------------
-   Framer Dynamic Workspace Cards (panel-glow: #0E1020, 8px radius)
+   Raycast Dynamic Cards (Component: card: neutral/surface, outline, rounded lg: 12px, padding 24px)
    -------------------------------------------------------------------------- */
-.framer-card {
+.raycast-card-box {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.framer-card-header {
+.card-heading-bar {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding-bottom: 14px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-outline);
+  padding-bottom: 12px;
 }
 
-.card-tagline {
+.card-title-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-tag-small {
   font-size: 11px;
-  font-weight: 600;
-  color: var(--color-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-outline);
+  color: var(--color-secondary);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
 }
 
-.card-headline {
-  font-size: 22px;
+.card-title-text {
+  font-size: 17px;
   font-weight: 500;
-  letter-spacing: -0.6px;
-  color: var(--color-secondary);
-  margin-top: 4px;
+  color: var(--color-on-surface);
+  letter-spacing: -0.2px;
 }
 
 .card-date-meta {
   font-size: 12px;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
 }
 
-/* Metrics Row (3 Columns) */
-.framer-metrics-grid {
+/* Metric Tiles Grid */
+.metrics-row-raycast {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 14px;
 }
 
-.framer-metric-box {
-  background: var(--color-tertiary);
-  border: 1px solid var(--color-border);
+.metric-tile-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   padding: 16px;
 }
 
-.metric-caption {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-muted-text);
+.metric-tile-name {
+  font-size: 12px;
+  color: var(--color-secondary);
   margin-bottom: 6px;
-  text-transform: uppercase;
 }
 
-.metric-big-num {
-  font-size: 26px;
+.metric-tile-number {
+  font-size: 24px;
   font-weight: 600;
-  letter-spacing: -0.8px;
-  color: var(--color-secondary);
+  color: var(--color-on-surface);
+  letter-spacing: -0.3px;
   margin-bottom: 4px;
 }
 
-.metric-highlight {
+.metric-tile-highlight {
   font-size: 11px;
   font-weight: 500;
   color: var(--color-primary);
 }
 
-/* Alerts List */
-.framer-alerts-container {
+/* Alert List (Raycast Search Result Style) */
+.alerts-stack {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.framer-alert-entry {
+.alert-card-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-tertiary);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   padding: 14px 18px;
   transition: var(--transition);
 }
 
-.framer-alert-entry:hover {
-  border-color: var(--color-primary);
+.alert-card-row:hover {
   background: var(--color-surface-hover);
+  border-color: var(--color-muted-outline);
 }
 
-.alert-dot-blue {
+.dot-critical {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--color-primary);
   box-shadow: 0 0 8px var(--color-primary);
-  margin-right: 12px;
   flex-shrink: 0;
+  margin-right: 12px;
 }
 
-.alert-entry-content {
+.dot-warning {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.alert-content-wrap {
   flex: 1;
 }
 
-.alert-entry-title {
+.alert-line-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-secondary);
-  margin-bottom: 2px;
+  color: var(--color-on-surface);
+  margin-bottom: 3px;
 }
 
-.alert-entry-desc {
+.alert-line-snippet {
   font-size: 13px;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
 }
 
-.btn-framer-secondary {
-  height: 36px;
-  padding: 0 14px;
-  background: var(--color-tertiary);
-  color: var(--color-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+.btn-utility-action {
+  background: transparent;
+  border: 1px solid var(--color-outline);
+  color: var(--color-on-surface);
   font-size: 12px;
   font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: var(--transition);
 }
 
-.btn-framer-secondary:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+.btn-utility-action:hover {
+  background: var(--color-tertiary);
+  color: var(--color-neutral);
 }
 
 /* Schedule Stack */
-.schedule-group-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-muted-text);
+.schedule-subheading {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-secondary);
   text-transform: uppercase;
-  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
 
-.schedule-rows-stack {
+.schedule-list-stack {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.schedule-item-line {
+.schedule-row-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  background: var(--color-tertiary);
   border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.01);
   font-size: 13px;
 }
 
-.schedule-item-line.active {
-  border: 1px solid var(--glow-border);
-  background: rgba(0, 153, 255, 0.08);
+.schedule-row-item.active {
+  background: rgba(255, 92, 122, 0.08);
+  border: 1px solid rgba(255, 92, 122, 0.25);
 }
 
-.item-time-stamp {
+.schedule-clock {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
   width: 120px;
 }
 
-.item-name-text {
+.schedule-title {
   flex: 1;
-  color: var(--color-secondary);
+  color: var(--color-on-surface);
   font-weight: 500;
 }
 
-.item-badge-pill {
+.schedule-tag {
   font-size: 11px;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
 }
 
 /* --------------------------------------------------------------------------
-   Thought Inspector Drawer (Framer Dev Panel)
+   Thought Inspector Drawer (Raycast DevTools Sidebar)
    -------------------------------------------------------------------------- */
-.framer-inspector-drawer {
+.raycast-drawer {
   width: 440px;
-  border-left: 1px solid var(--color-border-subtle);
-  background: var(--color-tertiary);
+  border-left: 1px solid var(--color-outline);
+  background: var(--color-surface);
   display: flex;
   flex-direction: column;
   transition: var(--transition);
 }
 
-.framer-inspector-drawer.collapsed {
+.raycast-drawer.collapsed {
   display: none;
 }
 
-.inspector-drawer-top {
-  border-bottom: 1px solid var(--color-border-subtle);
+.drawer-header {
+  border-bottom: 1px solid var(--color-outline);
   padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.drawer-headline {
+.drawer-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-secondary);
+  color: var(--color-on-surface);
 }
 
-.btn-close-framer {
+.btn-drawer-close {
   background: transparent;
   border: none;
   font-size: 16px;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
   cursor: pointer;
 }
 
-.btn-close-framer:hover {
-  color: var(--color-secondary);
+.btn-drawer-close:hover {
+  color: var(--color-on-surface);
 }
 
-.drawer-body-scroll {
+.drawer-body {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
@@ -621,9 +659,9 @@ body.framer-theme {
   gap: 24px;
 }
 
-.framer-telemetry-box {
-  background: var(--color-neutral);
-  border: 1px solid var(--color-border);
+.spec-grid {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   padding: 14px;
   display: flex;
@@ -631,63 +669,63 @@ body.framer-theme {
   gap: 8px;
 }
 
-.telemetry-entry {
+.spec-line {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
 }
 
-.telemetry-entry .key {
-  color: var(--color-muted-text);
+.spec-line .label {
+  color: var(--color-secondary);
 }
 
-.telemetry-entry .val {
+.spec-line .value {
   font-family: var(--font-mono);
   color: var(--color-primary);
   font-weight: 500;
 }
 
-.framer-trace-flow {
+.trace-items-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.trace-flow-step {
+.trace-node {
   border-left: 2px solid var(--color-primary);
   padding-left: 12px;
 }
 
-.flow-step-header {
+.trace-node-title {
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-secondary);
+  color: var(--color-on-surface);
   margin-bottom: 2px;
 }
 
-.flow-step-desc {
+.trace-node-desc {
   font-size: 12px;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
   line-height: 1.4;
 }
 
-.framer-json-code {
+.mcp-code-block {
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.5;
-  background: var(--color-neutral);
-  border: 1px solid var(--color-border);
+  background: #07080A;
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   padding: 14px;
-  color: #93c5fd;
+  color: #a5b4fc;
   overflow-x: auto;
   white-space: pre-wrap;
 }
 
 /* --------------------------------------------------------------------------
-   Human-in-the-Loop Dialog Modal (Framer Sheet)
+   Raycast Confirmation Sheet (<dialog>)
    -------------------------------------------------------------------------- */
-.framer-modal-dialog {
+.raycast-modal {
   margin: auto;
   background: transparent;
   border: none;
@@ -696,49 +734,49 @@ body.framer-theme {
   width: 90%;
 }
 
-.framer-modal-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.75);
+.raycast-modal::backdrop {
+  background: rgba(7, 8, 10, 0.82);
   backdrop-filter: blur(8px);
 }
 
-.framer-modal-container {
+.modal-window {
   background: var(--color-surface);
-  border: 1px solid var(--glow-border);
+  border: 1px solid var(--color-outline-focus);
   border-radius: var(--radius-lg);
   padding: 28px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 153, 255, 0.15);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 92, 122, 0.15);
 }
 
-.modal-chip-tag {
+.modal-badge-red {
   display: inline-block;
   font-size: 11px;
   font-weight: 600;
   color: var(--color-primary);
-  background: rgba(0, 153, 255, 0.12);
-  border: 1px solid var(--glow-border);
+  background: rgba(255, 92, 122, 0.12);
+  border: 1px solid rgba(255, 92, 122, 0.3);
   padding: 3px 8px;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   margin-bottom: 12px;
 }
 
-.modal-headline {
+.modal-header-text {
   font-size: 22px;
   font-weight: 600;
-  letter-spacing: -0.5px;
-  color: var(--color-secondary);
+  color: var(--color-on-surface);
   margin-bottom: 8px;
+  letter-spacing: -0.3px;
 }
 
-.modal-subtext {
+.modal-caption {
   font-size: 14px;
   line-height: 1.5;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
   margin-bottom: 20px;
 }
 
 .modal-data-box {
-  background: var(--color-tertiary);
-  border: 1px solid var(--color-border);
+  background: #07080A;
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   padding: 16px;
   display: flex;
@@ -747,31 +785,48 @@ body.framer-theme {
   margin-bottom: 24px;
 }
 
-.box-field-label {
+.modal-field-title {
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-muted-text);
+  color: var(--color-secondary);
   text-transform: uppercase;
 }
 
-.box-field-val {
+.modal-field-content {
   font-size: 13px;
-  color: var(--color-secondary);
+  color: var(--color-on-surface);
 }
 
-.box-code-payload {
+.modal-payload-pre {
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.5;
-  background: var(--color-neutral);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.03);
   padding: 10px;
   border-radius: var(--radius-sm);
   color: #e2e8f0;
 }
 
-.modal-actions-row {
+.modal-button-row {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.btn-secondary-flat {
+  background: transparent;
+  color: var(--color-secondary);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  height: 41px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-secondary-flat:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
 }
