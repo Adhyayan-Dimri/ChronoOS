@@ -269,6 +269,13 @@
             <div class="banner-meta-tagline">
               <span class="banner-sender-name" id="agentSenderTitle">ChronoOS Chief of Staff</span>
               <span class="banner-time-ticker" id="speechTimestamp">Just now</span>
+              <button type="button" class="btn-banner-voice-replay" id="replayVoiceBtn" onclick="replayCurrentSpeech()" title="Replay agent spoken voice">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <span>Voice Reply</span>
+              </button>
             </div>
             <p class="banner-speech-output" id="speechText">
               "Good morning. Executive streams are active. Your private workspace is clear today with zero active alerts."
@@ -584,6 +591,9 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
         <button class="auth-seg-btn" id="tabDemoMode" onclick="switchAuthTab('demo')">
           <span>Demo Sandbox</span>
         </button>
+        <button class="auth-seg-btn" id="tabSignOutBtn" onclick="handleUserSignOut()" style="display:none; color:var(--color-primary);">
+          <span>Sign Out</span>
+        </button>
       </div>
 
       <!-- PANEL 1: Sign In (ACTIVE BY DEFAULT) -->
@@ -687,6 +697,6 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
     </div>
   </dialog>
 
-  <script src="app.js?v=raycast-v8-ultra"></script>
+  <script src="app.js?v=raycast-v10-voice-gateway"></script>
 </body>
 </html>

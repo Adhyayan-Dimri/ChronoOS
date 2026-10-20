@@ -22,18 +22,12 @@ let audioCtx = null;
 let activeTab = 'overview';
 let isZenMode = false;
 
-// User Session State (Defaults to Clean Private Executive Workspace)
-let currentUser = {
-  name: 'Executive Workspace',
-  email: 'executive@enterprise.internal',
-  title: 'Executive User',
-  organization: 'Personal Workspace',
-  is_demo: false
-};
+// User Session State (Defaults to SIGNED OUT on initial entry)
+let currentUser = null;
 
-// Check local storage for active session
+// Check session storage for active session (only persists during active session)
 try {
-  const savedUser = localStorage.getItem('chrono_user');
+  const savedUser = sessionStorage.getItem('chrono_user');
   if (savedUser) {
     currentUser = JSON.parse(savedUser);
   }
@@ -102,6 +96,24 @@ function initAudioContext() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
 }
+
+let audioEngineUnlocked = false;
+function unlockAudioEngine() {
+  if (audioEngineUnlocked) return;
+  audioEngineUnlocked = true;
+  initAudioContext();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  if (window.speechSynthesis) {
+    try {
+      window.speechSynthesis.resume();
+      if (typeof loadVoices === 'function') loadVoices();
+    } catch (e) {}
+  }
+}
+document.addEventListener('click', unlockAudioEngine, { passive: true });
+document.addEventListener('keydown', unlockAudioEngine, { passive: true });
 
 function playSound(type) {
   if (!soundEnabled) return;
@@ -1033,6 +1045,32 @@ function handleScrubClick(e) {
 // --------------------------------------------------------------------------
 
 function updateUserDisplay() {
+  const tabSignOutBtn = document.getElementById('tabSignOutBtn');
+
+  // Handle Initial Signed-Out State
+  if (!currentUser) {
+    userPill.classList.remove('demo-mode');
+    userPill.classList.add('signed-out');
+    userNameDisplay.textContent = 'Signed Out • Guest Access';
+    workspaceBadgeText.textContent = 'Wednesday, October 21, 2026 • Executive Gateway';
+    workspaceStatusDot.style.background = '#64748B';
+    authBtnText.textContent = 'Sign In / Sandbox';
+    if (tabSignOutBtn) tabSignOutBtn.style.display = 'none';
+
+    speechText.textContent = "Welcome to ChronoOS. You are currently signed out. Please sign in to your workspace, create a new workspace, or launch the Demo Sandbox.";
+    const senderTitle = document.getElementById('agentSenderTitle');
+    if (senderTitle) senderTitle.textContent = "ChronoOS Executive Gateway";
+
+    renderSignedOutCard();
+    return;
+  }
+
+  userPill.classList.remove('signed-out');
+  if (tabSignOutBtn) tabSignOutBtn.style.display = 'inline-flex';
+
+  const senderTitle = document.getElementById('agentSenderTitle');
+  if (senderTitle) senderTitle.textContent = "ChronoOS Chief of Staff";
+
   if (currentUser.is_demo) {
     userPill.classList.add('demo-mode');
     userNameDisplay.textContent = 'Alex Mercer (CEO • Demo)';
@@ -1044,16 +1082,117 @@ function updateUserDisplay() {
     userNameDisplay.textContent = `${currentUser.name} (${currentUser.organization})`;
     workspaceBadgeText.textContent = `Wednesday, October 21, 2026 • Private Workspace`;
     workspaceStatusDot.style.background = '#10B981';
-    authBtnText.textContent = 'Sandbox';
+    authBtnText.textContent = 'Accounts';
   }
 
   switchWorkspaceTab(activeTab);
 }
 
+function renderSignedOutCard() {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card gateway-hero-card">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#38BDF8; border-color:rgba(56,189,248,0.35);">EXECUTIVE GATEWAY</span>
+          <h2 class="card-main-title">Welcome to ChronoOS</h2>
+        </div>
+        <span class="code-token" style="color:#64748B;">STATUS: SIGNED OUT</span>
+      </div>
+
+      <p style="font-size:14px; color:var(--color-secondary); line-height:1.6; margin-top:8px;">
+        ChronoOS integrates enterprise schedules, legal contracts, and Amazon Bedrock multi-turn reasoning with tenant isolation. To access features, select one of the three options below:
+      </p>
+
+      <div class="gateway-trio-grid">
+        <!-- 1. Sign In to Existing Workspace -->
+        <div class="gateway-choice-tile choice-signin">
+          <div>
+            <div class="gateway-choice-icon" style="color:#38BDF8;">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+            </div>
+            <h3 class="gateway-choice-title">Sign In</h3>
+            <p class="gateway-choice-desc">
+              Log into your private enterprise workspace using your work credentials, security token, or biometric Passkey.
+            </p>
+          </div>
+          <button class="gateway-btn-action gateway-btn-signin" onclick="openAuthPortal(); switchAuthTab('signin');">
+            <span>Sign In to Workspace</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <!-- 2. Create Clean Private Workspace -->
+        <div class="gateway-choice-tile choice-register">
+          <div>
+            <div class="gateway-choice-icon" style="color:#10B981;">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+            </div>
+            <h3 class="gateway-choice-title">Create Workspace</h3>
+            <p class="gateway-choice-desc">
+              Initialize a clean executive workspace for your enterprise. Zero dummy clutter with isolated private memory.
+            </p>
+          </div>
+          <button class="gateway-btn-action gateway-btn-register" onclick="openAuthPortal(); switchAuthTab('register');">
+            <span>Create New Workspace</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <!-- 3. Preloaded Demo Sandbox -->
+        <div class="gateway-choice-tile choice-demo">
+          <div>
+            <div class="gateway-choice-icon" style="color:var(--color-primary);">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <h3 class="gateway-choice-title">Demo Sandbox</h3>
+            <p class="gateway-choice-desc">
+              Test drive ChronoOS as Alex Mercer (CEO). Preloaded with Acme M&A contract disputes, redlines, and flight delays.
+            </p>
+          </div>
+          <button class="gateway-btn-action gateway-btn-demo" onclick="launchDemoSandbox();">
+            <span>Launch Demo Sandbox</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; font-size:12px; color:rgba(255,255,255,0.5);">
+        <span>Quick Voice Actions: Say "Sign In", "Create Workspace", "Launch Demo", or "Open YouTube" anytime.</span>
+        <span class="code-token">AWS Bedrock • MCP 2.0</span>
+      </div>
+    </div>
+  `;
+  apply3DCardTilt();
+}
+
+function handleUserSignOut() {
+  currentUser = null;
+  sessionStorage.removeItem('chrono_user');
+  localStorage.removeItem('chrono_user');
+  closeAuthPortal();
+  playSound('shockwave');
+  updateUserDisplay();
+  const msg = "You have signed out of ChronoOS. Welcome to the Executive Gateway.";
+  speechText.textContent = msg;
+  speechTimestamp.textContent = 'Just now';
+  speakAgentResponse(msg);
+}
+
 function openAuthPortal() {
   playSound('click');
   authPortalDialog.showModal();
-  // By default, activate Sign In tab first
   switchAuthTab('signin');
 }
 
@@ -1089,13 +1228,15 @@ function launchDemoSandbox() {
     organization: 'Aether Dynamics Inc.',
     is_demo: true
   };
-  localStorage.setItem('chrono_user', JSON.stringify(currentUser));
+  sessionStorage.setItem('chrono_user', JSON.stringify(currentUser));
   closeAuthPortal();
   playSound('success');
   updateUserDisplay();
   
-  speechText.textContent = "Switched to preloaded Executive Sandbox (Alex Mercer). Acme M&A redlines and flight UA 482 delay active.";
+  const msg = "Switched to preloaded Executive Sandbox (Alex Mercer). Acme M&A redlines and flight UA 482 delay active.";
+  speechText.textContent = msg;
   speechTimestamp.textContent = 'Just now';
+  speakAgentResponse(msg);
 }
 
 async function handleUserSignIn() {
@@ -1111,11 +1252,13 @@ async function handleUserSignIn() {
     const data = await res.json();
     if (data.success) {
       currentUser = data.user;
-      localStorage.setItem('chrono_user', JSON.stringify(currentUser));
+      sessionStorage.setItem('chrono_user', JSON.stringify(currentUser));
       closeAuthPortal();
       playSound('success');
       updateUserDisplay();
-      speechText.textContent = `Welcome back to your private executive workspace, ${currentUser.name}. Zero dummy clutter loaded.`;
+      const welcomeMsg = `Welcome back to your private workspace, ${currentUser.name}. Zero dummy clutter loaded.`;
+      speechText.textContent = welcomeMsg;
+      speakAgentResponse(welcomeMsg);
     }
   } catch (err) {
     console.error('Sign in error:', err);
@@ -1137,11 +1280,13 @@ async function handleUserRegister() {
     const data = await res.json();
     if (data.success) {
       currentUser = data.user;
-      localStorage.setItem('chrono_user', JSON.stringify(currentUser));
+      sessionStorage.setItem('chrono_user', JSON.stringify(currentUser));
       closeAuthPortal();
       playSound('success');
       updateUserDisplay();
-      speechText.textContent = `Clean private workspace created for ${currentUser.name} (${currentUser.organization}). You have an empty slate.`;
+      const welcomeMsg = `Clean private workspace created for ${currentUser.name} (${currentUser.organization}). You have an empty slate.`;
+      speechText.textContent = welcomeMsg;
+      speakAgentResponse(welcomeMsg);
     }
   } catch (err) {
     console.error('Registration error:', err);
@@ -1247,6 +1392,9 @@ function initSpeechRecognition() {
     const transcript = event.results[0][0].transcript;
     voiceTextInput.value = transcript;
     playSound('execute');
+    isListening = false;
+    micOrbBtn.classList.remove('recording');
+    try { speechRecognition.stop(); } catch (e) {}
     sendQuery(transcript);
   };
 
@@ -1275,16 +1423,28 @@ function toggleListening() {
 }
 
 function simulateVoiceCommand() {
-  const simulatedPrompts = currentUser.is_demo ? [
-    "Alexa, give me my morning briefing",
-    "Alexa, inspect the Acme merger redline from Sarah",
-    "Alexa, prepare a counter-offer rejecting the 12 million cap",
-    "Alexa, check for travel buffer conflicts tomorrow"
-  ] : [
-    "Alexa, what is on my schedule today?",
-    "Alexa, schedule a strategic review with Elena at 3 PM",
-    "Alexa, summarize my private executive status"
-  ];
+  let simulatedPrompts = [];
+  if (!currentUser) {
+    simulatedPrompts = [
+      "Open YouTube",
+      "Sign in to my workspace",
+      "Launch demo sandbox",
+      "Create clean private workspace"
+    ];
+  } else if (currentUser.is_demo) {
+    simulatedPrompts = [
+      "Alexa, give me my morning briefing",
+      "Alexa, inspect the Acme merger redline from Sarah",
+      "Alexa, prepare a counter-offer rejecting the 12 million cap",
+      "Alexa, check for travel buffer conflicts tomorrow"
+    ];
+  } else {
+    simulatedPrompts = [
+      "Alexa, what is on my schedule today?",
+      "Alexa, schedule a strategic review with Elena at 3 PM",
+      "Alexa, summarize my private executive status"
+    ];
+  }
 
   const chosen = simulatedPrompts[Math.floor(Math.random() * simulatedPrompts.length)];
   voiceTextInput.value = chosen;
@@ -1297,20 +1457,112 @@ function simulateVoiceCommand() {
   }, 900);
 }
 
-function speakAgentResponse(text) {
+// Global active voice tracking to avoid Chrome GC collection bug
+let cachedVoices = [];
+function loadVoices() {
   if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
+  cachedVoices = window.speechSynthesis.getVoices();
+}
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
 
-  const cleanText = text.replace(/[*_#`]/g, '');
+let keepAliveInterval = null;
+
+function speakAgentResponse(text) {
+  if (!window.speechSynthesis || !soundEnabled) return;
+
+  // 1. Release active speech recognition if listening so audio hardware is freed
+  if (speechRecognition && isListening) {
+    try { speechRecognition.stop(); } catch (e) {}
+    isListening = false;
+    micOrbBtn.classList.remove('recording');
+  }
+
+  // 2. Unpause/resume synthesis pipeline
+  try {
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.resume();
+  } catch (e) {}
+
+  const cleanText = (text || '').replace(/[*_#`]/g, '').trim();
+  if (!cleanText) return;
+
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.rate = 1.05;
+  utterance.rate = 1.02;
   utterance.pitch = 1.0;
+  utterance.volume = 1.0;
 
-  const voices = window.speechSynthesis.getVoices();
-  const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Natural')));
-  if (preferredVoice) utterance.voice = preferredVoice;
+  if (!cachedVoices || cachedVoices.length === 0) {
+    cachedVoices = window.speechSynthesis.getVoices();
+  }
+
+  const preferredVoice = cachedVoices.find(v => v.lang && v.lang.startsWith('en') && (
+    v.name.includes('Samantha') || 
+    v.name.includes('Google') || 
+    v.name.includes('Natural') || 
+    v.name.includes('Daniel') ||
+    v.name.includes('Alex')
+  )) || cachedVoices.find(v => v.lang && v.lang.startsWith('en'));
+
+  if (preferredVoice) {
+    utterance.voice = preferredVoice;
+  }
+
+  isSpeaking = true;
+  micOrbBtn.classList.add('speaking');
+
+  // Prevent Garbage Collection in Chrome V8
+  window._activeUtterance = utterance;
+
+  utterance.onstart = () => {
+    isSpeaking = true;
+    micOrbBtn.classList.add('speaking');
+  };
+
+  utterance.onend = () => {
+    isSpeaking = false;
+    micOrbBtn.classList.remove('speaking');
+    window._activeUtterance = null;
+    if (keepAliveInterval) {
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+    }
+  };
+
+  utterance.onerror = (e) => {
+    console.warn('Speech synthesis event error:', e);
+    isSpeaking = false;
+    micOrbBtn.classList.remove('speaking');
+    window._activeUtterance = null;
+    if (keepAliveInterval) {
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+    }
+  };
+
+  // Chrome Bug Workaround: keep alive timer for utterances
+  if (keepAliveInterval) clearInterval(keepAliveInterval);
+  keepAliveInterval = setInterval(() => {
+    if (!window.speechSynthesis.speaking) {
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+    } else {
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    }
+  }, 10000);
 
   window.speechSynthesis.speak(utterance);
+}
+
+function replayCurrentSpeech() {
+  playSound('click');
+  const text = speechText.textContent.replace(/^"|"$/g, '').trim();
+  if (text) {
+    speakAgentResponse(text);
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -1334,33 +1586,84 @@ async function sendQuery(promptText) {
     triggerMatrixShockwave(deckRect.left + deckRect.width / 2, deckRect.top + deckRect.height / 2);
   }
 
-  // 1. Direct Client-Side Action: Open YouTube
   const cleanQuery = promptText.trim().toLowerCase();
+
+  // 1. Direct Client-Side Action: Open YouTube
   if (cleanQuery.includes('open youtube') || cleanQuery.includes('launch youtube') || cleanQuery === 'youtube') {
-    speechText.textContent = "Opening YouTube for you now in a new tab.";
+    let opened = false;
+    try {
+      const win = window.open('https://www.youtube.com', '_blank');
+      if (win && !win.closed && typeof win.closed !== 'undefined') {
+        opened = true;
+      }
+    } catch (e) {
+      opened = false;
+    }
+
+    const voiceMsg = opened 
+      ? "Opening YouTube for you now in a new tab."
+      : "Opening YouTube. Click the Launch YouTube button on your screen if your browser blocked the new tab.";
+
+    speechText.textContent = voiceMsg;
     speechTimestamp.textContent = 'Just now';
-    speakAgentResponse("Opening YouTube for you now in a new tab.");
-    window.open('https://www.youtube.com', '_blank');
+    speakAgentResponse(voiceMsg);
+
     renderCardContent({
       type: 'ACTION_EXECUTED',
       title: 'Application Launched: YouTube',
       receipt: 'ACT-APP-YT-01',
-      status: 'Chrome Browser Navigation Hook Executed',
-      details: 'Successfully launched https://www.youtube.com in an external browser tab.'
+      status: opened ? 'Chrome Browser Navigation Hook Executed' : 'Navigation Dispatched (Click Below to Open)',
+      details: 'Navigating to https://www.youtube.com. Web browsers frequently restrict background tabs during speech recognition events. Click the button below to launch immediately.',
+      actionUrl: 'https://www.youtube.com',
+      actionLabel: 'Launch YouTube Directly'
     }, {});
     return;
   }
 
   // 2. Direct Client-Side Action: Open Google / Search
   if (cleanQuery.includes('open google') || cleanQuery.includes('launch google')) {
-    speechText.textContent = "Opening Google in a new tab.";
-    speechTimestamp.textContent = 'Just now';
-    speakAgentResponse("Opening Google in a new tab.");
     window.open('https://www.google.com', '_blank');
+    const msg = "Opening Google in a new tab.";
+    speechText.textContent = msg;
+    speechTimestamp.textContent = 'Just now';
+    speakAgentResponse(msg);
+    renderCardContent({
+      type: 'ACTION_EXECUTED',
+      title: 'Application Launched: Google',
+      receipt: 'ACT-APP-GOOG-01',
+      status: 'External Navigation Dispatched',
+      details: 'Navigating to https://www.google.com.',
+      actionUrl: 'https://www.google.com',
+      actionLabel: 'Open Google Directly'
+    }, {});
     return;
   }
 
-  // 3. Direct Task Management Hook ("add task ...", "help me do this task ...")
+  // 3. Direct Auth & Workspace Commands
+  if (cleanQuery === 'sign in' || cleanQuery.includes('sign in to') || cleanQuery === 'login') {
+    openAuthPortal();
+    switchAuthTab('signin');
+    const msg = "Opening the Executive Sign In portal.";
+    speechText.textContent = msg;
+    speakAgentResponse(msg);
+    return;
+  }
+
+  if (cleanQuery.includes('create workspace') || cleanQuery.includes('new workspace') || cleanQuery === 'register') {
+    openAuthPortal();
+    switchAuthTab('register');
+    const msg = "Opening workspace registration form.";
+    speechText.textContent = msg;
+    speakAgentResponse(msg);
+    return;
+  }
+
+  if (cleanQuery.includes('demo sandbox') || cleanQuery.includes('launch demo') || cleanQuery === 'demo') {
+    launchDemoSandbox();
+    return;
+  }
+
+  // 4. Direct Task Management Hook ("add task ...", "help me do this task ...")
   if (cleanQuery.startsWith('add task') || cleanQuery.startsWith('create task') || cleanQuery.includes('add this task')) {
     const taskText = promptText.replace(/^(alexa,\s*)?(add task|create task|add this task|help me do this task)\s*/i, '').trim() || "Executive Follow-up Action";
     addExecutiveTask(taskText);
@@ -1368,6 +1671,17 @@ async function sendQuery(promptText) {
     speechText.textContent = respMsg;
     speechTimestamp.textContent = 'Just now';
     speakAgentResponse(respMsg);
+    return;
+  }
+
+  // 5. Require Authentication for Bedrock Agent Intelligence Queries
+  if (!currentUser) {
+    const authPrompt = "Welcome to ChronoOS. Please sign in to your workspace, create a new workspace, or launch the Demo Sandbox to begin.";
+    speechText.textContent = authPrompt;
+    speechTimestamp.textContent = 'Just now';
+    speakAgentResponse(authPrompt);
+    openAuthPortal();
+    renderSignedOutCard();
     return;
   }
 
@@ -1475,6 +1789,11 @@ function renderInspectorTelemetry(data) {
 // --------------------------------------------------------------------------
 
 function renderBriefingCard(card) {
+  if (!currentUser) {
+    renderSignedOutCard();
+    return;
+  }
+
   if (!currentUser.is_demo) {
     renderPersonalBriefingCard({
       title: `Private Executive Briefing • ${currentUser.name}`,
@@ -1572,6 +1891,11 @@ function renderBriefingCard(card) {
 }
 
 function renderPersonalBriefingCard(card) {
+  if (!currentUser) {
+    renderSignedOutCard();
+    return;
+  }
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card" id="briefingCard">
       <div class="card-beam-glow"></div>
@@ -1619,6 +1943,11 @@ function renderPersonalBriefingCard(card) {
 }
 
 function renderContractRedlineCard(card) {
+  if (!currentUser) {
+    renderSignedOutCard();
+    return;
+  }
+
   if (!currentUser.is_demo) {
     multimodalWidgetArea.innerHTML = `
       <div class="raycast-3d-card">
@@ -1729,6 +2058,25 @@ function renderConfirmationCard(card) {
 }
 
 function renderExecutionCard(card) {
+  const hasActionUrl = !!card.actionUrl;
+  const isYouTube = card.title.toLowerCase().includes('youtube') || (card.actionUrl && card.actionUrl.includes('youtube'));
+
+  const actionButtonHtml = hasActionUrl ? `
+    <div style="margin-top: 20px; display:flex; flex-direction:column; gap:10px;">
+      <a href="${card.actionUrl}" target="_blank" rel="noopener noreferrer" class="btn-direct-launch-action ${isYouTube ? 'yt-launch-glow' : ''}" id="directActionLaunchBtn">
+        ${isYouTube ? `
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFFFFF"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        ` : `
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        `}
+        <span>${card.actionLabel || 'Launch External Application'} ↗</span>
+      </a>
+      <span style="font-size:12px; color:rgba(255,255,255,0.6); line-height:1.4;">
+        Browser security prevents background popups during asynchronous speech recognition. Click the button above to launch immediately in a fresh tab.
+      </span>
+    </div>
+  ` : '';
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card">
       <div class="card-beam-glow"></div>
@@ -1738,25 +2086,32 @@ function renderExecutionCard(card) {
           <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.35);">Execution Receipt</span>
           <h2 class="card-main-title">${card.title}</h2>
         </div>
-        <span class="code-token" style="color:#10b981;">${card.receipt}</span>
+        <span class="code-token" style="color:#10b981;">${card.receipt || 'ACT-EXEC-01'}</span>
       </div>
 
       <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-md); padding:24px;">
         <div style="font-size:16px; font-weight:600; color:var(--color-on-surface); margin-bottom:6px;">${card.status}</div>
         <div style="font-size:14px; color:var(--color-secondary); line-height:1.5;">${card.details}</div>
+        ${actionButtonHtml}
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:18px;">
-        <span style="font-size:13px; color:var(--color-secondary);">Official Amazon Bedrock audit trail generated.</span>
-        <button class="btn-raycast-action" onclick="sendQuery('Alexa, give me my morning briefing')">
-          ← Return to Briefing Dashboard
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:18px; margin-top:20px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Official ChronoOS audit trail generated.</span>
+        <button class="btn-raycast-action" onclick="updateUserDisplay()">
+          ← Return to Dashboard
         </button>
       </div>
     </div>
   `;
+  apply3DCardTilt();
 }
 
 function renderCalendarTravelCard() {
+  if (!currentUser) {
+    renderSignedOutCard();
+    return;
+  }
+
   if (!currentUser.is_demo) {
     multimodalWidgetArea.innerHTML = `
       <div class="raycast-3d-card">
