@@ -109,7 +109,7 @@ function unlockAudioEngine() {
     try {
       window.speechSynthesis.resume();
       if (typeof loadVoices === 'function') loadVoices();
-    } catch (e) {}
+    } catch (e) { }
   }
 }
 document.addEventListener('click', unlockAudioEngine, { passive: true });
@@ -160,6 +160,43 @@ function playSound(type) {
     osc.stop(now + 0.35);
   } else if (type === 'success') {
     playChord([523.25, 659.25, 783.99, 1046.50], 0.3);
+  } else if (type === 'alexa_wake') {
+    // Signature Alexa two-tone rising chime: C5 (523.25 Hz) -> G5 (783.99 Hz)
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    const gain2 = audioCtx.createGain();
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(523.25, now);
+    gain1.gain.setValueAtTime(0.08, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.12);
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(783.99, now + 0.08);
+    gain2.gain.setValueAtTime(0.09, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.28);
+  } else if (type === 'alexa_complete') {
+    // Soft completion resolving chime: G5 (783.99 Hz) -> D5 (587.33 Hz)
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(783.99, now);
+    osc.frequency.exponentialRampToValueAtTime(587.33, now + 0.22);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.22);
   }
 }
 
@@ -600,7 +637,7 @@ function initCinemaVisualizer() {
       for (let s = 0; s < slots.length; s++) {
         const slot = slots[s];
         const slotY = cardY + 80 + s * 78;
-        
+
         ctx.fillStyle = slot.alert ? 'rgba(255, 92, 122, 0.06)' : 'rgba(255, 255, 255, 0.02)';
         ctx.strokeStyle = slot.alert ? 'rgba(255, 92, 122, 0.3)' : 'rgba(255, 255, 255, 0.06)';
         ctx.beginPath();
@@ -1232,7 +1269,7 @@ function launchDemoSandbox() {
   closeAuthPortal();
   playSound('success');
   updateUserDisplay();
-  
+
   const msg = "Switched to preloaded Executive Sandbox (Alex Mercer). Acme M&A redlines and flight UA 482 delay active.";
   speechText.textContent = msg;
   speechTimestamp.textContent = 'Just now';
@@ -1314,10 +1351,10 @@ function apply3DCardTilt() {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      
+
       const rotateX = ((y - centerY) / centerY) * -3.2;
       const rotateY = ((x - centerX) / centerX) * 3.2;
 
@@ -1371,15 +1408,66 @@ function toggleViewMode() {
 // 7. Speech Recognition & Voice Interaction
 // --------------------------------------------------------------------------
 
+function showToast(message, type = 'info') {
+  let toastContainer = document.getElementById('chronoToastContainer');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'chronoToastContainer';
+    toastContainer.style.position = 'fixed';
+    toastContainer.style.bottom = '24px';
+    toastContainer.style.right = '24px';
+    toastContainer.style.zIndex = '999999';
+    toastContainer.style.display = 'flex';
+    toastContainer.style.flexDirection = 'column';
+    toastContainer.style.gap = '10px';
+    toastContainer.style.pointerEvents = 'none';
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `chrono-toast toast-${type}`;
+  toast.style.pointerEvents = 'auto';
+  toast.style.background = type === 'error' ? 'rgba(239, 68, 68, 0.95)' : type === 'warning' ? 'rgba(245, 158, 11, 0.95)' : 'rgba(15, 23, 42, 0.95)';
+  toast.style.color = '#FFFFFF';
+  toast.style.padding = '12px 18px';
+  toast.style.borderRadius = '10px';
+  toast.style.fontSize = '13px';
+  toast.style.fontFamily = 'var(--font-sans, -apple-system, sans-serif)';
+  toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.15)';
+  toast.style.backdropFilter = 'blur(12px)';
+  toast.style.maxWidth = '380px';
+  toast.style.lineHeight = '1.45';
+  toast.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+  toast.style.opacity = '0';
+  toast.style.transform = 'translateY(10px) scale(0.96)';
+
+  toast.innerHTML = `<strong style="display:block; margin-bottom:2px; font-weight:600;">${type === 'error' ? 'Microphone Alert' : type === 'warning' ? 'Notice' : 'ChronoOS'}</strong><div>${message}</div>`;
+  toastContainer.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0) scale(1)';
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px) scale(0.95)';
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 350);
+  }, 4500);
+}
+
 function initSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
+    console.warn('SpeechRecognition API not available in this browser window.');
     return;
   }
 
   speechRecognition = new SpeechRecognition();
   speechRecognition.continuous = false;
-  speechRecognition.interimResults = false;
+  speechRecognition.interimResults = true; // Stream live transcript while speaking
   speechRecognition.lang = 'en-US';
 
   speechRecognition.onstart = () => {
@@ -1390,33 +1478,69 @@ function initSpeechRecognition() {
     const echoLight = document.getElementById('echoLightBar');
     if (echoLight) echoLight.classList.add('active');
     const echoStatus = document.getElementById('echoVoiceStatus');
-    if (echoStatus) echoStatus.textContent = 'Listening...';
-    playSound('shockwave');
+    if (echoStatus) echoStatus.textContent = 'Listening... Speak now';
+    playSound('alexa_wake');
   };
 
   speechRecognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    voiceTextInput.value = transcript;
-    playSound('execute');
-    isListening = false;
-    micOrbBtn.classList.remove('recording');
-    const echoOrb = document.getElementById('echoMicOrbBtn');
-    if (echoOrb) echoOrb.classList.remove('recording');
-    const echoStatus = document.getElementById('echoVoiceStatus');
-    if (echoStatus) echoStatus.textContent = 'Processing with Bedrock...';
-    try { speechRecognition.stop(); } catch (e) {}
-    sendQuery(transcript);
+    let interim = '';
+    let final = '';
+
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      const trans = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        final += trans;
+      } else {
+        interim += trans;
+      }
+    }
+
+    const currentText = (final || interim).trim();
+    if (currentText) {
+      voiceTextInput.value = currentText;
+      const echoStatus = document.getElementById('echoVoiceStatus');
+      if (echoStatus) echoStatus.textContent = `"${currentText}"`;
+    }
+
+    // When final phrase is recognized
+    if (final && final.trim()) {
+      isListening = false;
+      micOrbBtn.classList.remove('recording');
+      const echoOrb = document.getElementById('echoMicOrbBtn');
+      if (echoOrb) echoOrb.classList.remove('recording');
+      const echoLight = document.getElementById('echoLightBar');
+      if (echoLight) echoLight.classList.remove('active');
+      const echoStatus = document.getElementById('echoVoiceStatus');
+      if (echoStatus) echoStatus.textContent = 'Processing with Bedrock...';
+
+      playSound('execute');
+      try { speechRecognition.stop(); } catch (e) { }
+      sendQuery(final.trim());
+    }
   };
 
   speechRecognition.onerror = (event) => {
+    console.warn('SpeechRecognition error encountered:', event.error);
     isListening = false;
     micOrbBtn.classList.remove('recording');
     const echoOrb = document.getElementById('echoMicOrbBtn');
     if (echoOrb) echoOrb.classList.remove('recording');
     const echoLight = document.getElementById('echoLightBar');
     if (echoLight) echoLight.classList.remove('active');
+
     const echoStatus = document.getElementById('echoVoiceStatus');
-    if (echoStatus) echoStatus.textContent = 'Tap orb or say "Alexa..."';
+
+    if (event.error === 'not-allowed') {
+      showToast('Microphone access was blocked. Please click the camera/mic icon in your browser address bar and select "Always allow".', 'error');
+      if (echoStatus) echoStatus.textContent = 'Microphone blocked • Allow in URL bar';
+    } else if (event.error === 'no-speech') {
+      if (echoStatus) echoStatus.textContent = 'No speech detected • Tap orb to speak';
+    } else if (event.error === 'network') {
+      showToast('Speech recognition service offline. You can also type your query directly into the prompt bar.', 'warning');
+      if (echoStatus) echoStatus.textContent = 'Speech service offline • Type below';
+    } else {
+      if (echoStatus) echoStatus.textContent = 'Tap orb or say "Alexa..."';
+    }
   };
 
   speechRecognition.onend = () => {
@@ -1427,24 +1551,59 @@ function initSpeechRecognition() {
     const echoLight = document.getElementById('echoLightBar');
     if (echoLight) echoLight.classList.remove('active');
     const echoStatus = document.getElementById('echoVoiceStatus');
-    if (echoStatus) echoStatus.textContent = 'Tap orb or say "Alexa..."';
+    if (echoStatus && !echoStatus.textContent.startsWith('"')) {
+      echoStatus.textContent = 'Tap orb or say "Alexa..."';
+    }
   };
 }
 
-function toggleListening() {
-  if (!speechRecognition) {
-    simulateVoiceCommand();
+async function toggleListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('Speech recognition is not supported in this browser. Please use Chrome or Edge, or type your query.', 'warning');
     return;
   }
 
+  if (!speechRecognition) {
+    initSpeechRecognition();
+  }
+
   if (isListening) {
-    speechRecognition.stop();
-  } else {
+    try { speechRecognition.stop(); } catch (e) { }
+    isListening = false;
+    return;
+  }
+
+  // Explicitly prompt/verify audio hardware permissions via getUserMedia first
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+    }
+  } catch (err) {
+    console.warn('getUserMedia permission rejected or failed:', err);
+    showToast('Microphone permission blocked. Please click the lock or microphone icon in your browser address bar to allow.', 'error');
+    const echoStatus = document.getElementById('echoVoiceStatus');
+    if (echoStatus) echoStatus.textContent = 'Mic blocked • Allow in URL bar';
+    return;
+  }
+
+  try {
     speechRecognition.start();
+  } catch (err) {
+    console.error('Speech recognition failed to start:', err);
+    try {
+      speechRecognition.stop();
+      setTimeout(() => {
+        try { speechRecognition.start(); } catch (e) { }
+      }, 250);
+    } catch (e) {
+      showToast('Could not start microphone: ' + (err.message || 'Busy'), 'error');
+    }
   }
 }
 
-function simulateVoiceCommand() {
+function simulateVoiceCommand(promptOverride = null) {
   let simulatedPrompts = [];
   if (!currentUser) {
     simulatedPrompts = [
@@ -1456,6 +1615,9 @@ function simulateVoiceCommand() {
   } else if (currentUser.is_demo) {
     simulatedPrompts = [
       "Alexa, give me my morning briefing",
+      "What are my meetings today?",
+      "What is our ARR and runway?",
+      "Who is Sarah Chen?",
       "Alexa, inspect the Acme merger redline from Sarah",
       "Alexa, prepare a counter-offer rejecting the 12 million cap",
       "Alexa, check for travel buffer conflicts tomorrow"
@@ -1468,7 +1630,7 @@ function simulateVoiceCommand() {
     ];
   }
 
-  const chosen = simulatedPrompts[Math.floor(Math.random() * simulatedPrompts.length)];
+  const chosen = promptOverride || simulatedPrompts[Math.floor(Math.random() * simulatedPrompts.length)];
   voiceTextInput.value = chosen;
   micOrbBtn.classList.add('recording');
   playSound('shockwave');
@@ -1476,7 +1638,7 @@ function simulateVoiceCommand() {
   setTimeout(() => {
     micOrbBtn.classList.remove('recording');
     sendQuery(chosen);
-  }, 900);
+  }, 700);
 }
 
 // Global active voice tracking to avoid Chrome GC collection bug
@@ -1497,7 +1659,7 @@ function speakAgentResponse(text) {
 
   // 1. Release active speech recognition if listening so audio hardware is freed
   if (speechRecognition && isListening) {
-    try { speechRecognition.stop(); } catch (e) {}
+    try { speechRecognition.stop(); } catch (e) { }
     isListening = false;
     micOrbBtn.classList.remove('recording');
   }
@@ -1506,7 +1668,7 @@ function speakAgentResponse(text) {
   try {
     window.speechSynthesis.cancel();
     window.speechSynthesis.resume();
-  } catch (e) {}
+  } catch (e) { }
 
   const cleanText = (text || '').replace(/[*_#`]/g, '').trim();
   if (!cleanText) return;
@@ -1521,9 +1683,9 @@ function speakAgentResponse(text) {
   }
 
   const preferredVoice = cachedVoices.find(v => v.lang && v.lang.startsWith('en') && (
-    v.name.includes('Samantha') || 
-    v.name.includes('Google') || 
-    v.name.includes('Natural') || 
+    v.name.includes('Samantha') ||
+    v.name.includes('Google') ||
+    v.name.includes('Natural') ||
     v.name.includes('Daniel') ||
     v.name.includes('Alex')
   )) || cachedVoices.find(v => v.lang && v.lang.startsWith('en'));
@@ -1636,7 +1798,7 @@ async function sendQuery(promptText) {
       opened = false;
     }
 
-    const voiceMsg = opened 
+    const voiceMsg = opened
       ? "Opening YouTube for you now in a new tab."
       : "Opening YouTube. Click the Launch YouTube button on your screen if your browser blocked the new tab.";
 
@@ -1756,6 +1918,7 @@ async function sendQuery(promptText) {
 function renderAgentTurn(data) {
   speechText.textContent = `"${data.voice_response}"`;
   speechTimestamp.textContent = 'Just now';
+  playSound('alexa_complete');
   speakAgentResponse(data.voice_response);
 
   renderInspectorTelemetry(data);
@@ -1779,10 +1942,66 @@ function renderCardContent(card, data) {
     renderPersonalBriefingCard(card);
     activeTab = 'overview';
     updateActiveTabUI('overview');
+  } else if (card.type === 'SCHEDULE_VIEW') {
+    renderScheduleViewCard(card);
+    activeTab = 'calendar';
+    updateActiveTabUI('calendar');
+  } else if (card.type === 'FINANCIAL_METRICS') {
+    renderFinancialMetricsCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'STAKEHOLDER_PROFILE') {
+    renderStakeholderProfileCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'PROJECT_OVERVIEW') {
+    renderProjectOverviewCard(card);
+    activeTab = 'legal';
+    updateActiveTabUI('legal');
   } else if (card.type === 'CONTRACT_REDLINE_ANALYSIS') {
     renderContractRedlineCard(card);
     activeTab = 'legal';
     updateActiveTabUI('legal');
+  } else if (card.type === 'TRAVEL_COLLISION_RESOLUTION') {
+    renderTravelCollisionCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'FLIGHT_ITINERARY') {
+    renderFlightItineraryCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'WEATHER_REPORT') {
+    renderWeatherReportCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'TIME_DATE') {
+    renderTimeDateCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'GREETING') {
+    renderGreetingCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'WEB_SEARCH_RESULT') {
+    renderWebSearchResultCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'PERSONAL_MEMORY') {
+    renderPersonalMemoryCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'MEMORY_SAVED') {
+    renderMemorySavedCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'MEMORY_PROMPT') {
+    renderMemoryPromptCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
+  } else if (card.type === 'TASK_HELP') {
+    renderTaskHelpCard(card);
+    activeTab = 'calendar';
+    updateActiveTabUI('calendar');
   } else if (card.type === 'CONFIRMATION_REQUIRED') {
     renderConfirmationCard(card);
     openHitlDialog(data.confirmation_needed);
@@ -1948,8 +2167,8 @@ function renderPersonalBriefingCard(card) {
       <div class="raycast-metrics-grid">
         <div class="metric-tile">
           <div class="metric-tile-label">Personal Schedule</div>
-          <div class="metric-tile-val">0 Commitments</div>
-          <div class="metric-tile-tag">Clear Calendar Slate</div>
+          <div class="metric-tile-val">${card.commitments_count || 0} Commitments</div>
+          <div class="metric-tile-tag">${(card.commitments_count || 0) === 0 ? 'Clear Calendar Slate' : 'Active Agenda'}</div>
         </div>
         <div class="metric-tile">
           <div class="metric-tile-label">Active Alerts</div>
@@ -1969,10 +2188,11 @@ function renderPersonalBriefingCard(card) {
           You are logged into your private, isolated account. You will not see random demo data or dummy M&A items here. 
           Use voice or command inputs to schedule your real meetings, add memory context, or inspect your own contracts.
         </p>
-        <div style="display:flex; gap:10px; margin-top:8px;">
-          <button class="btn-raycast-action" onclick="sendQuery('Alexa, schedule team sync today at 2:00 PM')">+ Schedule Meeting</button>
-          <button class="btn-raycast-action" onclick="sendQuery('Alexa, remember that board deck is due on Friday')">+ Add Strategic Note</button>
-          <button class="btn-raycast-action" onclick="openAuthPortal()">Switch to Demo Sandbox</button>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
+          <button class="btn-raycast-action" onclick="sendQuery('add task Review Q3 marketing strategy at 3:00 PM')">+ Add Task</button>
+          <button class="btn-raycast-action" onclick="sendQuery('how can i add my tasks')">ℹ️ How to Schedule</button>
+          <button class="btn-raycast-action" onclick="sendQuery('What are my meetings today?')">View Schedule</button>
+          <button class="btn-raycast-action" onclick="openAuthPortal()">Switch User</button>
         </div>
       </div>
     </div>
@@ -2057,6 +2277,228 @@ function renderContractRedlineCard(card) {
       </div>
     </div>
   `;
+}
+
+function renderTravelCollisionCard(card) {
+  const flight = card.flight_details || {
+    flight: "United Airlines UA 482 (SFO ➔ JFK)",
+    delay: "+45 Minutes Maintenance Delay",
+    scheduled_arrival: "07:15 AM EDT",
+    projected_arrival: "08:35 AM EDT",
+    manhattan_transit: "50 Minutes Transit"
+  };
+  const resolution = card.resolution || {
+    action: "Autonomously Shifted Strategy Review (+30m)",
+    original_slot: "11:00 AM - 12:15 PM",
+    new_slot: "11:30 AM - 12:45 PM",
+    secured_buffer: "25-Minute Executive Buffer",
+    attendees_notified: ["David Ross (CFO)", "Elena Rostova (Board)"]
+  };
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" style="border-color:rgba(16,185,129,0.5);">
+      <div class="card-beam-glow"></div>
+
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.35);">Autonomous Collision Mediation</span>
+          <h2 class="card-main-title">${card.title || 'Flight UA 482 Delay & Schedule Re-Alignment'}</h2>
+        </div>
+        <span class="buffer-secured-badge">25M BUFFER SECURED</span>
+      </div>
+
+      <div class="travel-collision-box">
+        <div class="telemetry-strip">
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Flight Telemetry</span>
+            <span class="telemetry-cell-val" style="color:#38bdf8;">${flight.flight}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Transponder Status</span>
+            <span class="telemetry-cell-val" style="color:#FF5C7A;">${flight.delay}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Estimated Touchdown</span>
+            <span class="telemetry-cell-val">${flight.projected_arrival}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Manhattan Transit</span>
+            <span class="telemetry-cell-val">${flight.manhattan_transit}</span>
+          </div>
+        </div>
+
+        <div class="resolution-shift-timeline">
+          <div style="font-size:11px; color:#10b981; font-family:var(--font-mono); font-weight:700; text-transform:uppercase;">Autonomous Mitigation Executed</div>
+          <div class="timeline-shift-row">
+            <div>
+              <div style="font-size:14px; font-weight:600; color:#FFF;">Project Apex Strategy Review</div>
+              <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
+                <span style="text-decoration:line-through; opacity:0.6;">${resolution.original_slot}</span> ➔ <span style="color:#10b981; font-weight:600;">${resolution.new_slot}</span> (+30 min shift)
+              </div>
+            </div>
+            <span class="buffer-secured-badge">${resolution.secured_buffer}</span>
+          </div>
+          <div style="font-size:12px; color:var(--color-secondary); margin-top:4px;">
+            Attendees dispatched instant reschedule notice: <strong style="color:#F8FAFC;">${(resolution.attendees_notified || []).join(', ')}</strong>.
+          </div>
+        </div>
+
+        <div style="font-size:13px; color:var(--color-secondary); border-left:3px solid #38bdf8; padding-left:14px; line-height:1.55;">
+          <strong style="color:var(--color-on-surface);">Episodic Rule Applied:</strong> CEO Alex Mercer requires a minimum 45-minute airport buffer when traversing JFK transit corridors. ChronoOS autonomously preserved corporate punctuality without executive cognitive friction.
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:18px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Calendar updated and attendees notified automatically.</span>
+        <button class="btn-execute-key" onclick="sendQuery('Alexa, give me my morning briefing')">
+          <span>View Updated Schedule</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Dynamically update Echo Show left-hand glance widgets
+  const echoCommitmentMeta = document.getElementById('echoCommitmentMeta');
+  if (echoCommitmentMeta) {
+    echoCommitmentMeta.textContent = '11:30 AM - 12:45 PM • Board Room A';
+  }
+  const echoCommitmentNote = document.getElementById('echoCommitmentNote');
+  if (echoCommitmentNote) {
+    echoCommitmentNote.textContent = 'Autonomously shifted +30m • 25m Safe Buffer Secured';
+  }
+  const echoTravelBadge = document.getElementById('echoTravelBadge');
+  if (echoTravelBadge) {
+    echoTravelBadge.textContent = 'RESOLVED • +30M';
+    echoTravelBadge.style.color = '#10B981';
+    echoTravelBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+  }
+  const echoTravelNote = document.getElementById('echoTravelNote');
+  if (echoTravelNote) {
+    echoTravelNote.textContent = 'Transit buffer violation resolved by Chief of Staff';
+  }
+}
+
+function renderFlightItineraryCard(card) {
+  const origin = card.origin || 'Bengaluru (BLR)';
+  const destination = card.destination || 'Delhi (DEL)';
+  const date = card.date || 'Upcoming';
+  const carrier = card.carrier || 'Air India AI 804';
+  const departure = card.departure_time || '08:30 AM';
+  const arrival = card.arrival_time || '11:15 AM';
+  const duration = card.duration || '2h 45m (Non-stop)';
+  const bufferNote = card.airport_buffer || 'Secured 90m Departure Buffer';
+  const seatClass = card.seat_class || 'Executive Business Class';
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" style="border-color: rgba(56, 189, 248, 0.55);">
+      <div class="card-beam-glow"></div>
+
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#38bdf8; border-color:rgba(56, 189, 248, 0.35);">
+            FLIGHT SCHEDULED • CALENDAR SYNCHRONIZED
+          </span>
+          <h2 class="card-main-title">${card.title || 'Executive Flight Itinerary'}</h2>
+        </div>
+        <span class="buffer-secured-badge" style="color:#10b981; border-color:rgba(16,185,129,0.35);">CONFIRMED</span>
+      </div>
+
+      <div class="travel-collision-box">
+        <div style="background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(16,185,129,0.06)); border: 1px solid rgba(56,189,248,0.25); border-radius:12px; padding: 18px 22px; display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px;">
+          <div>
+            <div style="font-size:11px; text-transform:uppercase; color:var(--color-secondary); letter-spacing:0.06em; font-family:var(--font-mono);">Origin</div>
+            <div style="font-size:20px; font-weight:700; color:#F8FAFC; margin-top:2px;">${origin}</div>
+            <div style="font-size:12px; color:#38bdf8; margin-top:2px;">Depart: ${departure}</div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+            <span style="font-size:18px;">✈️</span>
+            <div style="height:2px; width:80px; background:linear-gradient(90deg, #38bdf8, #10b981); border-radius:2px;"></div>
+            <span style="font-size:11px; color:var(--color-secondary); font-family:var(--font-mono);">${duration}</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; text-transform:uppercase; color:var(--color-secondary); letter-spacing:0.06em; font-family:var(--font-mono);">Destination</div>
+            <div style="font-size:20px; font-weight:700; color:#F8FAFC; margin-top:2px;">${destination}</div>
+            <div style="font-size:12px; color:#10b981; margin-top:2px;">Arrive: ${arrival}</div>
+          </div>
+        </div>
+
+        <div class="telemetry-strip">
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Carrier & Aircraft</span>
+            <span class="telemetry-cell-val" style="color:#38bdf8;">${carrier}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Date of Travel</span>
+            <span class="telemetry-cell-val" style="color:#FFF;">${date}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Cabin Class</span>
+            <span class="telemetry-cell-val" style="color:#10b981;">${seatClass}</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-cell-label">Travel Buffer</span>
+            <span class="telemetry-cell-val">${bufferNote}</span>
+          </div>
+        </div>
+
+        <div style="font-size:13px; color:var(--color-secondary); border-left:3px solid #10b981; padding-left:14px; line-height:1.55; margin-top:14px;">
+          <strong style="color:var(--color-on-surface);">Autonomous Travel Integration:</strong> Flight commitment has been entered into your executive calendar. Airport check-in reminders and ground transit buffers have been automatically scheduled.
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:18px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Synchronized with Echo Show 15 Smart Display.</span>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-raycast-action" onclick="sendQuery('What are my meetings today?')">View Schedule</button>
+          <button class="btn-raycast-action alert-action-btn" onclick="sendQuery('Tell me the weather today')">Destination Weather</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Dynamically update Echo Show left-hand glance widgets
+  const echoCommitmentName = document.getElementById('echoCommitmentName');
+  if (echoCommitmentName) {
+    echoCommitmentName.textContent = `Flight: ${origin} ➔ ${destination}`;
+  }
+  const echoCommitmentMeta = document.getElementById('echoCommitmentMeta');
+  if (echoCommitmentMeta) {
+    echoCommitmentMeta.textContent = `${date} • ${departure} (${carrier})`;
+  }
+  const echoCommitmentNote = document.getElementById('echoCommitmentNote');
+  if (echoCommitmentNote) {
+    echoCommitmentNote.textContent = bufferNote;
+  }
+  const echoCommitmentBadge = document.getElementById('echoCommitmentBadge');
+  if (echoCommitmentBadge) {
+    echoCommitmentBadge.textContent = 'SCHEDULED';
+    echoCommitmentBadge.style.color = '#38bdf8';
+  }
+}
+
+let isCameraShutterClosed = false;
+
+function toggleEchoCameraShutter() {
+  isCameraShutterClosed = !isCameraShutterClosed;
+  const housing = document.getElementById('echoCameraHousing');
+  const loc = document.getElementById('echoDeviceLocation');
+
+  playSound('click');
+
+  if (isCameraShutterClosed) {
+    if (housing) housing.classList.add('shutter-closed');
+    if (loc) {
+      loc.textContent = 'Camera Privacy Shutter Closed (Mic Only)';
+      loc.style.color = '#FF5C7A';
+    }
+  } else {
+    if (housing) housing.classList.remove('shutter-closed');
+    if (loc) {
+      loc.textContent = 'Executive Suite • Echo Show 15';
+      loc.style.color = 'var(--color-secondary)';
+    }
+  }
 }
 
 function renderConfirmationCard(card) {
@@ -2233,12 +2675,582 @@ function renderCalendarTravelCard() {
   `;
 }
 
+function renderScheduleViewCard(card) {
+  const timeline = card.timeline || [];
+  const entriesHtml = timeline.map(entry => `
+    <div class="schedule-entry" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
+      <div style="display:flex; gap:16px; align-items:center;">
+        <span class="time-slot" style="font-family:var(--font-mono); font-weight:700; color:var(--color-primary); min-width:110px;">${entry.time}</span>
+        <div>
+          <div class="entry-name" style="font-weight:600; color:var(--color-on-surface); font-size:14px;">${entry.title}</div>
+          <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
+            ${entry.attendees ? `<span style="opacity:0.8;">${entry.attendees}</span>` : ''} 
+            ${entry.location ? `• <span style="color:#38bdf8;">${entry.location}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <span class="entry-badge" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:var(--color-on-surface);">${entry.status || 'Confirmed'}</span>
+    </div>
+  `).join('');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="scheduleViewCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:var(--color-primary); border-color:rgba(129,140,248,0.35);">Executive Calendar</span>
+          <h2 class="card-main-title">${card.title || 'Today\'s Executive Commitments'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.next_up || '4 Commitments Today'}</span>
+      </div>
+
+      <div class="schedule-container" style="margin-top:16px;">
+        <div class="schedule-stack">
+          ${entriesHtml || '<div style="color:var(--color-secondary); padding:20px;">No scheduled commitments for today.</div>'}
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Next up: ${card.next_up || 'Executive Leadership Daily Standup'}</span>
+        <button class="btn-execute-key" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">
+          <span>Audit Travel Buffer</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderFinancialMetricsCard(card) {
+  const metrics = card.metrics || [
+    { label: "Current ARR", value: "$64.2M", sub: "+34% YoY Growth" },
+    { label: "Net Burn", value: "$420k/mo", sub: "Disciplined OpEx" },
+    { label: "Total Runway", value: "29.4 Months", sub: "Cash Secure" },
+    { label: "Net Retention", value: "142%", sub: "Enterprise Tier" }
+  ];
+
+  const gridHtml = metrics.map(m => `
+    <div class="metric-tile" style="background:rgba(255,255,255,0.03); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:16px;">
+      <div class="metric-tile-label" style="font-size:11px; text-transform:uppercase; color:var(--color-secondary); font-family:var(--font-mono);">${m.label}</div>
+      <div class="metric-tile-val" style="font-size:24px; font-weight:700; color:var(--color-on-surface); margin:8px 0;">${m.value}</div>
+      <div class="metric-tile-tag" style="font-size:11px; color:var(--color-primary); font-weight:600;">${m.sub || ''}</div>
+    </div>
+  `).join('');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="financialMetricsCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.35);">CFO Metric Pack</span>
+          <h2 class="card-main-title">${card.title || 'Q3 Executive Financial Intelligence'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.audit_status || 'Verified for Board Deck'}</span>
+      </div>
+
+      <div class="raycast-metrics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:16px;">
+        ${gridHtml}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Verified by: <strong style="color:var(--color-on-surface);">${card.verified_by || 'David Ross (CFO)'}</strong></span>
+        <button class="btn-execute-key" onclick="sendQuery('Who is Elena Rostova?')">
+          <span>Board Review Dossier</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStakeholderProfileCard(card) {
+  const focusAreas = card.focus_areas || [];
+  const focusHtml = focusAreas.map(f => `<span style="background:rgba(255,255,255,0.04); border:1px solid var(--color-outline); border-radius:4px; padding:4px 8px; font-size:11px; color:var(--color-secondary);">${f}</span>`).join(' ');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="stakeholderProfileCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#38bdf8; border-color:rgba(56,189,248,0.35);">Stakeholder Intelligence</span>
+          <h2 class="card-main-title">${card.title || 'Executive Dossier'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.role || 'VIP Stakeholder'} • ${card.organization || 'Aether Dynamics'}</span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:16px; margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+        ${card.active_item ? `
+          <div>
+            <div style="font-size:11px; text-transform:uppercase; color:var(--color-warning); font-family:var(--font-mono); font-weight:700;">Active Priority Matter</div>
+            <div style="font-size:14px; font-weight:600; color:var(--color-on-surface); margin-top:3px;">${card.active_item}</div>
+          </div>
+        ` : ''}
+
+        ${card.policy ? `
+          <div style="border-left:3px solid var(--color-primary); padding-left:12px;">
+            <div style="font-size:11px; text-transform:uppercase; color:var(--color-primary); font-family:var(--font-mono); font-weight:700;">Governance & Mandate Policy</div>
+            <div style="font-size:13px; color:var(--color-secondary); margin-top:3px; line-height:1.5;">${card.policy}</div>
+          </div>
+        ` : ''}
+
+        ${focusHtml ? `
+          <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px;">
+            <span style="font-size:12px; color:var(--color-secondary); font-weight:600;">Focus Domains:</span>
+            ${focusHtml}
+          </div>
+        ` : ''}
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <button class="btn-raycast-action" onclick="sendQuery('What are my meetings today?')">View Schedule</button>
+        <button class="btn-execute-key" onclick="sendQuery('Alexa, give me my morning briefing')">
+          <span>Full Executive Briefing</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderProjectOverviewCard(card) {
+  const clauses = card.critical_clauses || [];
+  const clausesHtml = clauses.map(c => `
+    <div style="padding:10px 14px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-family:var(--font-mono); font-weight:700; color:var(--color-primary); font-size:13px;">${c.clause}</span>
+      <span style="font-size:13px; color:var(--color-secondary);">${c.subject}</span>
+    </div>
+  `).join('');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="projectOverviewCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:var(--color-warning); border-color:rgba(245,158,11,0.35);">M&A Strategic Initiative</span>
+          <h2 class="card-main-title">${card.title || 'Project Apex • Acquisition Overview'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.parties || 'Aether Dynamics ↔ Acme Technologies'}</span>
+      </div>
+
+      <div class="raycast-metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;">
+        <div class="metric-tile" style="background:rgba(255,255,255,0.03); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:14px;">
+          <div class="metric-tile-label" style="font-size:11px; text-transform:uppercase; color:var(--color-secondary); font-family:var(--font-mono);">Enterprise Valuation Cap</div>
+          <div class="metric-tile-val" style="font-size:20px; font-weight:700; color:var(--color-on-surface); margin:6px 0;">${card.valuation_cap || '$48,000,000 USD'}</div>
+          <div class="metric-tile-tag" style="font-size:11px; color:#10b981;">Strict Board Ceiling</div>
+        </div>
+        <div class="metric-tile" style="background:rgba(255,255,255,0.03); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:14px;">
+          <div class="metric-tile-label" style="font-size:11px; text-transform:uppercase; color:var(--color-secondary); font-family:var(--font-mono);">Target Close Date</div>
+          <div class="metric-tile-val" style="font-size:20px; font-weight:700; color:var(--color-on-surface); margin:6px 0;">${card.target_close || 'Nov 15, 2026'}</div>
+          <div class="metric-tile-tag" style="font-size:11px; color:#38bdf8;">${card.escrow_threshold || 'Max 12% Escrow'}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div style="font-size:12px; font-family:var(--font-mono); text-transform:uppercase; color:var(--color-secondary); font-weight:700; margin-bottom:8px;">Active Redline Flags</div>
+        ${clausesHtml}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Negotiation call scheduled today at 2:00 PM</span>
+        <button class="btn-execute-key" onclick="sendQuery('Alexa, inspect the Acme merger redline from Sarah')">
+          <span>Inspect Section 9.2 Redline</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderWeatherReportCard(card) {
+  const forecast = card.forecast || [
+    { day: "Today", high: "72°", low: "54°", cond: "Sunny", icon: "☀️" },
+    { day: "Tomorrow", high: "69°", low: "52°", cond: "Partly Cloudy", icon: "⛅" },
+    { day: "Friday", high: "67°", low: "51°", cond: "Sunny", icon: "☀️" },
+    { day: "Saturday", temp: "70° / 53°", cond: "Clear", icon: "🌤️" }
+  ];
+
+  const forecastHtml = forecast.map(f => `
+    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:12px; text-align:center;">
+      <div style="font-size:12px; color:var(--color-secondary); font-weight:600;">${f.day}</div>
+      <div style="font-size:20px; margin:6px 0;">${f.icon || '☀️'}</div>
+      <div style="font-size:14px; font-weight:700; color:var(--color-on-surface);">${f.high || f.temp || '72°'}</div>
+      <div style="font-size:11px; color:var(--color-secondary); margin-top:2px;">${f.cond || ''}</div>
+    </div>
+  `).join('');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="weatherReportCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#38bdf8; border-color:rgba(56,189,248,0.35);">Atmospheric Intelligence</span>
+          <h2 class="card-main-title">${card.location || 'San Francisco, CA'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.condition || 'Sunny & Clear Skies'}</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:20px; margin-top:16px;">
+        <div style="display:flex; align-items:center; gap:20px;">
+          <span style="font-size:48px;">☀️</span>
+          <div>
+            <div style="font-size:42px; font-weight:800; color:var(--color-on-surface); line-height:1;">${card.temperature || '68°F'}</div>
+            <div style="font-size:13px; color:var(--color-secondary); margin-top:4px;">High: ${card.high || '72°F'} • Low: ${card.low || '54°F'}</div>
+          </div>
+        </div>
+        <div style="text-align:right; font-size:12px; color:var(--color-secondary); display:flex; flex-direction:column; gap:4px;">
+          <div>Humidity: <strong style="color:var(--color-on-surface);">${card.humidity || '48%'}</strong></div>
+          <div>Wind: <strong style="color:var(--color-on-surface);">${card.wind || '8 mph NW'}</strong></div>
+          <div>Air Quality: <strong style="color:#10b981;">${card.air_quality || '32 AQI (Good)'}</strong></div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-top:14px;">
+        ${forecastHtml}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Echo Show Micro-Atmospheric Sensor Sync</span>
+        <button class="btn-execute-key" onclick="sendQuery('What are my meetings today?')">
+          <span>View Today's Schedule</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGreetingCard(card) {
+  const suggestions = card.suggestions || [
+    "What are my meetings today?",
+    "What is our ARR and runway?",
+    "Who is Sarah Chen?",
+    "Tell me the weather today",
+    "What is Project Apex?"
+  ];
+
+  const pillsHtml = suggestions.map(s => `
+    <button class="btn-raycast-action" style="font-size:12px; padding:8px 12px; margin-bottom:6px;" onclick="sendQuery('${s}')">
+      ${s}
+    </button>
+  `).join(' ');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="greetingCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:var(--color-primary); border-color:rgba(129,140,248,0.35);">Executive Assistant</span>
+          <h2 class="card-main-title">${card.greeting || 'Welcome, Alex Mercer'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.system_status || 'All Systems Active'}</span>
+      </div>
+
+      <p style="font-size:14px; color:var(--color-secondary); margin:14px 0 16px; line-height:1.5;">
+        ChronoOS Chief of Staff is standing by. Speak or click any executive prompt below to get an instant briefing:
+      </p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+        ${pillsHtml}
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--color-outline); padding-top:14px;">
+        <button class="btn-execute-key" onclick="sendQuery('Alexa, give me my morning briefing')">
+          <span>Run Morning Briefing</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderTimeDateCard(card) {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="timeDateCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#a855f7; border-color:rgba(168,85,247,0.35);">Temporal Precision</span>
+          <h2 class="card-main-title">${card.title || 'Executive Temporal Clock'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.status || 'Synchronized'}</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:24px 28px; margin-top:16px;">
+        <div>
+          <div style="font-size:48px; font-weight:800; color:var(--color-on-surface); line-height:1; font-family:var(--font-mono);">${card.time || '12:00 PM'}</div>
+          <div style="font-size:16px; font-weight:600; color:var(--color-primary); margin-top:10px;">${card.date || 'Today'}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:22px; font-weight:700; color:var(--color-on-surface);">${card.day || ''}</div>
+          <div style="font-size:12px; color:var(--color-secondary); margin-top:6px;">${card.timezone || 'Local Clock'}</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">System Temporal Synchronization Active</span>
+        <button class="btn-execute-key" onclick="sendQuery('Tell me the weather today')">
+          <span>Check Weather</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderWebSearchResultCard(card) {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="webSearchResultCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#06b6d4; border-color:rgba(6,182,212,0.35);">Live Web Intelligence</span>
+          <h2 class="card-main-title">${card.title || 'Web Search Knowledge'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.source || 'Open Web'}</span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:20px; margin-top:16px;">
+        <div style="font-size:12px; font-family:var(--font-mono); text-transform:uppercase; color:var(--color-secondary); margin-bottom:8px;">Query: "${card.query || ''}"</div>
+        <div style="font-size:15px; color:var(--color-on-surface); line-height:1.6; font-weight:400;">
+          ${card.summary || 'No summary available.'}
+        </div>
+        ${card.url ? `
+          <div style="margin-top:12px;">
+            <a href="${card.url}" target="_blank" rel="noopener noreferrer" style="font-size:12px; color:#38bdf8; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+              <span>Source Documentation</span>
+              <span>↗</span>
+            </a>
+          </div>
+        ` : ''}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Live Web Search Engine Response</span>
+        <button class="btn-execute-key" onclick="sendQuery('Tell me the weather today')">
+          <span>Check Weather</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPersonalMemoryCard(card) {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="personalMemoryCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.35);">Workspace Memory</span>
+          <h2 class="card-main-title">${card.title || 'Personal Workspace Detail'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.source || 'Private Memory'}</span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:22px; margin-top:16px;">
+        <div style="font-size:12px; font-family:var(--font-mono); text-transform:uppercase; color:var(--color-primary); font-weight:700; margin-bottom:6px;">Topic: ${(card.entity || '').toUpperCase()}</div>
+        <div style="font-size:18px; font-weight:600; color:var(--color-on-surface); line-height:1.5;">
+          ${card.memory || ''}
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Retrieved from User Workspace Graph</span>
+        <button class="btn-execute-key" onclick="sendQuery('What is on my schedule?')">
+          <span>View Schedule</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderMemorySavedCard(card) {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="memorySavedCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.35);">Memory Saved ✓</span>
+          <h2 class="card-main-title">${card.title || 'Fact Added to Workspace'}</h2>
+        </div>
+        <span class="card-subtitle-tag">${card.status || 'Stored'}</span>
+      </div>
+
+      <div style="background:rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-md); padding:22px; margin-top:16px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <span style="font-size:24px;">💾</span>
+          <div>
+            <div style="font-size:12px; font-family:var(--font-mono); text-transform:uppercase; color:#10b981; font-weight:700;">Entity: ${(card.entity || '').toUpperCase()}</div>
+            <div style="font-size:20px; font-weight:700; color:var(--color-on-surface);">${card.value || ''}</div>
+          </div>
+        </div>
+        <div style="font-size:13px; color:var(--color-secondary); line-height:1.4;">
+          This detail has been persisted to your private executive memory graph and will be referenced in future assistant turns.
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <button class="btn-raycast-action" style="font-size:12px;" onclick="sendQuery('What is my ${card.entity || ''}?')">
+          Ask "What is my ${card.entity || ''}?"
+        </button>
+        <button class="btn-execute-key" onclick="sendQuery('Tell me the weather today')">
+          <span>Check Weather</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderMemoryPromptCard(card) {
+  const suggestions = card.suggested_actions || card.suggestions || [
+    `Yes, add it`,
+    `No thanks`
+  ];
+
+  const actionsHtml = suggestions.map(s => `
+    <button class="btn-raycast-action" style="font-size:13px; padding:8px 14px; margin-right:8px; margin-bottom:8px;" onclick="sendQuery('${s}')">
+      ${s}
+    </button>
+  `).join('');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="memoryPromptCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#f59e0b; border-color:rgba(245,158,11,0.35);">Knowledge Notice</span>
+          <h2 class="card-main-title">${card.title || 'Workspace Memory Prompt'}</h2>
+        </div>
+        <span class="card-subtitle-tag">Personal Detail</span>
+      </div>
+
+      <div style="background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.25); border-radius:var(--radius-md); padding:20px; margin-top:16px;">
+        <p style="font-size:14px; color:var(--color-on-surface); margin:0 0 10px; line-height:1.5;">
+          ${card.message || 'Information is not yet recorded in your workspace.'}
+        </p>
+        <p style="font-size:13px; color:var(--color-secondary); margin:0 0 16px; line-height:1.4;">
+          ${card.prompt || 'Would you like me to remember this fact for you?'}
+        </p>
+        <div style="display:flex; flex-wrap:wrap;">
+          ${actionsHtml}
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Speak or type your answer to save it</span>
+        <button class="btn-execute-key" onclick="sendQuery('Yes')">
+          <span>Yes, Add To Memory</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderTaskHelpCard(card) {
+  const commands = card.sample_commands || [
+    "Add task: Review Q3 marketing strategy at 3:00 PM",
+    "Schedule meeting with Sarah Chen at 4:30 PM",
+    "Remind me to call David Ross at 2:00 PM",
+    "Add to schedule: Team sprint review at 11:00 AM"
+  ];
+
+  const chipsHtml = commands.map(cmd => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
+      <span style="font-size:13px; font-weight:500; color:var(--color-on-surface); font-family:var(--font-mono);">${cmd}</span>
+      <button class="btn-raycast-action" style="font-size:11px; padding:4px 10px;" onclick="sendQuery('${cmd.replace(/'/g, "\\'")}')">Try It →</button>
+    </div>
+  `).join('');
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="taskHelpCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:var(--color-primary); border-color:rgba(129,140,248,0.35);">Schedule Intelligence</span>
+          <h2 class="card-main-title">${card.title || 'Task & Schedule Management'}</h2>
+        </div>
+        <span class="card-subtitle-tag">Voice & Text Ready</span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:20px; margin-top:16px;">
+        <div style="font-size:16px; font-weight:700; color:var(--color-on-surface); margin-bottom:6px;">${card.headline || 'How to Add Tasks & Meetings'}</div>
+        <p style="font-size:14px; color:var(--color-secondary); line-height:1.55; margin-bottom:16px;">
+          ${card.description || 'Speak or type any task with an optional time and attendee. ChronoOS parses the details and updates your calendar.'}
+        </p>
+        <div style="font-size:11px; font-family:var(--font-mono); text-transform:uppercase; color:var(--color-secondary); margin-bottom:8px;">Click to Add a Sample Task:</div>
+        ${chipsHtml}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Say "What are my meetings today?" to view schedule</span>
+        <button class="btn-execute-key" onclick="sendQuery('What are my meetings today?')">
+          <span>View My Schedule</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 function renderGenericCard(card) {
+  const memories = card.relevant_memories || [];
+  const comms = card.relevant_comms || [];
+
+  let extraHtml = '';
+  if (memories.length > 0) {
+    extraHtml += `
+      <div style="margin-top:16px;">
+        <div style="font-size:11px; font-family:var(--font-mono); text-transform:uppercase; color:var(--color-primary); font-weight:700; margin-bottom:8px;">Episodic Memory Match</div>
+        ${memories.slice(0, 2).map(m => `
+          <div style="padding:10px 14px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
+            <strong style="color:var(--color-on-surface); font-size:13px;">${m.entity || 'Policy Record'}:</strong>
+            <span style="color:var(--color-secondary); font-size:13px; margin-left:4px;">${m.memory || ''}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  if (comms.length > 0) {
+    extraHtml += `
+      <div style="margin-top:14px;">
+        <div style="font-size:11px; font-family:var(--font-mono); text-transform:uppercase; color:#38bdf8; font-weight:700; margin-bottom:8px;">Related Executive Communication</div>
+        ${comms.slice(0, 2).map(c => `
+          <div style="padding:10px 14px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
+            <div style="font-size:13px; font-weight:600; color:var(--color-on-surface);">${c.sender_name || 'Staff'}: ${c.subject || ''}</div>
+            <div style="color:var(--color-secondary); font-size:12px; margin-top:2px;">${c.snippet || ''}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card">
       <div class="card-beam-glow"></div>
-      <h2 class="card-main-title" style="margin-bottom:8px;">${card.title}</h2>
-      <p style="font-size:14px; color:var(--color-secondary); margin-bottom:16px; line-height:1.5;">${card.summary || ''}</p>
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge">Executive Context</span>
+          <h2 class="card-main-title">${card.title || 'Executive Intelligence'}</h2>
+        </div>
+      </div>
+      <p style="font-size:14px; color:var(--color-secondary); margin:12px 0 16px; line-height:1.5;">${card.summary || ''}</p>
+      ${extraHtml}
     </div>
   `;
 }
@@ -2437,7 +3449,7 @@ function playCinematicBootBoom() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 1.4);
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function initKineticSplash() {
@@ -2580,7 +3592,7 @@ function initKineticSplash() {
         return;
       }
       iterations++;
-      
+
       let scrambled = targetTitle
         .split('')
         .map((char, index) => {
@@ -2673,7 +3685,7 @@ function initKineticSplash() {
   }, 65);
 }
 
-window.replayBootSequence = function() {
+window.replayBootSequence = function () {
   const splash = document.getElementById('kineticSplash');
   if (!splash) return;
   splash.style.display = 'flex';
@@ -2813,7 +3825,7 @@ let executiveTasks = [
 try {
   const savedTasks = localStorage.getItem('chrono_tasks');
   if (savedTasks) executiveTasks = JSON.parse(savedTasks);
-} catch (e) {}
+} catch (e) { }
 
 function addExecutiveTask(desc, priority = 'High') {
   executiveTasks.unshift({
@@ -2899,8 +3911,16 @@ function initClock() {
 // --------------------------------------------------------------------------
 
 let isEchoShowMode = false;
+let lastEchoToggleTime = 0;
 
 function toggleEchoShowMode(forceState) {
+  const now = Date.now();
+  // Prevent rapid double-invocations within 250ms unless a specific boolean is forced
+  if (typeof forceState !== 'boolean' && (now - lastEchoToggleTime < 250)) {
+    return;
+  }
+  lastEchoToggleTime = now;
+
   if (typeof forceState === 'boolean') {
     isEchoShowMode = forceState;
   } else {
@@ -2908,6 +3928,15 @@ function toggleEchoShowMode(forceState) {
   }
 
   const overlay = document.getElementById('echoShowOverlay');
+  const echoBtn = document.getElementById('echoModeToggleBtn');
+  if (echoBtn) {
+    if (isEchoShowMode) {
+      echoBtn.classList.add('active');
+    } else {
+      echoBtn.classList.remove('active');
+    }
+  }
+
   if (!overlay) return;
 
   if (isEchoShowMode) {
@@ -2919,12 +3948,36 @@ function toggleEchoShowMode(forceState) {
     playSound('click');
   }
 }
+window.toggleEchoShowMode = toggleEchoShowMode;
+window.toggleEchoCameraShutter = toggleEchoCameraShutter;
 
 function syncEchoShowContent() {
-  const currentCard = multimodalWidgetArea ? multimodalWidgetArea.innerHTML : '';
+  const currentCard = multimodalWidgetArea ? multimodalWidgetArea.innerHTML.trim() : '';
   const echoViewport = document.getElementById('echoMultimodalViewport');
-  if (echoViewport && currentCard) {
-    echoViewport.innerHTML = currentCard;
+  if (echoViewport) {
+    if (currentCard) {
+      echoViewport.innerHTML = currentCard;
+    } else {
+      echoViewport.innerHTML = `
+        <div class="raycast-3d-card" style="border-color: rgba(0,202,255,0.4); min-height: 280px; display:flex; flex-direction:column; justify-content:center;">
+          <div class="card-beam-glow"></div>
+          <div class="card-topbar">
+            <div class="card-title-group">
+              <span class="sheet-badge" style="background:rgba(0,202,255,0.15); color:#00CAFF; border-color:rgba(0,202,255,0.3);">ECHO SHOW 15 • APL 2.0</span>
+              <h2 class="card-main-title">Executive Smart Screen Active</h2>
+            </div>
+          </div>
+          <p style="color:var(--color-secondary); font-size:13px; line-height:1.6; margin: 12px 0 16px 0;">
+            Multimodal Chief of Staff viewport synchronized. Ask any question with your voice, tap a suggestion capsule, or schedule a task.
+          </p>
+          <div class="dossier-actions" style="margin-top:auto;">
+            <button class="btn-raycast-action alert-action-btn" onclick="sendQuery('Alexa, give me my morning briefing')">Morning Briefing</button>
+            <button class="btn-raycast-action" onclick="sendQuery('how can i add my tasks')">+ Add Task</button>
+            <button class="btn-raycast-action" onclick="sendQuery('What is the weather today?')">Live Weather</button>
+          </div>
+        </div>
+      `;
+    }
   }
 
   const echoTranscript = document.getElementById('echoSpeechTranscript');
@@ -2951,12 +4004,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const pipBtn = document.getElementById('pipAssistantBtn');
   if (pipBtn) {
     pipBtn.addEventListener('click', togglePipAssistant);
-  }
-
-  // Wire Echo Show 15 Smart Display Button & Keybind (⌘E)
-  const echoBtn = document.getElementById('echoModeToggleBtn');
-  if (echoBtn) {
-    echoBtn.addEventListener('click', () => toggleEchoShowMode());
   }
 
   window.addEventListener('keydown', (e) => {

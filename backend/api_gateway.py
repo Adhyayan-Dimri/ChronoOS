@@ -208,6 +208,11 @@ async def alexa_confirm_endpoint(payload: Dict[str, Any]):
         "receipt": parsed
     }
 
+@app.get("/api/health")
+async def gateway_health():
+    """Returns gateway health status."""
+    return {"status": "HEALTHY", "service": "ChronoOS", "version": "1.0.0"}
+
 @app.get("/api/status")
 async def gateway_status():
     """Returns runtime telemetry for the hackathon showcase."""

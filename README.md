@@ -168,17 +168,27 @@ Open your browser and navigate to `http://127.0.0.1:8000/`.
 ```
 ChronoOS/
 ├── backend/
-│   ├── __init__.py
+│   ├── __init__.py           # Package marker
 │   ├── api_gateway.py        # FastAPI routes, auth endpoints, chat dispatch
 │   ├── bedrock_orchestrator.py # Amazon Bedrock multi-turn tool calling loop
 │   ├── mcp_server.py         # MCP 2.0 tool implementations & JSON-RPC router
-│   ├── memory_graph.py       # Episodic memory store and vector retrieval
-│   └── mock_data.py          # Preloaded Acme M&A contracts, flight UA 482 streams
+│   ├── memory_graph.py       # Episodic memory store & TF-IDF vector retrieval
+│   └── mock_executive_data.py# Preloaded Acme M&A contracts, flight UA 482 streams
 ├── frontend/
-│   ├── app.js                # Master interactive engine, speech synthesis, PiP
-│   ├── index.html            # Semantic HTML5 layout, Raycast command deck
-│   └── style.css             # Obsidian glassmorphic design system
-├── requirements.txt          # Python dependencies (fastapi, uvicorn, boto3, pydantic)
+│   ├── app.js                # Master interactive engine, speech synthesis, Echo Show & PiP
+│   ├── index.html            # Semantic HTML5 layout, Echo Show 15 simulator & Raycast deck
+│   └── style.css             # Obsidian glassmorphic design system & Echo Show 15 bezel
+├── tests/
+│   ├── __init__.py
+│   ├── test_api_gateway.py   # FastAPI HTTP routes & JSON-RPC 2.0 verification
+│   ├── test_bedrock_orchestrator.py # Multi-turn tool calling & guardrail checks
+│   ├── test_mcp_server.py    # 7 production-grade MCP tool contract tests
+│   └── test_memory_graph.py  # In-memory vector cosine similarity tests
+├── demo_cli.py               # Interactive CLI demonstration & automated scenario runner
+├── Dockerfile                # Production container deployment
+├── docker-compose.yml        # Zero-config local orchestration
+├── requirements.txt          # Python dependencies (fastapi, uvicorn, boto3, pytest)
+├── .env.example              # AWS Bedrock credentials template & model parameters
 ├── DEMO_SCRIPT.md            # Step-by-step judge demonstration walkthrough
 ├── AMAZON_PRODUCT_FEEDBACK.md# Strategic developer feedback for Amazon Bedrock & Alexa teams
 └── README.md                 # Complete system documentation
@@ -188,15 +198,32 @@ ChronoOS/
 
 ## Testing & Verification
 
-Execute the test suite to validate API routing, MCP tool contracts, and Bedrock orchestrator fallbacks:
+ChronoOS includes automated test suites covering all 7 MCP tool contracts, FastAPI gateway endpoints, and Bedrock orchestrator scenarios:
 
 ```bash
-# Run unit tests
+# Run complete test suite (29 automated tests)
 pytest tests/ -v
+
+# Run interactive terminal scenario demonstration
+python demo_cli.py
 
 # Run FastAPI gateway integration check
 curl -s http://127.0.0.1:8000/api/health
 ```
+
+---
+
+## Docker Deployment
+
+To launch ChronoOS locally with zero environment setup:
+
+```bash
+# Build and launch via Docker Compose
+docker compose up --build
+```
+
+Access the command center at `http://localhost:8000`.
+
 
 ---
 

@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ChronoOS • Autonomous Chief of Staff (Raycast Edition)</title>
-  <meta name="description" content="ChronoOS: Autonomous Executive Command Center powered by Raycast Dark design system, Alexa+, and Amazon Bedrock.">
+  <meta name="description"
+    content="ChronoOS: Autonomous Executive Command Center powered by Raycast Dark design system, Alexa+, and Amazon Bedrock.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=raycast-v8-ultra">
 </head>
+
 <body class="raycast-supreme">
 
   <!-- ===================================================================
@@ -18,7 +23,7 @@
   <div class="kinetic-splash-screen" id="kineticSplash">
     <!-- Real-Time High-Velocity Hyperspace Warp Canvas -->
     <canvas id="splashWarpCanvas"></canvas>
-    
+
     <div class="splash-ambient-aura"></div>
     <div class="splash-scanlines"></div>
 
@@ -49,12 +54,12 @@
       <!-- Quantum Orbital Ring Logo with Rotating Particle Ring -->
       <div class="splash-logo-symbol">
         <svg viewBox="0 0 60 60" width="72" height="72" fill="none" class="splash-quantum-svg">
-          <circle cx="30" cy="30" r="27" stroke="rgba(255,92,122,0.25)" stroke-width="1.5" stroke-dasharray="3 4"/>
-          <circle cx="30" cy="30" r="21" stroke="rgba(56,189,248,0.3)" stroke-width="1" stroke-dasharray="8 6"/>
-          <ellipse cx="30" cy="30" rx="24" ry="9" stroke="#FF5C7A" stroke-width="2" transform="rotate(-30 30 30)"/>
-          <ellipse cx="30" cy="30" rx="24" ry="9" stroke="#FFFFFF" stroke-width="1.4" transform="rotate(30 30 30)"/>
-          <circle cx="30" cy="30" r="5" fill="#FF5C7A" class="splash-core-pulse"/>
-          <circle cx="30" cy="30" r="2" fill="#FFFFFF"/>
+          <circle cx="30" cy="30" r="27" stroke="rgba(255,92,122,0.25)" stroke-width="1.5" stroke-dasharray="3 4" />
+          <circle cx="30" cy="30" r="21" stroke="rgba(56,189,248,0.3)" stroke-width="1" stroke-dasharray="8 6" />
+          <ellipse cx="30" cy="30" rx="24" ry="9" stroke="#FF5C7A" stroke-width="2" transform="rotate(-30 30 30)" />
+          <ellipse cx="30" cy="30" rx="24" ry="9" stroke="#FFFFFF" stroke-width="1.4" transform="rotate(30 30 30)" />
+          <circle cx="30" cy="30" r="5" fill="#FF5C7A" class="splash-core-pulse" />
+          <circle cx="30" cy="30" r="2" fill="#FFFFFF" />
         </svg>
       </div>
 
@@ -96,13 +101,14 @@
     <div class="nav-left">
       <div class="chrono-logo-container" id="logoOrb" title="ChronoOS Executive Architecture">
         <svg viewBox="0 0 40 40" width="30" height="30" fill="none" class="chrono-brand-svg">
-          <circle cx="20" cy="20" r="18" stroke="rgba(255,92,122,0.3)" stroke-width="1.2" stroke-dasharray="2 3"/>
-          <circle cx="20" cy="20" r="13" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-          <ellipse cx="20" cy="20" rx="14" ry="5.5" stroke="#FF5C7A" stroke-width="1.6" transform="rotate(-30 20 20)"/>
-          <ellipse cx="20" cy="20" rx="14" ry="5.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" transform="rotate(30 20 20)"/>
-          <circle cx="20" cy="20" r="3.5" fill="#FF5C7A" class="logo-core-pulse"/>
-          <circle cx="20" cy="20" r="1.5" fill="#FFFFFF"/>
-          <line x1="20" y1="20" x2="20" y2="7.5" stroke="#FF3D5C" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="20" cy="20" r="18" stroke="rgba(255,92,122,0.3)" stroke-width="1.2" stroke-dasharray="2 3" />
+          <circle cx="20" cy="20" r="13" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+          <ellipse cx="20" cy="20" rx="14" ry="5.5" stroke="#FF5C7A" stroke-width="1.6" transform="rotate(-30 20 20)" />
+          <ellipse cx="20" cy="20" rx="14" ry="5.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.2"
+            transform="rotate(30 20 20)" />
+          <circle cx="20" cy="20" r="3.5" fill="#FF5C7A" class="logo-core-pulse" />
+          <circle cx="20" cy="20" r="1.5" fill="#FFFFFF" />
+          <line x1="20" y1="20" x2="20" y2="7.5" stroke="#FF3D5C" stroke-width="1.5" stroke-linecap="round" />
         </svg>
       </div>
       <div class="brand-text-block">
@@ -132,7 +138,8 @@
 
       <!-- Auth & Workspace Switcher Button -->
       <button class="btn-header-tool" id="authPortalBtn" title="Accounts & Workspaces (⌘U)">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
@@ -142,7 +149,8 @@
 
       <!-- View Mode Toggle: Zen vs Dossier -->
       <button class="btn-header-tool" id="viewModeToggleBtn" title="Toggle Zen Spotlight / Full Dossier View (⌘Z)">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7"></rect>
           <rect x="14" y="3" width="7" height="7"></rect>
           <rect x="14" y="14" width="7" height="7"></rect>
@@ -155,7 +163,8 @@
       <!-- Sound FX Toggle -->
       <button class="btn-header-tool" id="soundToggleBtn" title="Toggle Tactile Audio Feedback">
         <span id="soundIconWrapper">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
           </svg>
@@ -164,8 +173,10 @@
       </button>
 
       <!-- Always-on-Top Floating Desktop Micro-Assistant (PiP) -->
-      <button class="btn-header-tool pip-accent-btn" id="pipAssistantBtn" title="Float Always-on-Top Desktop Micro-Assistant (⌘P)">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="btn-header-tool pip-accent-btn" id="pipAssistantBtn"
+        title="Float Always-on-Top Desktop Micro-Assistant (⌘P)">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
           <rect x="12" y="9" width="8" height="6" rx="1" ry="1"></rect>
           <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -176,8 +187,11 @@
       </button>
 
       <!-- Echo Show 15 Smart Display Mode Toggle (⌘E) -->
-      <button class="btn-header-tool echo-accent-btn" id="echoModeToggleBtn" onclick="toggleEchoShowMode()" title="Toggle Echo Show 15 Smart Display Mode (⌘E)">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="btn-header-tool echo-accent-btn" id="echoModeToggleBtn"
+        onclick="toggleEchoShowMode()"
+        title="Toggle Echo Show 15 Smart Display Mode (⌘E)">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
           <line x1="8" y1="21" x2="16" y2="21"></line>
           <line x1="12" y1="17" x2="12" y2="21"></line>
@@ -189,7 +203,8 @@
 
       <!-- Inspector Toggle -->
       <button class="btn-header-tool" id="inspectorToggleBtn" title="Toggle Bedrock & MCP Thought Inspector (⌘I)">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
         </svg>
         <span>Telemetry</span>
@@ -200,9 +215,9 @@
 
   <!-- Main Scrollable App Container -->
   <div class="raycast-app-wrapper" id="appWrapper">
-    
+
     <main class="main-stage-viewport">
-      
+
       <!-- ===================================================================
            STAGE 1: ZEN LAUNCHER HERO (Clean, Uncluttered, Non-Confusing Entry)
            =================================================================== -->
@@ -211,32 +226,37 @@
           <span class="badge-pulsar"></span>
           <span>Alexa+ Agent Skill • Amazon Bedrock • MCP Server</span>
         </div>
-        
+
         <h1 class="hero-super-title">
           Command your enterprise <br>
           <span class="gradient-text">at the speed of thought.</span>
         </h1>
-        
+
         <p class="hero-lead-text">
-          Zero clutter. Autonomous agentic triage. Connects directly to contracts, calendars, and enterprise memory via Amazon Bedrock & Model Context Protocol.
+          Zero clutter. Autonomous agentic triage. Connects directly to contracts, calendars, and enterprise memory via
+          Amazon Bedrock & Model Context Protocol.
         </p>
 
         <!-- Raycast Master Command Bar -->
         <div class="master-command-deck" id="commandDeck">
           <form class="command-input-slot" id="voiceTextForm" onsubmit="event.preventDefault(); handleFormSubmit();">
-            <button type="button" class="btn-mic-trigger" id="micOrbBtn" aria-label="Activate Voice Input" title="Click to speak or simulate voice command">
+            <button type="button" class="btn-mic-trigger" id="micOrbBtn" aria-label="Activate Voice Input"
+              title="Click to speak or simulate voice command">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="mic-svg-icon">
-                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                <path
+                  d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
               </svg>
               <span class="mic-ripple-ring ring-1"></span>
               <span class="mic-ripple-ring ring-2"></span>
             </button>
 
-            <input type="text" id="voiceTextInput" class="command-main-field" placeholder="Ask anything, search legal redlines, or speak 'Alexa...' (⌘K)" autocomplete="off">
-            
+            <input type="text" id="voiceTextInput" class="command-main-field"
+              placeholder="Ask anything, search legal redlines, or speak 'Alexa...' (⌘K)" autocomplete="off">
+
             <div class="command-action-buttons">
-              <button type="button" class="btn-clear-input" id="clearInputBtn" title="Clear Input" style="display:none;">✕</button>
+              <button type="button" class="btn-clear-input" id="clearInputBtn" title="Clear Input"
+                style="display:none;">✕</button>
               <button type="submit" class="btn-execute-key" id="sendPromptBtn">
                 <span>Execute</span>
                 <span class="kbd-badge btn-kbd">↵</span>
@@ -255,7 +275,8 @@
               <span class="key-hint">2</span>
               <span>Acme Redline</span>
             </button>
-            <button class="capsule-chip" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
+            <button class="capsule-chip"
+              onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
               <span class="key-hint">3</span>
               <span>Draft Counter-Offer</span>
             </button>
@@ -267,6 +288,10 @@
               <span class="key-hint">5</span>
               <span>Travel Conflicts</span>
             </button>
+            <button class="capsule-chip" onclick="sendQuery('how can i add my tasks')">
+              <span class="key-hint">+</span>
+              <span>Add Task</span>
+            </button>
           </div>
         </div>
 
@@ -274,15 +299,17 @@
         <div class="raycast-response-banner" id="agentResponseBanner">
           <div class="banner-star-icon">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-              <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/>
+              <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
             </svg>
           </div>
           <div class="banner-body-text">
             <div class="banner-meta-tagline">
               <span class="banner-sender-name" id="agentSenderTitle">ChronoOS Chief of Staff</span>
               <span class="banner-time-ticker" id="speechTimestamp">Just now</span>
-              <button type="button" class="btn-banner-voice-replay" id="replayVoiceBtn" onclick="replayCurrentSpeech()" title="Replay agent spoken voice">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button type="button" class="btn-banner-voice-replay" id="replayVoiceBtn" onclick="replayCurrentSpeech()"
+                title="Replay agent spoken voice">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                   <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                 </svg>
@@ -290,7 +317,8 @@
               </button>
             </div>
             <p class="banner-speech-output" id="speechText">
-              "Good morning. Executive streams are active. Your private workspace is clear today with zero active alerts."
+              "Good morning. Executive streams are active. Your private workspace is clear today with zero active
+              alerts."
             </p>
           </div>
         </div>
@@ -300,7 +328,7 @@
           <span class="prompt-text">Scroll or press ⌘Z to reveal Executive Dossier</span>
           <div class="scroll-chevron-bounce">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M7 10l5 5 5-5"/>
+              <path d="M7 10l5 5 5-5" />
             </svg>
           </div>
         </div>
@@ -310,7 +338,7 @@
            STAGE 2: EXECUTIVE DOSSIER WORKSPACE (Scroll-Driven Interactive Deck)
            =================================================================== -->
       <section class="executive-dossier-deck" id="dossierDeck">
-        
+
         <!-- Segmented Mode Switcher -->
         <div class="tab-controls-cluster" id="tabControlsCluster">
           <div class="tab-buttons-row">
@@ -329,7 +357,8 @@
           </div>
           <div class="dossier-meta-badge">
             <span class="status-pulse-dot" id="workspaceStatusDot"></span>
-            <span class="workspace-date-label" id="workspaceBadgeText">Wednesday, October 21, 2026 • Private Workspace</span>
+            <span class="workspace-date-label" id="workspaceBadgeText">Wednesday, October 21, 2026 • Private
+              Workspace</span>
           </div>
         </div>
 
@@ -350,13 +379,14 @@
           </div>
           <h2 class="cinema-main-title">Autonomous Intelligence in Motion.</h2>
           <p class="cinema-lead-text" id="cinemaSceneDescription">
-            Scene 1: Morning Executive Triage — Global synchronization, calendar commitment verification, and stakeholder episodic graph alignment.
+            Scene 1: Morning Executive Triage — Global synchronization, calendar commitment verification, and
+            stakeholder episodic graph alignment.
           </p>
         </div>
 
         <div class="cinema-theater-frame">
           <div class="cinema-ambient-glow" id="cinemaAmbientGlow"></div>
-          
+
           <!-- Cinema HUD Top Bar -->
           <div class="cinema-hud-bar">
             <div class="hud-left">
@@ -377,7 +407,7 @@
           <!-- Cinema Viewport (Real 60FPS Dynamic Multi-Scene Holographic Engine) -->
           <div class="cinema-screen-viewport">
             <canvas id="cinemaCanvas" width="1060" height="480"></canvas>
-            
+
             <div class="cinema-scanlines"></div>
             <div class="cinema-hud-crosshairs">
               <div class="hud-bracket top-left"></div>
@@ -390,7 +420,10 @@
             <div class="cinema-center-controller" id="cinemaControllerOverlay">
               <button class="btn-cinema-play" id="cinemaPlayToggleBtn" aria-label="Toggle Playback">
                 <span id="cinemaPlayIcon">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
                 </span>
               </button>
             </div>
@@ -405,22 +438,32 @@
             <div class="cinema-toolbar-row">
               <div class="cinema-chapters-list">
                 <span class="chapters-label">Reel Phases:</span>
-                <button class="chapter-pill active" onclick="seekCinemaChapter(0, '01 Morning Triage')">01 Morning Triage</button>
-                <button class="chapter-pill" onclick="seekCinemaChapter(35, '02 Legal Redline')">02 Legal Redline</button>
-                <button class="chapter-pill" onclick="seekCinemaChapter(70, '03 Guardrail Intercept')">03 Guardrail Intercept</button>
-                <button class="chapter-pill" onclick="seekCinemaChapter(105, '04 Authorization')">04 Authorization</button>
+                <button class="chapter-pill active" onclick="seekCinemaChapter(0, '01 Morning Triage')">01 Morning
+                  Triage</button>
+                <button class="chapter-pill" onclick="seekCinemaChapter(35, '02 Legal Redline')">02 Legal
+                  Redline</button>
+                <button class="chapter-pill" onclick="seekCinemaChapter(70, '03 Guardrail Intercept')">03 Guardrail
+                  Intercept</button>
+                <button class="chapter-pill" onclick="seekCinemaChapter(105, '04 Authorization')">04
+                  Authorization</button>
               </div>
 
               <div class="cinema-audio-tools">
                 <button class="btn-cinema-tool" id="cinemaAudioToggleBtn" title="Toggle Sound">
                   <span id="cinemaAudioIcon">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <line x1="23" y1="9" x2="17" y2="15"></line>
+                      <line x1="17" y1="9" x2="23" y2="15"></line>
+                    </svg>
                   </span>
                   <span>Audio</span>
                 </button>
                 <button class="btn-cinema-tool" id="cinemaFullscreenBtn" title="Fullscreen View">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    <path
+                      d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3">
+                    </path>
                   </svg>
                   <span>Fullscreen</span>
                 </button>
@@ -444,7 +487,7 @@
       </div>
 
       <div class="inspector-body-content">
-        
+
         <!-- Live Architecture Specs -->
         <div class="inspector-card-section">
           <div class="inspector-sec-title">Active Specifications</div>
@@ -474,11 +517,13 @@
           <div class="raycast-trace-list" id="traceFeed">
             <div class="raycast-trace-item">
               <div class="trace-item-header">System Boot & Discovery • <span class="tool-tag">MCP</span></div>
-              <div class="trace-item-body">Initialized 7 MCP executive tools over streamable HTTP. Episodic memory database online.</div>
+              <div class="trace-item-body">Initialized 7 MCP executive tools over streamable HTTP. Episodic memory
+                database online.</div>
             </div>
             <div class="raycast-trace-item">
               <div class="trace-item-header">Amazon Bedrock Gateway • <span class="tool-tag">Reasoning</span></div>
-              <div class="trace-item-body">Autonomous Chief of Staff persona loaded with zero-config multi-turn orchestrator.</div>
+              <div class="trace-item-body">Autonomous Chief of Staff persona loaded with zero-config multi-turn
+                orchestrator.</div>
             </div>
           </div>
         </div>
@@ -543,7 +588,8 @@
       <span class="sheet-badge">HUMAN-IN-THE-LOOP AUTHORIZATION REQUIRED</span>
       <h2 class="sheet-heading" id="dialogTitle">High-Stakes Legal Counter-Offer</h2>
       <p class="sheet-desc">
-        Amazon Bedrock Guardrails intercepted this executive action because it commits corporate legal liability on Project Apex ($48M Transaction).
+        Amazon Bedrock Guardrails intercepted this executive action because it commits corporate legal liability on
+        Project Apex ($48M Transaction).
       </p>
 
       <div class="sheet-meta-box">
@@ -558,8 +604,10 @@
         <div class="sheet-field-row payload-row">
           <span class="sheet-field-title">Draft Counter-Offer:</span>
           <div class="sheet-payload-code" id="dialogPayload">
-SUBJECT: RE: Project Apex - Board Position on Section 9.2 & 12.4
-Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a hard $5.5M ceiling with reciprocal indemnification. On Section 12.4, strike the foundation model license entirely—Acme may only receive run-time rights. I will lead this position on our 2:00 PM call. - Alex Mercer, CEO
+            SUBJECT: RE: Project Apex - Board Position on Section 9.2 & 12.4
+            Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a hard $5.5M ceiling with
+            reciprocal indemnification. On Section 12.4, strike the foundation model license entirely—Acme may only
+            receive run-time rights. I will lead this position on our 2:00 PM call. - Alex Mercer, CEO
           </div>
         </div>
       </div>
@@ -578,7 +626,7 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
   <dialog class="raycast-sheet auth-sheet" id="authPortalDialog" closedby="any">
     <div class="sheet-window auth-window">
       <div class="sheet-top-accent"></div>
-      
+
       <div class="auth-header-row">
         <div>
           <span class="sheet-badge">WORKSPACE ISOLATION & ACCESS CONTROL</span>
@@ -603,7 +651,8 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
         <button class="auth-seg-btn" id="tabDemoMode" onclick="switchAuthTab('demo')">
           <span>Demo Sandbox</span>
         </button>
-        <button class="auth-seg-btn" id="tabSignOutBtn" onclick="handleUserSignOut()" style="display:none; color:var(--color-primary);">
+        <button class="auth-seg-btn" id="tabSignOutBtn" onclick="handleUserSignOut()"
+          style="display:none; color:var(--color-primary);">
           <span>Sign Out</span>
         </button>
       </div>
@@ -622,7 +671,8 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
 
           <div class="auth-biometric-slot">
             <button type="button" class="btn-biometric-auth" onclick="simulateBiometricAuth()">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+                style="vertical-align:middle; margin-right:4px;">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
               </svg>
@@ -654,11 +704,13 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
           </div>
           <div class="auth-input-group">
             <label class="auth-label">Master Password</label>
-            <input type="password" id="regPassword" class="auth-field" placeholder="Create strong security key" required>
+            <input type="password" id="regPassword" class="auth-field" placeholder="Create strong security key"
+              required>
           </div>
 
           <div class="clean-slate-notice">
-            <span>Starts with a clean, private executive canvas. Monitor only your own meetings, contacts, and personal memory graph with zero dummy clutter.</span>
+            <span>Starts with a clean, private executive canvas. Monitor only your own meetings, contacts, and personal
+              memory graph with zero dummy clutter.</span>
           </div>
 
           <button type="submit" class="btn-auth-primary">
@@ -682,19 +734,31 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
 
           <div class="demo-card-features">
             <div class="demo-feat-item">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
               <strong>Acme Merger M&A:</strong> $12M Indemnification redline dispute & analysis
             </div>
             <div class="demo-feat-item">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
               <strong>Flight UA 482 Delay:</strong> 45m schedule & airport buffer clash
             </div>
             <div class="demo-feat-item">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
               <strong>Bedrock Guardrails:</strong> Autonomous high-stakes liability intercept
             </div>
             <div class="demo-feat-item">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#10b981" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
               <strong>Alexa+ Voice Skills:</strong> Complete multi-turn multimodal simulation
             </div>
           </div>
@@ -715,25 +779,27 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
   <div class="echo-show-overlay" id="echoShowOverlay" style="display:none;">
     <div class="echo-show-backdrop" onclick="toggleEchoShowMode(false)"></div>
     <div class="echo-show-kiosk-wrapper">
-      
+
       <!-- Realistic Echo Show 15 Frame & Metallic Bezel -->
       <div class="echo-show-bezel">
         <!-- Top Bezel Hardware Elements: Dual Mic Pinholes & Camera Lens -->
         <div class="echo-top-bezel-hardware">
           <div class="echo-mic-pinhole" title="Far-Field Microphone Array (Left)"></div>
-          <div class="echo-camera-housing" title="Front-Facing Camera & Privacy Shutter">
-            <div class="echo-camera-lens"></div>
-            <div class="echo-shutter-toggle" title="Camera Shutter Active"></div>
+          <div class="echo-camera-housing" id="echoCameraHousing" onclick="toggleEchoCameraShutter()"
+            title="Physical Privacy Camera Shutter (Click to Toggle)">
+            <div class="echo-camera-lens" id="echoCameraLens"></div>
+            <div class="echo-shutter-toggle" id="echoShutterToggle" title="Camera Shutter Active"></div>
           </div>
           <div class="echo-mic-pinhole" title="Far-Field Microphone Array (Right)"></div>
-          <button class="btn-echo-exit" id="echoExitBtn" onclick="toggleEchoShowMode(false)" title="Exit Echo Show Mode (Esc or ⌘E)">
+          <button class="btn-echo-exit" id="echoExitBtn" onclick="toggleEchoShowMode(false)"
+            title="Exit Echo Show Mode (Esc or ⌘E)">
             <span>Exit Echo Mode ✕</span>
           </button>
         </div>
 
         <!-- 15.6" Full HD Smart Screen Canvas (1920x1080 Aspect Ratio) -->
         <div class="echo-smart-screen">
-          
+
           <!-- Ambient Smart Screen Header -->
           <header class="echo-screen-header">
             <div class="echo-header-left">
@@ -741,7 +807,7 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
                 <span class="echo-pulse-dot"></span>
                 <span>Alexa+ Smart Display • ChronoOS</span>
               </span>
-              <span class="echo-device-location">Executive Suite • Echo Show 15</span>
+              <span class="echo-device-location" id="echoDeviceLocation">Executive Suite • Echo Show 15</span>
             </div>
             <div class="echo-header-center">
               <span class="echo-time-display" id="echoClockTime">10:45 AM</span>
@@ -749,7 +815,17 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
             </div>
             <div class="echo-header-right">
               <span class="echo-weather-tag">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
                 <span>72°F Seattle HQ</span>
               </span>
             </div>
@@ -757,7 +833,7 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
 
           <!-- Echo Show Main Multimodal Split Stage -->
           <div class="echo-screen-body">
-            
+
             <!-- Left Side: Voice Assistant Ambient Hub & Quick Glance Widgets -->
             <div class="echo-glance-column">
               <!-- Giant Alexa Voice Orb & Live Waveform -->
@@ -766,34 +842,37 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
                   <div class="echo-orb-glow"></div>
                   <div class="echo-orb-core">
                     <svg viewBox="0 0 24 24" width="28" height="28" fill="#00CAFF">
-                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                      <path
+                        d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
                     </svg>
                   </div>
                 </button>
                 <div class="echo-voice-status" id="echoVoiceStatus">Tap orb or say "Alexa..."</div>
-                <div class="echo-speech-transcript" id="echoSpeechTranscript">"Good morning. Executive streams are active."</div>
+                <div class="echo-speech-transcript" id="echoSpeechTranscript">"Good morning. Executive streams are
+                  active."</div>
               </div>
 
               <!-- Next Event Countdown Widget -->
-              <div class="echo-widget-card">
+              <div class="echo-widget-card" id="echoCommitmentCard">
                 <div class="echo-widget-head">
                   <span class="echo-widget-title">UPCOMING COMMITMENT</span>
-                  <span class="echo-widget-badge">IN 45M</span>
+                  <span class="echo-widget-badge" id="echoCommitmentBadge">IN 45M</span>
                 </div>
-                <div class="echo-event-name">Project Apex Strategy Review</div>
-                <div class="echo-event-meta">11:00 AM - 12:00 PM • Board Room A</div>
-                <div class="echo-event-note">Shifted +30m due to SFO departure delay</div>
+                <div class="echo-event-name" id="echoCommitmentName">Project Apex Strategy Review</div>
+                <div class="echo-event-meta" id="echoCommitmentMeta">11:00 AM - 12:15 PM • Board Room A</div>
+                <div class="echo-event-note" id="echoCommitmentNote">Evaluating live SFO flight buffer telemetry</div>
               </div>
 
               <!-- Transit & Airport Buffer Widget -->
-              <div class="echo-widget-card echo-alert-border">
+              <div class="echo-widget-card echo-alert-border" id="echoTravelCard">
                 <div class="echo-widget-head">
                   <span class="echo-widget-title" style="color:#FF5C7A;">TRAVEL ALERT</span>
-                  <span class="echo-widget-badge alert-badge">+45M DELAY</span>
+                  <span class="echo-widget-badge alert-badge" id="echoTravelBadge">+45M DELAY</span>
                 </div>
                 <div class="echo-event-name">United UA 482 (SFO → JFK)</div>
-                <div class="echo-event-note">Tight airport buffer: 25 minutes to keynote rehearsal</div>
+                <div class="echo-event-note" id="echoTravelNote">Tight airport buffer: 25 minutes to Manhattan review
+                </div>
               </div>
             </div>
 
@@ -816,7 +895,8 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
                 <span class="echo-chip-dot"></span>
                 <span>Acme M&A Redlines</span>
               </button>
-              <button class="echo-chip" onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
+              <button class="echo-chip"
+                onclick="sendQuery('Alexa, prepare a counter-offer rejecting the 12 million cap')">
                 <span class="echo-chip-dot"></span>
                 <span>Draft Counter-Offer</span>
               </button>
@@ -827,6 +907,10 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
               <button class="echo-chip" onclick="sendQuery('Open YouTube')">
                 <span class="echo-chip-dot"></span>
                 <span>Open YouTube</span>
+              </button>
+              <button class="echo-chip" onclick="sendQuery('how can i add my tasks')">
+                <span class="echo-chip-dot"></span>
+                <span>Add Tasks</span>
               </button>
             </div>
           </footer>
@@ -848,6 +932,7 @@ Sarah: We reject the $12M indemnification cap in Revision 4. Counter-propose a h
     </div>
   </div>
 
-  <script src="app.js?v=raycast-v11-echo-show"></script>
+  <script src="app.js?v=voice-echo-v17"></script>
 </body>
+
 </html>

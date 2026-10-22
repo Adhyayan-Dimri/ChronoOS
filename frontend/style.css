@@ -2681,7 +2681,7 @@ body.raycast-supreme {
 .echo-show-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 100000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2755,6 +2755,13 @@ body.raycast-supreme {
   padding: 2px 8px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.echo-camera-housing:hover {
+  border-color: rgba(0, 202, 255, 0.4);
+  background: rgba(0, 202, 255, 0.08);
 }
 
 .echo-camera-lens {
@@ -2763,6 +2770,7 @@ body.raycast-supreme {
   border-radius: 50%;
   background: radial-gradient(circle, #0F172A 40%, #1E293B 100%);
   border: 1px solid #38BDF8;
+  transition: all 0.2s ease;
 }
 
 .echo-shutter-toggle {
@@ -2770,6 +2778,18 @@ body.raycast-supreme {
   height: 6px;
   border-radius: 1px;
   background: #10B981;
+  transition: all 0.2s ease;
+}
+
+.echo-camera-housing.shutter-closed .echo-camera-lens {
+  background: #FF5C7A;
+  border-color: #FF5C7A;
+  box-shadow: 0 0 6px rgba(255, 92, 122, 0.7);
+}
+
+.echo-camera-housing.shutter-closed .echo-shutter-toggle {
+  background: #FF5C7A;
+  box-shadow: 0 0 4px #FF5C7A;
 }
 
 .btn-echo-exit {
@@ -3145,3 +3165,77 @@ body.raycast-supreme {
     grid-template-columns: 1fr;
   }
 }
+
+/* Travel Collision Resolution Styling */
+.travel-collision-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.telemetry-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.telemetry-cell {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.telemetry-cell-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+}
+
+.telemetry-cell-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F8FAFC;
+}
+
+.resolution-shift-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(14, 19, 26, 0.6);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  border-left: 3px solid #10B981;
+}
+
+.timeline-shift-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.buffer-secured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+

@@ -317,3 +317,41 @@ def register_user(name: str, email: str, organization: str = "Private Workspace"
             "is_demo": False
         }
     }
+
+def add_user_memory(email: Optional[str], entity: str, memory_text: str, category: str = "personal_memory") -> Dict[str, Any]:
+    """Adds a persistent memory fact to the specified user's private workspace."""
+    user = get_user_data(email)
+    import time
+    entry = {
+        "id": f"mem_{int(time.time() * 1000)}",
+        "category": category,
+        "entity": entity,
+        "memory": memory_text,
+        "last_updated": datetime.now().strftime("%Y-%m-%d")
+    }
+    user.setdefault("memory", []).append(entry)
+    return entry
+
+def add_user_schedule_item(email: Optional[str], title: str, start: str = "10:00", end: str = "11:00", attendees: Optional[List[str]] = None, location: str = "Office / Remote", item_type: str = "task", priority: str = "medium", date: Optional[str] = None, flight_details: Optional[Dict[str, Any]] = None, **kwargs) -> Dict[str, Any]:
+    """Adds a task or calendar commitment to the user's workspace schedule."""
+    user = get_user_data(email)
+    import time
+    entry = {
+        "id": f"task_{int(time.time() * 1000)}",
+        "title": title,
+        "time": f"{start} - {end}" if end and end != start else start,
+        "start": start,
+        "end": end,
+        "date": date or datetime.now().strftime("%Y-%m-%d"),
+        "attendees": attendees or [user.get("name", "Executive")],
+        "location": location,
+        "status": "confirmed",
+        "priority": priority,
+        "type": item_type,
+        "flight_details": flight_details or {}
+    }
+    for k, v in kwargs.items():
+        entry[k] = v
+    user.setdefault("schedule", []).append(entry)
+    return entry
+

@@ -7,7 +7,7 @@ Exposes executive-grade tools for Alexa+ and agentic reasoning systems.
 from typing import Dict, Any, List, Optional
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 
 from mock_executive_data import (
@@ -17,6 +17,7 @@ from mock_executive_data import (
     COMMUNICATIONS_FEED,
     DOCUMENTS_REPOSITORY
 )
+from memory_graph import episodic_memory_graph
 
 # Standard MCP Tool Definitions
 CHRONOS_MCP_TOOLS = [
@@ -161,12 +162,17 @@ class ChronoOSMCPServer:
         """Dispatches and executes the requested tool call."""
         if name == "get_executive_briefing":
             urgency = arguments.get("urgency_filter", "high")
-            comms = [c for c in COMMUNICATIONS_FEED if c["urgency"] in (["critical", "high"] if urgency == "high" else ["critical", "high", "medium", "low"])]
+            include_calendar = arguments.get("include_calendar", True)
+            include_urgent = arguments.get("include_urgent", arguments.get("include_urgent_comms", True))
+            
+            comms = []
+            if include_urgent:
+                comms = [c for c in COMMUNICATIONS_FEED if c["urgency"] in (["critical", "high"] if urgency == "high" else ["critical", "high", "medium", "low"])]
             
             result = {
                 "executive": EXECUTIVE_PROFILE["name"],
                 "title": EXECUTIVE_PROFILE["title"],
-                "today_schedule": CALENDAR_SCHEDULE,
+                "today_schedule": CALENDAR_SCHEDULE if include_calendar else [],
                 "urgent_communications": comms,
                 "active_alerts": [
                     "URGENT: Acme Corp Merger Redline received from General Counsel Sarah Chen (Section 9.2 Liability Cap altered). Decision required before 2:00 PM negotiation call.",
@@ -178,13 +184,7 @@ class ChronoOSMCPServer:
         elif name == "search_communications":
             query = arguments.get("query", "").lower()
             sender = arguments.get("sender_filter", "").lower()
-            
-            matches = []
-            for c in COMMUNICATIONS_FEED:
-                text_corpus = f"{c['sender_name']} {c['subject']} {c['snippet']}".lower()
-                if query in text_corpus:
-                    if not sender or sender in c['sender_name'].lower():
-                        matches.append(c)
+            matches = episodic_memory_graph.search_communications(query, sender_filter=sender if sender else None)
             return {"content": [{"type": "text", "text": json.dumps({"query": query, "match_count": len(matches), "matches": matches}, indent=2)}], "isError": False}
 
         elif name == "inspect_document_redlines":
@@ -204,16 +204,8 @@ class ChronoOSMCPServer:
 
         elif name == "query_episodic_memory":
             topic = arguments.get("entity_or_topic", "").lower()
-            relevant = []
-            for mem in EPISODIC_MEMORY_GRAPH:
-                if topic in mem["entity"].lower() or topic in mem["memory"].lower() or topic in mem["category"].lower():
-                    relevant.append(mem)
-            
-            # If no direct match, return all memories for general awareness
-            if not relevant:
-                relevant = EPISODIC_MEMORY_GRAPH
-                
-            return {"content": [{"type": "text", "text": json.dumps({"topic_queried": topic, "memories": relevant}, indent=2)}], "isError": False}
+            relevant = episodic_memory_graph.search(topic, top_k=4)
+            return {"content": [{"type": "text", "text": json.dumps({"topic_queried": topic, "vector_retrieval_mode": "cosine_similarity_tfidf", "memories": relevant}, indent=2)}], "isError": False}
 
         elif name == "manage_calendar_commitments":
             action = arguments.get("action")
@@ -221,23 +213,82 @@ class ChronoOSMCPServer:
                 conflicts = [
                     {
                         "conflict_type": "Travel Buffer Violation",
-                        "description": "Flight UA 482 lands at JFK 08:35 AM EDT tomorrow. Keynote rehearsal starts at 09:00 AM EDT. Travel time to Manhattan is 50 mins. Conflict severity: CRITICAL (Estimated 30-min tardiness).",
-                        "recommended_fix": "Reschedule Keynote Rehearsal to 10:15 AM EDT or rebook to UA 118 (leaves SFO 10:30 PM tonight, red-eye arrival 06:45 AM EDT)."
+                        "flight_telemetry": {
+                            "flight_number": "UA 482",
+                            "origin": "SFO",
+                            "destination": "JFK",
+                            "scheduled_arrival": "07:15 AM EDT",
+                            "estimated_arrival": "08:35 AM EDT",
+                            "delay_minutes": 45,
+                            "transit_to_manhattan_minutes": 50
+                        },
+                        "impacted_event": "Project Apex Strategy Review (11:00 AM - 12:00 PM)",
+                        "buffer_deficit_minutes": 25,
+                        "description": "Flight UA 482 lands at JFK 08:35 AM EDT tomorrow. Strategy review starts at 11:00 AM. Manhattan transit time is 50 mins plus luggage buffer. Risk: CEO tardiness or zero preparation buffer.",
+                        "recommended_fix": "Autonomously shift Strategy Review by +30m to 11:30 AM EDT, notify attendees David Ross and Elena Rostova, securing a 25-minute buffer."
                     }
                 ]
                 return {"content": [{"type": "text", "text": json.dumps({"calendar_conflicts": conflicts}, indent=2)}], "isError": False}
 
             elif action == "insert_focus_block":
+                time_slot = arguments.get("time_slot", "13:00-13:45")
+                start_time = "13:00"
+                end_time = "13:45"
+                if "-" in time_slot:
+                    parts = [p.strip() for p in time_slot.split("-")]
+                    start_time, end_time = parts[0], parts[1]
                 new_block = {
                     "id": f"cal_focus_{uuid.uuid4().hex[:6]}",
-                    "title": "Executive Focus Time: M&A Due Diligence & Legal Strategy",
-                    "start": "13:00",
-                    "end": "13:45",
+                    "title": "Executive Focus Block: M&A Due Diligence & Legal Strategy",
+                    "start": start_time,
+                    "end": end_time,
                     "status": "reserved",
+                    "priority": "critical",
                     "reason": arguments.get("reason", "Preparation for 2 PM Acme negotiation call.")
                 }
                 CALENDAR_SCHEDULE.append(new_block)
                 return {"content": [{"type": "text", "text": json.dumps({"message": "Focus block reserved successfully.", "block": new_block}, indent=2)}], "isError": False}
+
+            elif action == "adjust_meeting_time":
+                target_id = arguments.get("target_meeting_id", "cal_02")
+                time_slot = arguments.get("time_slot", "11:30 - 12:30")
+                reason = arguments.get("reason", "Flight UA 482 delay buffer adjustment")
+                
+                parts = [p.strip() for p in time_slot.split("-")]
+                new_start = parts[0] if len(parts) > 0 else "11:30"
+                new_end = parts[1] if len(parts) > 1 else "12:30"
+
+                target_meeting = None
+                for meeting in CALENDAR_SCHEDULE:
+                    if meeting.get("id") == target_id or "review" in meeting.get("title", "").lower() or "board" in meeting.get("title", "").lower():
+                        target_meeting = meeting
+                        break
+
+                if target_meeting:
+                    target_meeting["start"] = new_start
+                    target_meeting["end"] = new_end
+                    target_meeting["status"] = "rescheduled"
+                    target_meeting["shift_note"] = "Shifted +30m due to SFO departure delay. Attendees notified."
+                    return {
+                        "content": [{
+                            "type": "text",
+                            "text": json.dumps({
+                                "status": "adjusted",
+                                "meeting_id": target_meeting["id"],
+                                "title": target_meeting["title"],
+                                "new_time": f"{new_start} - {new_end}",
+                                "reason": reason,
+                                "secured_transit_buffer_minutes": 25,
+                                "attendees_notified": target_meeting.get("attendees", ["David Ross (CFO)", "Elena Rostova (Board)"])
+                            }, indent=2)
+                        }],
+                        "isError": False
+                    }
+                else:
+                    return {
+                        "content": [{"type": "text", "text": json.dumps({"status": "error", "message": f"Target meeting {target_id} not found."})}],
+                        "isError": True
+                    }
 
             return {"content": [{"type": "text", "text": json.dumps({"status": "acknowledged", "action": action}, indent=2)}], "isError": False}
 
@@ -245,7 +296,7 @@ class ChronoOSMCPServer:
             token = f"ACT-AUTH-{uuid.uuid4().hex[:8].upper()}"
             action_record = {
                 "action_token": token,
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
                 "action_type": arguments.get("action_type"),
                 "target_recipient": arguments.get("target_recipient"),
                 "proposed_payload": arguments.get("proposed_payload"),
@@ -276,7 +327,7 @@ class ChronoOSMCPServer:
 
             record = PENDING_ACTIONS_STORE[token]
             record["status"] = decision
-            record["finalized_at"] = datetime.utcnow().isoformat() + "Z"
+            record["finalized_at"] = datetime.now(timezone.utc).isoformat() + "Z"
 
             if decision == "APPROVED":
                 execution_receipt = {

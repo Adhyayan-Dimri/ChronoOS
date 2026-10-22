@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .DS_Store
 *.log
+.env
+.pytest_cache/
+scratch_*.py
