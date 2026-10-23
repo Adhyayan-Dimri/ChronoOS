@@ -12,6 +12,26 @@ import json
 import asyncio
 from typing import Dict, Any, Optional, List
 
+# Load .env configuration
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+if os.path.exists(env_path):
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(env_path, override=True)
+    except Exception:
+        pass
+    try:
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    k, v = k.strip(), v.strip().strip("'\"")
+                    if k and (k not in os.environ or not os.environ[k]):
+                        os.environ[k] = v
+    except Exception:
+        pass
+
 # Ensure local module imports work seamlessly
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
