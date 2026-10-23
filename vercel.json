@@ -1,7 +1,6 @@
 {
   "version": 2,
   "name": "chronoos",
-  "public": true,
   "cleanUrls": true,
   "rewrites": [
     {
@@ -21,8 +20,12 @@
       "destination": "https://chronoos-0yf3.onrender.com/message"
     },
     {
-      "source": "/(.*)",
-      "destination": "/frontend/$1"
+      "source": "/",
+      "destination": "/frontend/index.html"
+    },
+    {
+      "source": "/:match*",
+      "destination": "/frontend/:match*"
     }
   ]
 }
