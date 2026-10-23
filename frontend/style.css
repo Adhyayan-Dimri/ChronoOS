@@ -1119,6 +1119,57 @@ body.raycast-supreme {
   font-weight: 600;
 }
 
+.btn-delete-schedule {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-secondary);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  opacity: 0.6;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.schedule-entry:hover .btn-delete-schedule {
+  opacity: 1;
+}
+
+.btn-delete-schedule:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #EF4444;
+  transform: scale(1.08);
+}
+
+.btn-delete-schedule:active {
+  transform: scale(0.95);
+}
+
+.delete-sheet .delete-window {
+  border-color: rgba(255, 92, 122, 0.35);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(255, 92, 122, 0.2);
+}
+
+.delete-accent {
+  background: linear-gradient(90deg, #FF5C7A, #EF4444) !important;
+}
+
+.btn-sheet-danger {
+  background: linear-gradient(135deg, #EF4444, #DC2626) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.45) !important;
+}
+
+.btn-sheet-danger:hover {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.75) !important;
+}
+
+
 /* --------------------------------------------------------------------------
    M&A Redlines & Risk Card Styles
    -------------------------------------------------------------------------- */

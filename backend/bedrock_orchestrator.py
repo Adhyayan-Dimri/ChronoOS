@@ -950,6 +950,122 @@ class BedrockOrchestrator:
                 }
                 return self._build_turn_result(user_query, voice_response, visual_card, confirmation_needed, tools_invoked, trace_events, start_time, provenance="Personal data", routing=routing)
 
+        # 0I. PERSONAL_TOOL: Delete/Remove Schedule Commitment (Cross-Confirmation Enforced)
+        if routing["intent"] == IntentType.PERSONAL_TOOL and routing.get("tool") == "delete_schedule":
+            schedule = user_data.get("schedule", [])
+            target_item = None
+            
+            # Clean up query to find title or target
+            clean_target = re.sub(r'^(?:alexa,?\s*|hey alexa,?\s*)', '', query_lower).strip()
+            clean_target = re.sub(r'\b(?:delete|remove|cancel)\s+(?:the\s+|my\s+|a\s+|an\s+)?(?:meeting|task|commitment|event|flight|appointment|schedule)?\s*(?:with|about|to|for|called)?\s*', '', clean_target).strip().rstrip('.?!')
+            clean_target = re.sub(r'\b(?:from\s+(?:my\s+)?(?:schedule|calendar|commitments))\b', '', clean_target).strip()
+
+            if clean_target:
+                for item in schedule:
+                    item_title = item.get("title", "").lower()
+                    attendees = [str(a).lower() for a in item.get("attendees", [])]
+                    if clean_target in item_title or item_title in clean_target or any(clean_target in att for att in attendees):
+                        target_item = item
+                        break
+
+            # If not found by clean_target, check direct word match with any item in schedule
+            if not target_item and clean_target:
+                for item in schedule:
+                    item_title_words = set(re.findall(r'\b\w+\b', item.get("title", "").lower()))
+                    query_words = set(re.findall(r'\b\w+\b', clean_target))
+                    # Ignore common stop words
+                    filtered_query = query_words - {"the", "a", "an", "my", "our", "me", "to", "at", "on", "in", "with"}
+                    if item_title_words & filtered_query:
+                        target_item = item
+                        break
+
+            # If still not found, check if user said "the meeting" / "my meeting" and there is only 1 meeting or user asked to remove "next meeting"
+            if not target_item and schedule:
+                if any(w in query_lower for w in ["next meeting", "upcoming meeting", "the meeting", "my meeting"]) or len(schedule) == 1:
+                    target_item = schedule[0]
+
+            if not target_item:
+                if not schedule:
+                    voice_response = f"Your executive schedule is currently empty, {user_name}. There are no meetings or commitments to remove."
+                    visual_card = {
+                        "type": "INFORMATION",
+                        "title": "Schedule Empty",
+                        "summary": "No active schedule commitments found to remove.",
+                        "status": "Schedule Clear"
+                    }
+                else:
+                    voice_response = (
+                        f"I could not identify which commitment you would like to remove, {user_name}. "
+                        f"You currently have {len(schedule)} active items including '{schedule[0].get('title')}'. "
+                        f"Please specify the title of the event you wish to delete."
+                    )
+                    visual_card = {
+                        "type": "INFORMATION",
+                        "title": "Identify Schedule Commitment",
+                        "summary": "Multiple commitments found. Please specify which item to remove.",
+                        "schedule_items": [{"id": it.get("id"), "title": it.get("title"), "time": it.get("time")} for it in schedule]
+                    }
+                return self._build_turn_result(user_query, voice_response, visual_card, confirmation_needed, tools_invoked, trace_events, start_time, provenance="Personal data", routing=routing)
+
+            # Generate cross-confirmation token
+            import uuid
+            token = f"ACT-DEL-{uuid.uuid4().hex[:6].upper()}"
+            from mcp_server import PENDING_ACTIONS_STORE
+            PENDING_ACTIONS_STORE[token] = {
+                "action_type": "DELETE_SCHEDULE_COMMITMENT",
+                "user_email": user_email,
+                "item_id": target_item.get("id"),
+                "title": target_item.get("title"),
+                "time_slot": target_item.get("time"),
+                "target_recipient": f"Schedule: {target_item.get('title')}",
+                "proposed_payload": f"Permanently remove '{target_item.get('title')}' ({target_item.get('time')}) from executive schedule.",
+                "risk_assessment": "SCHEDULE_MODIFICATION_HIGH_STAKES",
+                "requires_voice_confirmation": True,
+                "status": "AWAITING_EXECUTIVE_CONFIRMATION"
+            }
+
+            trace_events.append({
+                "stage": "Cross-Confirmation Gate",
+                "action": "DELETE_SCHEDULE_COMMITMENT",
+                "target_id": target_item.get("id"),
+                "target_title": target_item.get("title"),
+                "token": token,
+                "status": "AWAITING_CONFIRMATION"
+            })
+
+            voice_response = (
+                f"Are you sure you want to remove '{target_item.get('title')}' scheduled at {target_item.get('time')} "
+                f"from your executive schedule? Please confirm to proceed or say cancel."
+            )
+
+            confirmation_needed = {
+                "token": token,
+                "recipient": f"Schedule: {target_item.get('title')}",
+                "subject": f"Remove Commitment: {target_item.get('title')}",
+                "body": f"Permanently remove '{target_item.get('title')}' ({target_item.get('time')}) from your schedule.",
+                "risk": "Schedule commitment removal requires explicit cross-confirmation."
+            }
+
+            visual_card = {
+                "type": "CONFIRMATION_REQUIRED",
+                "title": "Cross-Confirmation Required • Remove Schedule Commitment",
+                "token": token,
+                "item_id": target_item.get("id"),
+                "item_title": target_item.get("title"),
+                "item_time": target_item.get("time"),
+                "recipient": f"Schedule: {target_item.get('title')}",
+                "payload": f"Permanently remove '{target_item.get('title')}' ({target_item.get('time')}) from executive schedule.",
+                "risk_level": "SCHEDULE MODIFICATION (CROSS-CONFIRMATION REQUIRED)",
+                "status": "AWAITING_CONFIRMATION",
+                "actions": [
+                    {"label": "Confirm Removal", "action": f"approve_{token}", "variant": "danger"},
+                    {"label": "Cancel", "action": f"reject_{token}", "variant": "secondary"}
+                ]
+            }
+
+            return self._build_turn_result(user_query, voice_response, visual_card, confirmation_needed, tools_invoked, trace_events, start_time, provenance="Personal data", routing=routing)
+
+
 
         # ----------------------------------------------------------------------
         # Universal Intent 2: Direct Personal Memory Storing
@@ -2055,6 +2171,10 @@ class BedrockOrchestrator:
             from mcp_server import PENDING_ACTIONS_STORE
             tokens = list(PENDING_ACTIONS_STORE.keys())
             token = tokens[-1] if tokens else "ACT-AUTH-DEFAULT"
+            pending_rec = PENDING_ACTIONS_STORE.get(token, {})
+            is_del = pending_rec.get("action_type") == "DELETE_SCHEDULE_COMMITMENT"
+            del_title = pending_rec.get("title", "Commitment")
+            del_slot = pending_rec.get("time_slot", "")
 
             trace_events.append({
                 "stage": "MCP Tool Dispatch",
@@ -2067,20 +2187,35 @@ class BedrockOrchestrator:
             exec_data = json.loads(exec_res["content"][0]["text"])
             tools_invoked.append({"tool": "execute_confirmed_action", "result": exec_data})
 
-            voice_response = (
-                f"Action authorized and executed. Your legal counter-offer has been securely dispatched to Sarah Chen and the legal team. "
-                f"Receipt ID is {exec_data.get('receipt_id', 'RCPT-SECURE')}. Section 9.2 is locked for the 2:00 PM negotiation call."
-            )
+            if is_del:
+                voice_response = (
+                    f"Action authorized. '{del_title}' has been permanently removed from your executive schedule. "
+                    f"Your calendar agenda and travel buffers have been updated."
+                )
+                visual_card = {
+                    "type": "ACTION_EXECUTED",
+                    "title": "Schedule Commitment Removed",
+                    "token": token,
+                    "receipt": exec_data.get("receipt_id", "RCPT-DEL-SUCCESS"),
+                    "status": "REMOVED FROM EXECUTIVE SCHEDULE",
+                    "timestamp": exec_data.get("timestamp", datetime.now().isoformat()),
+                    "details": f"Successfully deleted '{del_title}' ({del_slot}). Calendar & travel buffers re-synchronized."
+                }
+            else:
+                voice_response = (
+                    f"Action authorized and executed. Your legal counter-offer has been securely dispatched to Sarah Chen and the legal team. "
+                    f"Receipt ID is {exec_data.get('receipt_id', 'RCPT-SECURE')}. Section 9.2 is locked for the 2:00 PM negotiation call."
+                )
 
-            visual_card = {
-                "type": "ACTION_EXECUTED",
-                "title": "Executive Action Dispatched Successfully",
-                "token": token,
-                "receipt": exec_data.get("receipt_id", "RCPT-8491A"),
-                "status": "DISPATCHED VIA AMAZON BEDROCK SECURE GATEWAY",
-                "timestamp": exec_data.get("timestamp", "2026-10-21T14:02:11Z"),
-                "details": "Notification delivered to Sarah Chen (General Counsel) & Project Apex War Room."
-            }
+                visual_card = {
+                    "type": "ACTION_EXECUTED",
+                    "title": "Executive Action Dispatched Successfully",
+                    "token": token,
+                    "receipt": exec_data.get("receipt_id", "RCPT-8491A"),
+                    "status": "DISPATCHED VIA AMAZON BEDROCK SECURE GATEWAY",
+                    "timestamp": exec_data.get("timestamp", "2026-10-21T14:02:11Z"),
+                    "details": "Notification delivered to Sarah Chen (General Counsel) & Project Apex War Room."
+                }
 
         # Scenario: Environmental & Atmospheric Telemetry (Weather)
         elif is_weather_intent:

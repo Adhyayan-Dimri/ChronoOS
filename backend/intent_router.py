@@ -131,6 +131,8 @@ class IntentRouter:
             # Travel & Buffer
             r'\b(?:travel\s+buffer|buffer\s+conflicts?|travel\s+conflicts?|airport\s+buffer|departure\s+buffer|traffic\s+delay|buffer\s+audit)\b',
             # Calendar, Schedule & Commitments
+            r'\b(?:delete|remove|cancel)\s+(?:the\s+|my\s+|a\s+|an\s+)?(?:meeting|task|commitment|event|flight|appointment|schedule)\b',
+            r'\b(?:delete|remove|cancel)\s+(?:schedule\s+item|task|meeting)\b',
             r'\b(?:my\s+schedule|my\s+calendar|my\s+meetings?|my\s+tasks?|my\s+commitments?|my\s+agenda|my\s+plans?|plans?\s+for\s+today|plans?\s+today|plans?\s+for\s+tomorrow|agenda\s+for\s+today)\b',
             r'\b(?:schedule\s+(?:a\s+|an\s+)?(?:meeting|call|sync|session)|schedule\s+(?:at|for)?\s*\d+|book\s+(?:a\s+|an\s+)?(?:meeting|flight|call)|set\s+up\s+(?:a\s+|an\s+)?(?:meeting|call|sync)|create\s+(?:a\s+|an\s+)?(?:meeting|task|reminder|event)|add\s+(?:a\s+|an\s+)?(?:task|meeting|commitment|event)|add\s+task|create\s+task|remind\s+me\s+to|add\s+to\s+schedule|meeting\s+at\s+\d+|meeting\s+today|meeting\s+tomorrow)\b',
             r'\b(?:schedule|meeting|meetings|calendar|appointment|appointments)\b',
@@ -158,6 +160,9 @@ class IntentRouter:
                 # Priority 1: High Stakes Actions / HITL
                 if any(k in q_no_wake for k in ["counter", "reject", "authorize", "approve", "confirm", "high stakes", "sign off"]):
                     tool_assigned = "hitl_action"
+                # Priority 1.5: Delete / Remove Schedule (Cross-confirmation required)
+                elif any(k in q_no_wake for k in ["delete", "remove from schedule", "remove meeting", "remove task", "remove flight", "cancel meeting", "cancel flight", "delete meeting", "delete task"]):
+                    tool_assigned = "delete_schedule"
                 # Priority 2: Travel Buffer
                 elif any(k in q_no_wake for k in ["travel buffer", "buffer conflict", "travel conflict", "airport buffer"]):
                     tool_assigned = "travel_buffer"

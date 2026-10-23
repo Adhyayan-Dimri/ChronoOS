@@ -455,3 +455,36 @@ def add_user_schedule_item(email: Optional[str], title: str, start: str = "10:00
     save_user_store()
     return entry
 
+def delete_user_schedule_item(email: Optional[str], item_id: Optional[str] = None, title_match: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Removes a task or calendar commitment from the user's workspace schedule."""
+    import re
+    user = get_user_data(email)
+    schedule = user.get("schedule", [])
+    deleted_item = None
+
+    if item_id:
+        for idx, item in enumerate(schedule):
+            if str(item.get("id")) == str(item_id):
+                deleted_item = schedule.pop(idx)
+                break
+
+    if not deleted_item and title_match:
+        norm = title_match.strip().lower()
+        norm_clean = re.sub(r'^(?:the\s+|my\s+|a\s+|an\s+)?(?:meeting\s+with|meeting\s+about|call\s+with|flight\s+to|flight|dentist\s+appointment|task|commitment)\s*', '', norm).strip()
+        for idx, item in enumerate(schedule):
+            item_title = item.get("title", "").lower()
+            if norm in item_title or item_title in norm or (norm_clean and norm_clean in item_title):
+                deleted_item = schedule.pop(idx)
+                break
+
+    if deleted_item and user.get("is_demo", False):
+        for idx, item in enumerate(CALENDAR_SCHEDULE):
+            if str(item.get("id")) == str(deleted_item.get("id")) or item.get("title", "").lower() == deleted_item.get("title", "").lower():
+                CALENDAR_SCHEDULE.pop(idx)
+                break
+
+    if deleted_item:
+        save_user_store()
+
+    return deleted_item
+

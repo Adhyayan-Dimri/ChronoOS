@@ -625,6 +625,44 @@
     </div>
   </dialog>
 
+  <!-- Raycast Schedule Item Deletion Cross-Confirmation Modal (<dialog id="deleteScheduleDialog">) -->
+  <dialog class="raycast-sheet delete-sheet" id="deleteScheduleDialog" closedby="any">
+    <div class="sheet-window delete-window">
+      <div class="sheet-top-accent delete-accent"></div>
+      <div class="delete-header-row" style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="sheet-badge delete-badge" style="color:#FF5C7A; background:rgba(255,92,122,0.12); border-color:rgba(255,92,122,0.3);">CROSS-CONFIRMATION REQUIRED</span>
+        <button class="btn-close-raycast" onclick="closeDeleteScheduleDialog()">✕</button>
+      </div>
+      <h2 class="sheet-heading" style="color:#FF5C7A; margin-top:8px;">Remove Schedule Commitment</h2>
+      <p class="sheet-desc">
+        Are you sure you want to remove this commitment from your executive schedule? This will update persistent storage, re-align travel buffer telemetry, and remove active agenda reminders.
+      </p>
+
+      <div class="sheet-meta-box delete-meta-box" style="margin:16px 0; background:rgba(255,92,122,0.03); border:1px solid rgba(255,92,122,0.2); border-radius:var(--radius-sm); padding:16px;">
+        <div class="sheet-field-row" style="display:flex; margin-bottom:8px;">
+          <span class="sheet-field-title" style="min-width:140px; color:var(--color-secondary); font-size:12px;">Commitment:</span>
+          <span class="sheet-field-text" id="delDialogItemTitle" style="font-weight:600; color:#FFFFFF; font-size:13px;">—</span>
+        </div>
+        <div class="sheet-field-row" style="display:flex; margin-bottom:8px;">
+          <span class="sheet-field-title" style="min-width:140px; color:var(--color-secondary); font-size:12px;">Time Slot:</span>
+          <span class="sheet-field-text code-token" id="delDialogItemTime" style="font-family:var(--font-mono); color:#38bdf8; font-size:12px;">—</span>
+        </div>
+        <div class="sheet-field-row" id="delDialogLocationRow" style="display:flex;">
+          <span class="sheet-field-title" style="min-width:140px; color:var(--color-secondary); font-size:12px;">Context / Location:</span>
+          <span class="sheet-field-text" id="delDialogItemLocation" style="color:var(--color-secondary); font-size:12px;">—</span>
+        </div>
+      </div>
+
+      <div class="sheet-actions-row" style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+        <button class="btn-sheet-cancel" onclick="closeDeleteScheduleDialog()">Cancel</button>
+        <button class="btn-sheet-approve btn-sheet-danger" id="confirmDeleteScheduleBtn" onclick="executeDeleteScheduleItem()" style="background:#EF4444; border-color:#EF4444; color:#FFFFFF;">
+          <span>Confirm Removal</span>
+          <span class="btn-arrow">🗑</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Raycast Auth Portal (<dialog id="authPortalDialog">) -->
   <dialog class="raycast-sheet auth-sheet" id="authPortalDialog" closedby="any">
     <div class="sheet-window auth-window">
@@ -944,7 +982,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=v23-schedule-buffer-sync"></script>
+  <script src="app.js?v=v24-delete-cross-confirm"></script>
 </body>
 
 </html>

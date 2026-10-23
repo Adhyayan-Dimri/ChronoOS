@@ -82,3 +82,50 @@ def test_auth_me_demo():
     data = response.json()
     assert data["user"]["name"] == "Alex Mercer"
     assert data["user"]["is_demo"] is True
+
+def test_delete_schedule_item_api_flow():
+    from mock_executive_data import add_user_schedule_item
+    test_email = "test.exec@enterprise.com"
+    item = add_user_schedule_item(test_email, title="Quarterly Financial Audit", start="14:00", end="15:00")
+    assert item["id"] is not None
+
+    del_res = client.post("/api/schedule/delete", json={
+        "user_email": test_email,
+        "item_id": item["id"]
+    })
+    assert del_res.status_code == 200
+    del_data = del_res.json()
+    assert del_data["success"] is True
+    assert del_data["deleted_item"]["id"] == item["id"]
+    assert all(it["id"] != item["id"] for it in del_data["remaining_schedule"])
+
+def test_delete_schedule_cross_confirmation_voice_flow():
+    from mock_executive_data import add_user_schedule_item
+    test_email = "test.voice@enterprise.com"
+    item = add_user_schedule_item(test_email, title="Synapse Demo Review", start="16:00", end="17:00")
+
+    # 1. Voice query asking to delete - MUST require cross-confirmation, NOT delete immediately
+    chat_res = client.post("/api/chat", json={
+        "query": "Alexa, delete my meeting Synapse Demo Review",
+        "user_email": test_email
+    })
+    assert chat_res.status_code == 200
+    chat_data = chat_res.json()
+    assert "confirmation_needed" in chat_data and chat_data["confirmation_needed"] is not None
+    token = chat_data["confirmation_needed"]["token"]
+    assert token.startswith("ACT-DEL-")
+    assert chat_data["visual_card"]["type"] == "CONFIRMATION_REQUIRED"
+    assert "Synapse Demo Review" in chat_data["voice_response"]
+
+    # 2. Confirm removal via /api/confirm
+    confirm_res = client.post("/api/confirm", json={
+        "action_token": token,
+        "decision": "APPROVED",
+        "user_email": test_email
+    })
+    assert confirm_res.status_code == 200
+    confirm_data = confirm_res.json()
+    assert confirm_data["status"] == "success"
+    assert confirm_data["receipt"]["status"] == "EXECUTED_SUCCESSFULLY"
+    assert all(it["id"] != item["id"] for it in confirm_data["remaining_schedule"])
+

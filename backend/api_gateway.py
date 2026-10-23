@@ -141,7 +141,7 @@ async def mcp_message_endpoint(request: Request, session_id: str):
 # User Authentication & Tenant Management Endpoints
 # -------------------------------------------------------------
 
-from mock_executive_data import authenticate_user, register_user, get_user_data, DEMO_USER_EMAIL
+from mock_executive_data import authenticate_user, register_user, get_user_data, DEMO_USER_EMAIL, delete_user_schedule_item
 
 @app.post("/api/auth/login")
 async def auth_login_endpoint(payload: Dict[str, Any]):
@@ -227,6 +227,32 @@ async def alexa_chat_endpoint(payload: Dict[str, Any]):
     result = bedrock_orchestrator_instance.execute_agent_turn(user_query, user_email=user_email, client_location=client_location)
     return result
 
+@app.post("/api/schedule/delete")
+async def delete_schedule_item_endpoint(payload: Dict[str, Any]):
+    """
+    Deletes a schedule commitment for the authenticated user.
+    Requires item_id or title. Enforces cross-confirmation on client.
+    """
+    user_email = payload.get("user_email") or payload.get("email")
+    item_id = payload.get("item_id") or payload.get("id")
+    title = payload.get("title")
+
+    if not item_id and not title:
+        raise HTTPException(status_code=400, detail="Either item_id or title is required.")
+
+    deleted = delete_user_schedule_item(user_email, item_id=item_id, title_match=title)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Schedule commitment not found.")
+
+    user_data = get_user_data(user_email)
+    remaining = user_data.get("schedule", [])
+    return {
+        "success": True,
+        "deleted_item": deleted,
+        "remaining_schedule": remaining,
+        "commitments_count": len(remaining)
+    }
+
 @app.post("/api/confirm")
 async def alexa_confirm_endpoint(payload: Dict[str, Any]):
     """
@@ -244,10 +270,17 @@ async def alexa_confirm_endpoint(payload: Dict[str, Any]):
     })
     
     parsed = json.loads(exec_result["content"][0]["text"])
+
+    user_email = payload.get("user_email") or payload.get("email")
+    user_data = get_user_data(user_email)
+    remaining = user_data.get("schedule", [])
+
     return {
         "status": "success",
         "decision": decision,
-        "receipt": parsed
+        "receipt": parsed,
+        "remaining_schedule": remaining,
+        "commitments_count": len(remaining)
     }
 
 @app.get("/api/health")

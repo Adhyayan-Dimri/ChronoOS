@@ -2358,11 +2358,25 @@ function renderPersonalBriefingCard(card) {
       const timeVal = entry.time || `${entry.start || '10:00'} - ${entry.end || '11:00'}`;
       const titleVal = entry.title || 'Executive Task';
       const statusVal = entry.status || 'Confirmed';
+      const itemId = entry.id || '';
+      const safeTitle = (titleVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const safeTime = (timeVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const safeLoc = (entry.location || 'Office / Remote').replace(/'/g, "\\'").replace(/"/g, '&quot;');
       return `
         <div class="schedule-entry">
           <span class="time-slot">${timeVal}</span>
           <span class="entry-name">${titleVal}</span>
-          <span class="entry-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">${statusVal}</span>
+          <div class="entry-actions-group" style="display:flex; align-items:center; gap:8px;">
+            <span class="entry-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">${statusVal}</span>
+            <button class="btn-delete-schedule" onclick="promptDeleteScheduleItem('${itemId}', '${safeTitle}', '${safeTime}', '${safeLoc}')" title="Remove commitment (requires confirmation)">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
         </div>
       `;
     }).join('');
@@ -2981,6 +2995,10 @@ function renderCalendarTravelCard() {
       const attVal = entry.attendees ? (Array.isArray(entry.attendees) ? entry.attendees.join(', ') : entry.attendees) : '';
       const isTravel = entry.type === 'travel' || titleVal.toLowerCase().includes('flight');
       const isHighStakes = (entry.priority === 'critical' || entry.priority === 'high' || statusVal.toLowerCase() === 'critical');
+      const itemId = entry.id || '';
+      const safeTitle = (titleVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const safeTime = (timeVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const safeLoc = (locVal || 'Office / Remote').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
       return `
         <div class="schedule-entry ${isHighStakes ? 'active-stakes' : ''}" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
@@ -2994,9 +3012,19 @@ function renderCalendarTravelCard() {
               </div>
             </div>
           </div>
-          <span class="entry-badge ${isHighStakes ? 'stakes-badge' : ''}" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : '#10b981')};">
-            ${isTravel ? '✈ Flight' : (isHighStakes ? 'High Stakes' : statusVal)}
-          </span>
+          <div class="entry-actions-group" style="display:flex; align-items:center; gap:8px;">
+            <span class="entry-badge ${isHighStakes ? 'stakes-badge' : ''}" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : '#10b981')};">
+              ${isTravel ? '✈ Flight' : (isHighStakes ? 'High Stakes' : statusVal)}
+            </span>
+            <button class="btn-delete-schedule" onclick="promptDeleteScheduleItem('${itemId}', '${safeTitle}', '${safeTime}', '${safeLoc}')" title="Remove commitment (requires confirmation)">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
         </div>
       `;
     }).join('');
@@ -3070,6 +3098,10 @@ function renderScheduleViewCard(card) {
     const attVal = entry.attendees ? (Array.isArray(entry.attendees) ? entry.attendees.join(', ') : entry.attendees) : '';
     const isTravel = entry.type === 'travel' || titleVal.toLowerCase().includes('flight');
     const isHighStakes = (entry.priority === 'critical' || entry.priority === 'high' || statusVal.toLowerCase() === 'critical');
+    const itemId = entry.id || '';
+    const safeTitle = (titleVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const safeTime = (timeVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const safeLoc = (locVal || 'Office / Remote').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     return `
       <div class="schedule-entry ${isHighStakes ? 'active-stakes' : ''}" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
         <div style="display:flex; gap:16px; align-items:center;">
@@ -3082,9 +3114,19 @@ function renderScheduleViewCard(card) {
             </div>
           </div>
         </div>
-        <span class="entry-badge ${isHighStakes ? 'stakes-badge' : ''}" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : '#10b981')};">
-          ${isTravel ? '✈ Flight' : (isHighStakes ? 'High Stakes' : statusVal)}
-        </span>
+        <div class="entry-actions-group" style="display:flex; align-items:center; gap:8px;">
+          <span class="entry-badge ${isHighStakes ? 'stakes-badge' : ''}" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : '#10b981')};">
+            ${isTravel ? '✈ Flight' : (isHighStakes ? 'High Stakes' : statusVal)}
+          </span>
+          <button class="btn-delete-schedule" onclick="promptDeleteScheduleItem('${itemId}', '${safeTitle}', '${safeTime}', '${safeLoc}')" title="Remove commitment (requires confirmation)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </button>
+        </div>
       </div>
     `;
   }).join('');
@@ -3489,6 +3531,10 @@ function renderTravelBufferAuditCard(card) {
       const locVal = entry.location || '';
       const attVal = entry.attendees ? (Array.isArray(entry.attendees) ? entry.attendees.join(', ') : entry.attendees) : '';
       const isTravel = entry.type === 'travel' || titleVal.toLowerCase().includes('flight');
+      const itemId = entry.id || '';
+      const safeTitle = (titleVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const safeTime = (timeVal || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const safeLoc = (locVal || 'Office / Remote').replace(/'/g, "\\'").replace(/"/g, '&quot;');
       return `
         <div class="schedule-entry" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
           <div style="display:flex; gap:16px; align-items:center;">
@@ -3501,9 +3547,19 @@ function renderTravelBufferAuditCard(card) {
               </div>
             </div>
           </div>
-          <span class="entry-badge" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : '#10b981'};">
-            ${isTravel ? '✈ Flight' : statusVal}
-          </span>
+          <div class="entry-actions-group" style="display:flex; align-items:center; gap:8px;">
+            <span class="entry-badge" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : '#10b981'};">
+              ${isTravel ? '✈ Flight' : statusVal}
+            </span>
+            <button class="btn-delete-schedule" onclick="promptDeleteScheduleItem('${itemId}', '${safeTitle}', '${safeTime}', '${safeLoc}')" title="Remove commitment (requires confirmation)">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
         </div>
       `;
     }).join('');
@@ -3835,8 +3891,106 @@ function updateActiveTabUI(tab) {
 }
 
 // --------------------------------------------------------------------------
-// 12. Human-in-the-Loop Native Sheet Control
+// 12. Human-in-the-Loop Native Sheet Control & Schedule Cross-Confirmation
 // --------------------------------------------------------------------------
+
+window._pendingDeleteScheduleItem = null;
+
+function promptDeleteScheduleItem(id, title, time, location) {
+  window._pendingDeleteScheduleItem = { id, title, time, location };
+  const dlg = document.getElementById('deleteScheduleDialog');
+  if (!dlg) return;
+
+  const titleEl = document.getElementById('delDialogItemTitle');
+  const timeEl = document.getElementById('delDialogItemTime');
+  const locEl = document.getElementById('delDialogItemLocation');
+
+  if (titleEl) titleEl.textContent = title || 'Executive Commitment';
+  if (timeEl) timeEl.textContent = time || '—';
+  if (locEl) locEl.textContent = location || 'Office / Remote';
+
+  playSound('open');
+  if (typeof dlg.showModal === 'function') {
+    dlg.showModal();
+  } else {
+    dlg.setAttribute('open', '');
+  }
+}
+
+function closeDeleteScheduleDialog() {
+  const dlg = document.getElementById('deleteScheduleDialog');
+  if (dlg) {
+    if (typeof dlg.close === 'function') {
+      dlg.close();
+    } else {
+      dlg.removeAttribute('open');
+    }
+  }
+  window._pendingDeleteScheduleItem = null;
+}
+
+async function executeDeleteScheduleItem() {
+  const pending = window._pendingDeleteScheduleItem;
+  if (!pending) {
+    closeDeleteScheduleDialog();
+    return;
+  }
+
+  const btn = document.getElementById('confirmDeleteScheduleBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const payload = {
+      user_email: currentUser ? currentUser.email : null,
+      item_id: pending.id,
+      title: pending.title
+    };
+
+    const res = await fetch(`${API_BASE}/api/schedule/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    closeDeleteScheduleDialog();
+
+    if (data.success) {
+      playSound('success');
+      if (currentUser) {
+        currentUser.schedule = data.remaining_schedule;
+        sessionStorage.setItem('chrono_user', JSON.stringify(currentUser));
+      }
+      window._lastScheduleTimeline = data.remaining_schedule;
+
+      const activeTabBtn = document.querySelector('.tab-btn.active');
+      const activeTab = activeTabBtn ? activeTabBtn.dataset.tab : 'calendar';
+      switchWorkspaceTab(activeTab);
+
+      renderAgentTurn({
+        voice_response: `Commitment "${pending.title}" has been permanently removed from your executive schedule.`,
+        visual_card: {
+          type: 'ACTION_EXECUTED',
+          title: 'Schedule Commitment Removed',
+          status: 'DELETED FROM PERSISTENT STORAGE',
+          details: `Successfully removed "${pending.title}" (${pending.time || ''}). Calendar agenda and travel buffers re-synchronized.`
+        },
+        trace_events: [
+          { stage: 'User Cross-Confirmation', status: 'confirmed' },
+          { stage: 'API /api/schedule/delete', status: 'deleted', remaining: data.commitments_count }
+        ],
+        latency_ms: 120
+      });
+    } else {
+      alert(data.detail || 'Failed to remove commitment.');
+    }
+  } catch (err) {
+    console.error('Error deleting schedule item:', err);
+    alert('Network error while deleting schedule item.');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
 
 function openHitlDialog(action) {
   if (!action) return;
@@ -3844,6 +3998,19 @@ function openHitlDialog(action) {
   dialogToken.textContent = action.token;
   dialogRecipient.textContent = action.recipient;
   dialogPayload.textContent = action.body;
+
+  const isDeleteCommitment = (action.subject && action.subject.includes('Remove Commitment')) || (action.recipient && action.recipient.includes('Schedule:'));
+  const headingEl = document.getElementById('dialogTitle');
+  const approveBtn = document.getElementById('dialogApproveBtn');
+  if (headingEl) {
+    headingEl.textContent = isDeleteCommitment ? 'Cross-Confirmation • Remove Schedule Commitment' : 'High-Stakes Legal Counter-Offer';
+  }
+  if (approveBtn) {
+    approveBtn.innerHTML = isDeleteCommitment
+      ? '<span>Confirm Removal</span><span class="btn-arrow">🗑</span>'
+      : '<span>Approve & Dispatch via Bedrock</span><span class="btn-arrow">→</span>';
+  }
+
   hitlDialog.showModal();
   playSound('execute');
 }
@@ -3868,31 +4035,64 @@ async function confirmAction(decision) {
   playSound('success');
   if (!currentPendingAction) return;
 
+  const isDeleteCommitment = (currentPendingAction.subject && currentPendingAction.subject.includes('Remove Commitment')) || (currentPendingAction.recipient && currentPendingAction.recipient.includes('Schedule:'));
+
   try {
     const res = await fetch(`${API_BASE}/api/confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action_token: currentPendingAction.token,
-        decision: decision
+        decision: decision,
+        user_email: currentUser ? currentUser.email : null
       })
     });
     const result = await res.json();
-    renderAgentTurn({
-      voice_response: `Action authorized and dispatched. Your legal counter-offer has been officially communicated to Sarah Chen and the Acme M&A war room.`,
-      visual_card: {
-        type: 'ACTION_EXECUTED',
-        title: 'Executive Action Executed',
-        receipt: result.receipt.receipt_id || 'RCPT-AUTH-SUCCESS',
-        status: 'DISPATCHED VIA AMAZON BEDROCK SECURE GATEWAY',
-        details: 'Section 9.2 counter-position officially communicated to General Counsel.'
-      },
-      trace_events: [
-        { stage: 'Voice Confirmation Received', status: 'approved' },
-        { stage: 'MCP Action Execution', tool: 'execute_confirmed_action', status: 'delivered' }
-      ],
-      latency_ms: 110
-    });
+
+    if (result.remaining_schedule) {
+      if (currentUser) {
+        currentUser.schedule = result.remaining_schedule;
+        sessionStorage.setItem('chrono_user', JSON.stringify(currentUser));
+      }
+      window._lastScheduleTimeline = result.remaining_schedule;
+      const activeTabBtn = document.querySelector('.tab-btn.active');
+      const activeTab = activeTabBtn ? activeTabBtn.dataset.tab : 'calendar';
+      switchWorkspaceTab(activeTab);
+    }
+
+    if (isDeleteCommitment || (result.receipt && result.receipt.action_executed === 'DELETE_SCHEDULE_COMMITMENT')) {
+      renderAgentTurn({
+        voice_response: `Action authorized. The commitment has been permanently removed from your executive schedule.`,
+        visual_card: {
+          type: 'ACTION_EXECUTED',
+          title: 'Schedule Commitment Removed',
+          receipt: (result.receipt && result.receipt.receipt_id) || 'RCPT-DEL-SUCCESS',
+          status: 'REMOVED FROM EXECUTIVE SCHEDULE',
+          details: 'Calendar agenda and travel buffer telemetry have been updated.'
+        },
+        trace_events: [
+          { stage: 'Voice Confirmation Received', status: 'approved' },
+          { stage: 'MCP Action Execution', tool: 'execute_confirmed_action', status: 'deleted' }
+        ],
+        latency_ms: 110
+      });
+    } else {
+      renderAgentTurn({
+        voice_response: `Action authorized and dispatched. Your legal counter-offer has been officially communicated to Sarah Chen and the Acme M&A war room.`,
+        visual_card: {
+          type: 'ACTION_EXECUTED',
+          title: 'Executive Action Executed',
+          receipt: (result.receipt && result.receipt.receipt_id) || 'RCPT-AUTH-SUCCESS',
+          status: 'DISPATCHED VIA AMAZON BEDROCK SECURE GATEWAY',
+          details: 'Section 9.2 counter-position officially communicated to General Counsel.'
+        },
+        trace_events: [
+          { stage: 'Voice Confirmation Received', status: 'approved' },
+          { stage: 'MCP Action Execution', tool: 'execute_confirmed_action', status: 'delivered' }
+        ],
+        latency_ms: 110
+      });
+    }
   } catch (err) {
     console.error('Confirmation error:', err);
   }

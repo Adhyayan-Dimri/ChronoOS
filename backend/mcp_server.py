@@ -330,6 +330,17 @@ class ChronoOSMCPServer:
             record["finalized_at"] = datetime.now(timezone.utc).isoformat() + "Z"
 
             if decision == "APPROVED":
+                if record.get("action_type") == "DELETE_SCHEDULE_COMMITMENT":
+                    try:
+                        from mock_executive_data import delete_user_schedule_item
+                        delete_user_schedule_item(
+                            record.get("user_email"),
+                            item_id=record.get("item_id"),
+                            title_match=record.get("title")
+                        )
+                    except Exception as e:
+                        logger.warning(f"Error deleting schedule item upon confirmation: {e}")
+
                 execution_receipt = {
                     "receipt_id": f"RCPT-{uuid.uuid4().hex[:8].upper()}",
                     "token": token,
