@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>ChronoOS • Autonomous Chief of Staff (Raycast Edition)</title>
   <meta name="description"
     content="ChronoOS: Autonomous Executive Command Center powered by Raycast Dark design system, Alexa+, and Amazon Bedrock.">
@@ -12,7 +15,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=raycast-v8-ultra">
+  <link rel="stylesheet" href="style.css?v=raycast-v9-realtime">
 </head>
 
 <body class="raycast-supreme">
@@ -133,7 +136,7 @@
         <span class="live-indicator-dot"></span>
         <span id="userNameDisplay">Executive Workspace</span>
         <span class="pill-divider">|</span>
-        <span id="deviceClock">Wed, Oct 21 • 08:30 AM</span>
+        <span id="deviceClock">Syncing time...</span>
       </div>
 
       <!-- Auth & Workspace Switcher Button -->
@@ -306,6 +309,7 @@
             <div class="banner-meta-tagline">
               <span class="banner-sender-name" id="agentSenderTitle">ChronoOS Chief of Staff</span>
               <span class="banner-time-ticker" id="speechTimestamp">Just now</span>
+              <span class="banner-provenance-badge badge-local" id="provenanceBadge">Local</span>
               <button type="button" class="btn-banner-voice-replay" id="replayVoiceBtn" onclick="replayCurrentSpeech()"
                 title="Replay agent spoken voice">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
@@ -357,8 +361,7 @@
           </div>
           <div class="dossier-meta-badge">
             <span class="status-pulse-dot" id="workspaceStatusDot"></span>
-            <span class="workspace-date-label" id="workspaceBadgeText">Wednesday, October 21, 2026 • Private
-              Workspace</span>
+            <span class="workspace-date-label" id="workspaceBadgeText">Loading Workspace...</span>
           </div>
         </div>
 
@@ -669,6 +672,8 @@
             <input type="password" id="signInPassword" class="auth-field" placeholder="••••••••••••" required>
           </div>
 
+          <div id="signInError" style="display:none; color:#FF5C7A; font-size:12px; margin-bottom:10px; font-weight:600; padding:8px 12px; background:rgba(255,92,122,0.1); border-radius:4px; border:1px solid rgba(255,92,122,0.3);"></div>
+
           <div class="auth-biometric-slot">
             <button type="button" class="btn-biometric-auth" onclick="simulateBiometricAuth()">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
@@ -704,9 +709,16 @@
           </div>
           <div class="auth-input-group">
             <label class="auth-label">Master Password</label>
-            <input type="password" id="regPassword" class="auth-field" placeholder="Create strong security key"
+            <input type="password" id="regPassword" class="auth-field" placeholder="Create strong security key (min 4 chars)"
               required>
           </div>
+          <div class="auth-input-group">
+            <label class="auth-label">Confirm Master Password</label>
+            <input type="password" id="regConfirmPassword" class="auth-field" placeholder="Re-enter password to confirm"
+              required>
+          </div>
+
+          <div id="regError" style="display:none; color:#FF5C7A; font-size:12px; margin-bottom:10px; font-weight:600; padding:8px 12px; background:rgba(255,92,122,0.1); border-radius:4px; border:1px solid rgba(255,92,122,0.3);"></div>
 
           <div class="clean-slate-notice">
             <span>Starts with a clean, private executive canvas. Monitor only your own meetings, contacts, and personal
@@ -810,8 +822,8 @@
               <span class="echo-device-location" id="echoDeviceLocation">Executive Suite • Echo Show 15</span>
             </div>
             <div class="echo-header-center">
-              <span class="echo-time-display" id="echoClockTime">10:45 AM</span>
-              <span class="echo-date-display" id="echoClockDate">Wednesday, October 21</span>
+              <span class="echo-time-display" id="echoClockTime">--:--</span>
+              <span class="echo-date-display" id="echoClockDate">--</span>
             </div>
             <div class="echo-header-right">
               <span class="echo-weather-tag">
@@ -932,7 +944,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=voice-echo-v17"></script>
+  <script src="app.js?v=v22-weather-geo"></script>
 </body>
 
 </html>

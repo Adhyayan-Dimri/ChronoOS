@@ -7,7 +7,7 @@ Contains realistic enterprise executive context:
 - Long-term episodic memory graph & executive constraints
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, date
 
 EXECUTIVE_PROFILE = {
@@ -245,9 +245,64 @@ def get_user_data(email: Optional[str] = None) -> Dict[str, Any]:
         }
     return USER_ACCOUNTS[email]
 
+import os
+import json
+import hashlib
+import secrets
+import logging
+
+logger = logging.getLogger("ExecutiveDataStore")
+
+USER_STORE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user_store.json")
+
+def get_app_now() -> datetime:
+    """Single universal temporal authority for the entire ChronoOS application."""
+    return datetime.now()
+
+def hash_password(password: str, salt: Optional[str] = None) -> Tuple[str, str]:
+    """Cryptographically hashes a password using SHA-256 with a unique random salt."""
+    if not salt:
+        salt = secrets.token_hex(16)
+    pwd_hash = hashlib.sha256((salt + password).encode("utf-8")).hexdigest()
+    return pwd_hash, salt
+
+def verify_password(password: str, stored_hash: str, salt: str) -> bool:
+    """Verifies a plaintext password against the stored salt and hash."""
+    if not password or not stored_hash or not salt:
+        return False
+    pwd_hash, _ = hash_password(password, salt)
+    return secrets.compare_digest(pwd_hash, stored_hash)
+
+def save_user_store():
+    """Persists user accounts, schedules, and memories to disk."""
+    try:
+        serializable = {}
+        for k, v in USER_ACCOUNTS.items():
+            if k != DEMO_USER_EMAIL:
+                serializable[k] = v
+        with open(USER_STORE_FILE, "w", encoding="utf-8") as f:
+            json.dump(serializable, f, indent=2)
+    except Exception as e:
+        logger.warning(f"Error persisting user store: {e}")
+
+def load_user_store():
+    """Loads saved accounts from disk into memory."""
+    if os.path.exists(USER_STORE_FILE):
+        try:
+            with open(USER_STORE_FILE, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+                for k, v in saved.items():
+                    USER_ACCOUNTS[k] = v
+            logger.info(f"Loaded {len(saved)} user accounts from disk persistence.")
+        except Exception as e:
+            logger.warning(f"Error loading user store: {e}")
+
+# Load persistent user data on startup
+load_user_store()
+
 def authenticate_user(email: str, password: Optional[str] = None, is_demo: bool = False) -> Dict[str, Any]:
-    """Authenticates or retrieves user session profile."""
-    if is_demo or email.lower() in ["demo", DEMO_USER_EMAIL]:
+    """Authenticates a user by validating their email and hashed password."""
+    if is_demo or email.lower() in ["demo", DEMO_USER_EMAIL.lower()]:
         user = USER_ACCOUNTS[DEMO_USER_EMAIL]
         return {
             "success": True,
@@ -260,7 +315,23 @@ def authenticate_user(email: str, password: Optional[str] = None, is_demo: bool 
             }
         }
     
-    user = get_user_data(email)
+    clean_email = email.strip()
+    if clean_email not in USER_ACCOUNTS:
+        return {
+            "success": False,
+            "error": "No account found with this email. Please register first."
+        }
+    
+    user = USER_ACCOUNTS[clean_email]
+    
+    # Verify password if account has one set
+    if user.get("password_hash") and user.get("salt"):
+        if not password or not verify_password(password, user["password_hash"], user["salt"]):
+            return {
+                "success": False,
+                "error": "Incorrect password. Access denied."
+            }
+            
     return {
         "success": True,
         "user": {
@@ -268,22 +339,47 @@ def authenticate_user(email: str, password: Optional[str] = None, is_demo: bool 
             "email": user["email"],
             "title": user["title"],
             "organization": user["organization"],
-            "is_demo": False
+            "is_demo": False,
+            "schedule": user.get("schedule", []),
+            "commitments_count": len(user.get("schedule", []))
         }
     }
 
-def register_user(name: str, email: str, organization: str = "Private Workspace", password: Optional[str] = None) -> Dict[str, Any]:
-    """Registers a new personal executive account with a clean, isolated slate."""
-    USER_ACCOUNTS[email] = {
-        "name": name,
-        "email": email,
+def register_user(name: str, email: str, organization: str = "Private Workspace", password: Optional[str] = None, confirm_password: Optional[str] = None) -> Dict[str, Any]:
+    """Registers a new personal executive account with hashed password and clean isolated state."""
+    clean_name = name.strip()
+    clean_email = email.strip()
+    clean_org = organization.strip() or "Private Workspace"
+    
+    if password or confirm_password:
+        if confirm_password is not None and password != confirm_password:
+            return {
+                "success": False,
+                "error": "Passwords do not match. Please re-enter identical passwords."
+            }
+        if password and len(password) < 4:
+            return {
+                "success": False,
+                "error": "Password must be at least 4 characters long."
+            }
+            
+    pwd_hash = None
+    salt = None
+    if password:
+        pwd_hash, salt = hash_password(password)
+
+    USER_ACCOUNTS[clean_email] = {
+        "name": clean_name,
+        "email": clean_email,
         "title": "Executive Officer",
-        "organization": organization,
+        "organization": clean_org,
         "is_demo": False,
+        "password_hash": pwd_hash,
+        "salt": salt,
         "profile": {
-            "name": name,
+            "name": clean_name,
             "title": "Executive Officer",
-            "organization": organization,
+            "organization": clean_org,
             "timezone": "America/Los_Angeles",
             "preferences": {
                 "work_hours_start": "09:00",
@@ -298,22 +394,24 @@ def register_user(name: str, email: str, organization: str = "Private Workspace"
             {
                 "id": "mem_welcome",
                 "category": "system",
-                "entity": name,
-                "memory": f"ChronoOS initialized for {name} ({organization}). Private workspace active.",
-                "last_updated": datetime.now().strftime("%Y-%m-%d")
+                "entity": clean_name,
+                "memory": f"ChronoOS initialized for {clean_name} ({clean_org}). Private workspace active.",
+                "last_updated": get_app_now().strftime("%Y-%m-%d")
             }
         ],
         "schedule": [],
         "communications": [],
         "documents": {}
     }
+    save_user_store()
+    
     return {
         "success": True,
         "user": {
-            "name": name,
-            "email": email,
+            "name": clean_name,
+            "email": clean_email,
             "title": "Executive Officer",
-            "organization": organization,
+            "organization": clean_org,
             "is_demo": False
         }
     }
@@ -327,9 +425,10 @@ def add_user_memory(email: Optional[str], entity: str, memory_text: str, categor
         "category": category,
         "entity": entity,
         "memory": memory_text,
-        "last_updated": datetime.now().strftime("%Y-%m-%d")
+        "last_updated": get_app_now().strftime("%Y-%m-%d")
     }
     user.setdefault("memory", []).append(entry)
+    save_user_store()
     return entry
 
 def add_user_schedule_item(email: Optional[str], title: str, start: str = "10:00", end: str = "11:00", attendees: Optional[List[str]] = None, location: str = "Office / Remote", item_type: str = "task", priority: str = "medium", date: Optional[str] = None, flight_details: Optional[Dict[str, Any]] = None, **kwargs) -> Dict[str, Any]:
@@ -342,7 +441,7 @@ def add_user_schedule_item(email: Optional[str], title: str, start: str = "10:00
         "time": f"{start} - {end}" if end and end != start else start,
         "start": start,
         "end": end,
-        "date": date or datetime.now().strftime("%Y-%m-%d"),
+        "date": date or get_app_now().strftime("%Y-%m-%d"),
         "attendees": attendees or [user.get("name", "Executive")],
         "location": location,
         "status": "confirmed",
@@ -353,5 +452,6 @@ def add_user_schedule_item(email: Optional[str], title: str, start: str = "10:00
     for k, v in kwargs.items():
         entry[k] = v
     user.setdefault("schedule", []).append(entry)
+    save_user_store()
     return entry
 

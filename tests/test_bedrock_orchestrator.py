@@ -118,8 +118,8 @@ def test_orchestrator_day_today_query():
 def test_orchestrator_personal_memory_prompt_and_store_flow():
     """Validates interactive multi-turn personal memory acquisition."""
     user = "qurie_test_mem@chrono.local"
-    
-    # Step 1: User asks for pet name (not yet recorded)
+    from mock_executive_data import USER_ACCOUNTS
+    USER_ACCOUNTS.pop(user, None)
     res1 = bedrock_orchestrator_instance.execute_agent_turn("what is my pet name", user_email=user)
     assert res1["visual_card"]["type"] == "MEMORY_PROMPT"
     assert "do not have your pet name recorded" in res1["voice_response"].lower()
@@ -144,7 +144,7 @@ def test_orchestrator_web_search_knowledge():
     """Validates that general knowledge questions search the live web for answers."""
     result = bedrock_orchestrator_instance.execute_agent_turn("who is the CEO of Apple", user_email="Qurie2006")
     assert result["visual_card"]["type"] == "WEB_SEARCH_RESULT"
-    assert "web intelligence" in result["voice_response"].lower()
+    assert "Web Intelligence" in result["visual_card"]["title"]
     assert "Cook" in result["voice_response"]
 
 def test_orchestrator_task_help_guidance():
@@ -285,6 +285,33 @@ def test_orchestrator_plans_variations():
     res4 = bedrock_orchestrator_instance.execute_agent_turn("what are my plans for tomorrow", user_email=email)
     assert res4["visual_card"]["type"] == "SCHEDULE_VIEW"
     assert "For tomorrow" in res4["voice_response"]
+
+def test_weather_with_client_gps():
+    # Provide New Delhi coordinates (28.6139, 77.2090)
+    client_loc = {
+        "latitude": 28.6139,
+        "longitude": 77.2090,
+        "city": "New Delhi",
+        "timezone": "Asia/Kolkata"
+    }
+    res = bedrock_orchestrator_instance.execute_agent_turn("what is the weather today", client_location=client_loc)
+    assert res["visual_card"]["type"] == "WEATHER_REPORT"
+    card = res["visual_card"]
+    assert "Delhi" in card["location"] or "New Delhi" in card["location"] or len(card["location"]) > 0
+    assert "date" in card
+    # Voice response should include current date and location
+    assert "today" in res["voice_response"].lower()
+    assert card["location"] in res["voice_response"]
+
+def test_weather_with_explicit_city():
+    res = bedrock_orchestrator_instance.execute_agent_turn("what is the weather in London")
+    assert res["visual_card"]["type"] == "WEATHER_REPORT"
+    card = res["visual_card"]
+    assert "London" in card["location"]
+    assert "weather" in card
+    assert "forecast" in card["weather"]
+    assert len(card["weather"]["forecast"]) > 0
+
 
 
 

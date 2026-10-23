@@ -126,29 +126,34 @@ from mock_executive_data import authenticate_user, register_user, get_user_data,
 @app.post("/api/auth/login")
 async def auth_login_endpoint(payload: Dict[str, Any]):
     """
-    Authenticates a user or switches to the preloaded Executive Sandbox (Alex Mercer).
+    Authenticates a user with hashed password verification or switches to demo sandbox.
     """
     email = payload.get("email", "")
     password = payload.get("password")
     is_demo = payload.get("is_demo", False)
     
     result = authenticate_user(email=email, password=password, is_demo=is_demo)
+    if not result.get("success"):
+        raise HTTPException(status_code=401, detail=result.get("error", "Invalid credentials."))
     return result
 
 @app.post("/api/auth/register")
 async def auth_register_endpoint(payload: Dict[str, Any]):
     """
-    Registers a new isolated executive account with an empty personal calendar and memory.
+    Registers a new isolated executive account with password validation and persistent storage.
     """
     name = payload.get("name", "").strip()
     email = payload.get("email", "").strip()
     org = payload.get("organization", "Private Enterprise").strip()
     password = payload.get("password")
+    confirm_password = payload.get("confirm_password")
 
     if not name or not email:
         raise HTTPException(status_code=400, detail="Name and Email are required.")
 
-    result = register_user(name=name, email=email, organization=org, password=password)
+    result = register_user(name=name, email=email, organization=org, password=password, confirm_password=confirm_password)
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Registration error."))
     return result
 
 @app.get("/api/auth/me")
@@ -163,7 +168,9 @@ async def auth_me_endpoint(email: Optional[str] = None):
             "email": data["email"],
             "title": data["title"],
             "organization": data["organization"],
-            "is_demo": data["is_demo"]
+            "is_demo": data["is_demo"],
+            "schedule": data.get("schedule", []),
+            "commitments_count": len(data.get("schedule", []))
         }
     }
 
@@ -177,12 +184,27 @@ async def alexa_chat_endpoint(payload: Dict[str, Any]):
     Primary conversational endpoint for the Echo Show Simulator.
     Processes user voice input via the Amazon Bedrock Orchestrator.
     """
-    user_query = (payload.get("query") or payload.get("prompt") or "").strip()
+    user_query = (payload.get("query") or payload.get("prompt") or payload.get("message") or "").strip()
     user_email = payload.get("user_email") or payload.get("email")
     if not user_query:
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
     
-    result = bedrock_orchestrator_instance.execute_agent_turn(user_query, user_email=user_email)
+    # Extract client location / geolocation telemetry
+    client_location = None
+    if payload.get("latitude") is not None and payload.get("longitude") is not None:
+        client_location = {
+            "latitude": payload.get("latitude"),
+            "longitude": payload.get("longitude"),
+            "city": payload.get("city"),
+            "timezone": payload.get("timezone")
+        }
+    elif payload.get("city") or payload.get("timezone"):
+        client_location = {
+            "city": payload.get("city"),
+            "timezone": payload.get("timezone")
+        }
+
+    result = bedrock_orchestrator_instance.execute_agent_turn(user_query, user_email=user_email, client_location=client_location)
     return result
 
 @app.post("/api/confirm")

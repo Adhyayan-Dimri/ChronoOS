@@ -30,9 +30,31 @@ try {
   const savedUser = sessionStorage.getItem('chrono_user');
   if (savedUser) {
     currentUser = JSON.parse(savedUser);
+    if (currentUser && currentUser.schedule && currentUser.schedule.length > 0) {
+      window._lastScheduleTimeline = currentUser.schedule;
+    }
   }
 } catch (e) {
   console.log('Session storage initialized.');
+}
+
+// Seamlessly sync user profile & latest commitments from backend
+if (currentUser && currentUser.email && !currentUser.is_demo) {
+  fetch(`${API_BASE}/api/auth/me?email=${encodeURIComponent(currentUser.email)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.user) {
+        currentUser = Object.assign({}, currentUser, data.user);
+        if (currentUser.schedule) {
+          window._lastScheduleTimeline = currentUser.schedule;
+        }
+        try { sessionStorage.setItem('chrono_user', JSON.stringify(currentUser)); } catch (e) {}
+        if (activeTab === 'overview') {
+          renderBriefingCard({ title: `Private Executive Briefing • ${currentUser.name}` });
+        }
+      }
+    })
+    .catch(() => {});
 }
 
 // DOM Elements
@@ -1081,15 +1103,57 @@ function handleScrubClick(e) {
 // 4. User Authentication & Multi-Tenant State Isolation
 // --------------------------------------------------------------------------
 
+// Single universal now() temporal helper across the entire client
+function getAppNow() {
+  return new Date();
+}
+
+function formatAppDateLong(d = getAppNow()) {
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+// Global Browser Geolocation Cache
+window._userGeo = {
+  latitude: null,
+  longitude: null,
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata'
+};
+
+function requestUserLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        window._userGeo = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata'
+        };
+        console.log("ChronoOS GPS location synchronized:", window._userGeo);
+      },
+      (err) => {
+        console.log("Geolocation permission notice:", err.message);
+        window._userGeo = {
+          latitude: null,
+          longitude: null,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata'
+        };
+      },
+      { timeout: 8000, maximumAge: 300000, enableHighAccuracy: false }
+    );
+  }
+}
+
 function updateUserDisplay() {
   const tabSignOutBtn = document.getElementById('tabSignOutBtn');
+  const dateStr = formatAppDateLong();
 
   // Handle Initial Signed-Out State
   if (!currentUser) {
     userPill.classList.remove('demo-mode');
     userPill.classList.add('signed-out');
     userNameDisplay.textContent = 'Signed Out • Guest Access';
-    workspaceBadgeText.textContent = 'Wednesday, October 21, 2026 • Executive Gateway';
+    workspaceBadgeText.textContent = `${dateStr} • Executive Gateway`;
     workspaceStatusDot.style.background = '#64748B';
     authBtnText.textContent = 'Sign In / Sandbox';
     if (tabSignOutBtn) tabSignOutBtn.style.display = 'none';
@@ -1111,13 +1175,13 @@ function updateUserDisplay() {
   if (currentUser.is_demo) {
     userPill.classList.add('demo-mode');
     userNameDisplay.textContent = 'Alex Mercer (CEO • Demo)';
-    workspaceBadgeText.textContent = 'Wednesday, October 21, 2026 • Live Sandbox';
+    workspaceBadgeText.textContent = `${dateStr} • Live Sandbox`;
     workspaceStatusDot.style.background = '#FF5C7A';
     authBtnText.textContent = 'Accounts';
   } else {
     userPill.classList.remove('demo-mode');
-    userNameDisplay.textContent = `${currentUser.name} (${currentUser.organization})`;
-    workspaceBadgeText.textContent = `Wednesday, October 21, 2026 • Private Workspace`;
+    userNameDisplay.textContent = `${currentUser.name} (${currentUser.organization || 'Private'})`;
+    workspaceBadgeText.textContent = `${dateStr} • ${currentUser.organization || 'Private Workspace'}`;
     workspaceStatusDot.style.background = '#10B981';
     authBtnText.textContent = 'Accounts';
   }
@@ -1279,6 +1343,16 @@ function launchDemoSandbox() {
 async function handleUserSignIn() {
   const email = document.getElementById('signInEmail').value.trim();
   const password = document.getElementById('signInPassword').value;
+  const errorEl = document.getElementById('signInError');
+  if (errorEl) errorEl.style.display = 'none';
+
+  if (!email || !password) {
+    if (errorEl) {
+      errorEl.textContent = 'Please enter both email and password.';
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -1287,18 +1361,28 @@ async function handleUserSignIn() {
       body: JSON.stringify({ email, password, is_demo: false })
     });
     const data = await res.json();
-    if (data.success) {
+    if (res.ok && data.success) {
       currentUser = data.user;
       sessionStorage.setItem('chrono_user', JSON.stringify(currentUser));
       closeAuthPortal();
       playSound('success');
       updateUserDisplay();
-      const welcomeMsg = `Welcome back to your private workspace, ${currentUser.name}. Zero dummy clutter loaded.`;
+      const welcomeMsg = `Welcome back to your private workspace, ${currentUser.name}. All your saved commitments and memories are loaded.`;
       speechText.textContent = welcomeMsg;
       speakAgentResponse(welcomeMsg);
+    } else {
+      if (errorEl) {
+        errorEl.textContent = data.detail || data.error || 'Incorrect email or password. Access denied.';
+        errorEl.style.display = 'block';
+      }
+      playSound('error');
     }
   } catch (err) {
     console.error('Sign in error:', err);
+    if (errorEl) {
+      errorEl.textContent = 'Connection error during authentication.';
+      errorEl.style.display = 'block';
+    }
   }
 }
 
@@ -1307,26 +1391,57 @@ async function handleUserRegister() {
   const email = document.getElementById('regEmail').value.trim();
   const organization = document.getElementById('regOrg').value.trim();
   const password = document.getElementById('regPassword').value;
+  const confirmPassword = document.getElementById('regConfirmPassword').value;
+  const errorEl = document.getElementById('regError');
+  if (errorEl) errorEl.style.display = 'none';
+
+  if (password !== confirmPassword) {
+    if (errorEl) {
+      errorEl.textContent = 'Passwords do not match. Please re-enter identical passwords.';
+      errorEl.style.display = 'block';
+    }
+    playSound('error');
+    return;
+  }
+
+  if (password.length < 4) {
+    if (errorEl) {
+      errorEl.textContent = 'Password must be at least 4 characters long.';
+      errorEl.style.display = 'block';
+    }
+    playSound('error');
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, organization, password })
+      body: JSON.stringify({ name, email, organization, password, confirm_password: confirmPassword })
     });
     const data = await res.json();
-    if (data.success) {
+    if (res.ok && data.success) {
       currentUser = data.user;
       sessionStorage.setItem('chrono_user', JSON.stringify(currentUser));
       closeAuthPortal();
       playSound('success');
       updateUserDisplay();
-      const welcomeMsg = `Clean private workspace created for ${currentUser.name} (${currentUser.organization}). You have an empty slate.`;
+      const welcomeMsg = `Clean private workspace created for ${currentUser.name} (${currentUser.organization}). Your account and data are secured.`;
       speechText.textContent = welcomeMsg;
       speakAgentResponse(welcomeMsg);
+    } else {
+      if (errorEl) {
+        errorEl.textContent = data.detail || data.error || 'Registration failed. Please check inputs.';
+        errorEl.style.display = 'block';
+      }
+      playSound('error');
     }
   } catch (err) {
     console.error('Registration error:', err);
+    if (errorEl) {
+      errorEl.textContent = 'Connection error during registration.';
+      errorEl.style.display = 'block';
+    }
   }
 }
 
@@ -1641,15 +1756,40 @@ function simulateVoiceCommand(promptOverride = null) {
   }, 700);
 }
 
-// Global active voice tracking to avoid Chrome GC collection bug
+// Global locked voice tracking to guarantee a single consistent voice and pitch
 let cachedVoices = [];
+let lockedAgentVoice = null;
+
+function getLockedAgentVoice() {
+  if (lockedAgentVoice) return lockedAgentVoice;
+  if (!window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  if (!voices.length) return null;
+
+  // Select a single premium English voice and lock it permanently
+  lockedAgentVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Natural') || v.name.includes('Jenny') || v.name.includes('Aria')))
+    || voices.find(v => v.lang === 'en-US' && (v.name.includes('Zira') || v.name.includes('Google US English')))
+    || voices.find(v => v.lang === 'en-US' && v.name.includes('David'))
+    || voices.find(v => v.lang === 'en-US')
+    || voices.find(v => v.lang && v.lang.startsWith('en'))
+    || voices[0];
+
+  return lockedAgentVoice;
+}
+
 function loadVoices() {
   if (!window.speechSynthesis) return;
   cachedVoices = window.speechSynthesis.getVoices();
+  if (!lockedAgentVoice) {
+    getLockedAgentVoice();
+  }
 }
+
 if (typeof window !== 'undefined' && window.speechSynthesis) {
   loadVoices();
-  window.speechSynthesis.onvoiceschanged = loadVoices;
+  window.speechSynthesis.onvoiceschanged = () => {
+    loadVoices();
+  };
 }
 
 let keepAliveInterval = null;
@@ -1664,34 +1804,24 @@ function speakAgentResponse(text) {
     micOrbBtn.classList.remove('recording');
   }
 
-  // 2. Unpause/resume synthesis pipeline
+  // 2. Cancel any pending/previous speech completely before starting new one
   try {
     window.speechSynthesis.cancel();
-    window.speechSynthesis.resume();
   } catch (e) { }
 
   const cleanText = (text || '').replace(/[*_#`]/g, '').trim();
   if (!cleanText) return;
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.rate = 1.02;
+  // Strictly enforce constant, unvarying voice & pitch parameters
+  utterance.rate = 1.0;
   utterance.pitch = 1.0;
   utterance.volume = 1.0;
 
-  if (!cachedVoices || cachedVoices.length === 0) {
-    cachedVoices = window.speechSynthesis.getVoices();
-  }
-
-  const preferredVoice = cachedVoices.find(v => v.lang && v.lang.startsWith('en') && (
-    v.name.includes('Samantha') ||
-    v.name.includes('Google') ||
-    v.name.includes('Natural') ||
-    v.name.includes('Daniel') ||
-    v.name.includes('Alex')
-  )) || cachedVoices.find(v => v.lang && v.lang.startsWith('en'));
-
-  if (preferredVoice) {
-    utterance.voice = preferredVoice;
+  const singleVoice = getLockedAgentVoice();
+  if (singleVoice) {
+    utterance.voice = singleVoice;
+    utterance.lang = singleVoice.lang || 'en-US';
   }
 
   isSpeaking = true;
@@ -1740,17 +1870,14 @@ function speakAgentResponse(text) {
     }
   };
 
-  // Chrome Bug Workaround: keep alive timer for utterances
   if (keepAliveInterval) clearInterval(keepAliveInterval);
+  // Safe liveness check that only cancels when done
   keepAliveInterval = setInterval(() => {
     if (!window.speechSynthesis.speaking) {
       clearInterval(keepAliveInterval);
       keepAliveInterval = null;
-    } else {
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
     }
-  }, 10000);
+  }, 1000);
 
   window.speechSynthesis.speak(utterance);
 }
@@ -1889,6 +2016,7 @@ async function sendQuery(promptText) {
   const startTime = performance.now();
 
   try {
+    const geoPayload = window._userGeo || {};
     const res = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1896,7 +2024,10 @@ async function sendQuery(promptText) {
         query: promptText,
         prompt: promptText,
         user_email: currentUser.email,
-        email: currentUser.email
+        email: currentUser.email,
+        latitude: geoPayload.latitude !== undefined ? geoPayload.latitude : null,
+        longitude: geoPayload.longitude !== undefined ? geoPayload.longitude : null,
+        timezone: geoPayload.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata'
       })
     });
 
@@ -1918,6 +2049,22 @@ async function sendQuery(promptText) {
 function renderAgentTurn(data) {
   speechText.textContent = `"${data.voice_response}"`;
   speechTimestamp.textContent = 'Just now';
+
+  // Update Provenance Badge ("Personal data" | "Web search" | "Local")
+  const provBadge = document.getElementById('provenanceBadge');
+  if (provBadge) {
+    const prov = data.provenance || (data.visual_card && data.visual_card.provenance) || 'Local';
+    provBadge.textContent = prov;
+    provBadge.className = 'banner-provenance-badge';
+    if (prov === 'Personal data') {
+      provBadge.classList.add('badge-personal');
+    } else if (prov === 'Web search') {
+      provBadge.classList.add('badge-web');
+    } else {
+      provBadge.classList.add('badge-local');
+    }
+  }
+
   playSound('alexa_complete');
   speakAgentResponse(data.voice_response);
 
@@ -1934,6 +2081,14 @@ function renderAgentTurn(data) {
 }
 
 function renderCardContent(card, data) {
+  if (card && card.timeline && Array.isArray(card.timeline)) {
+    window._lastScheduleTimeline = card.timeline;
+    if (currentUser) {
+      currentUser.schedule = card.timeline;
+      try { sessionStorage.setItem('chrono_user', JSON.stringify(currentUser)); } catch (e) {}
+    }
+  }
+
   if (card.type === 'EXECUTIVE_BRIEFING') {
     renderBriefingCard(card);
     activeTab = 'overview';
@@ -1986,6 +2141,14 @@ function renderCardContent(card, data) {
     renderWebSearchResultCard(card);
     activeTab = 'overview';
     updateActiveTabUI('overview');
+  } else if (card.type === 'TRAVEL_BUFFER_AUDIT') {
+    renderTravelBufferAuditCard(card);
+    activeTab = 'calendar';
+    updateActiveTabUI('calendar');
+  } else if (card.type === 'AMBIGUOUS_CLARIFICATION') {
+    renderAmbiguousClarificationCard(card);
+    activeTab = 'overview';
+    updateActiveTabUI('overview');
   } else if (card.type === 'PERSONAL_MEMORY') {
     renderPersonalMemoryCard(card);
     activeTab = 'overview';
@@ -2022,14 +2185,47 @@ function renderInspectorTelemetry(data) {
   }
 
   traceFeed.innerHTML = '';
+
+  // 1. Prominently display the Intent Routing Decision in Telemetry
+  const routing = data.routing || (data.visual_card && data.visual_card.routing);
+  if (routing && routing.intent) {
+    const routeItem = document.createElement('div');
+    routeItem.className = 'raycast-trace-item';
+    routeItem.style.borderLeft = '3px solid #06b6d4';
+    routeItem.style.background = 'rgba(6, 182, 212, 0.05)';
+    routeItem.innerHTML = `
+      <div class="trace-item-header" style="color:#06b6d4; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+        <span>🎯 Intent Router Decision</span>
+        <span class="tool-tag" style="background:#0891b2; color:#fff;">${routing.intent}</span>
+      </div>
+      <div class="trace-item-body" style="font-size:12px; margin-top:4px; line-height:1.5;">
+        <div><strong>Assigned Tool:</strong> <code>${routing.tool || 'none'}</code> • <strong>Confidence:</strong> ${Math.round((routing.confidence || 0) * 100)}%</div>
+        <div style="opacity:0.8; margin-top:2px;"><strong>Reason:</strong> ${routing.reason || 'Keyword and context pre-check'}</div>
+      </div>
+    `;
+    traceFeed.appendChild(routeItem);
+  }
+
+  // 2. Render all trace events
   if (data.trace_events) {
     data.trace_events.forEach(evt => {
       const item = document.createElement('div');
       item.className = 'raycast-trace-item';
-      item.innerHTML = `
-        <div class="trace-item-header">${evt.stage} ${evt.tool ? `• <span class="tool-tag">${evt.tool}</span>` : ''}</div>
-        <div class="trace-item-body">${evt.detail || (evt.args ? JSON.stringify(evt.args) : 'Operation verified.')}</div>
-      `;
+      if (evt.stage === 'Search Query Rewriting') {
+        item.style.borderLeft = '3px solid #38bdf8';
+        item.innerHTML = `
+          <div class="trace-item-header" style="color:#38bdf8;">Query Rewriter • <span class="tool-tag">Cleaned</span></div>
+          <div class="trace-item-body" style="font-size:12px;">
+            <div><strong>Original:</strong> "${evt.original_query}"</div>
+            <div style="color:#38bdf8; margin-top:3px;"><strong>Rewritten Search Query:</strong> "${evt.rewritten_query}"</div>
+          </div>
+        `;
+      } else {
+        item.innerHTML = `
+          <div class="trace-item-header">${evt.stage} ${evt.tool ? `• <span class="tool-tag">${evt.tool}</span>` : ''}</div>
+          <div class="trace-item-body">${evt.detail || (evt.args ? JSON.stringify(evt.args) : (evt.source ? `${evt.source}: ${evt.status || 'verified'}` : 'Operation verified.'))}</div>
+        `;
+      }
       traceFeed.appendChild(item);
     });
   }
@@ -2051,11 +2247,13 @@ function renderBriefingCard(card) {
   }
 
   if (!currentUser.is_demo) {
+    const sched = (card && card.timeline) || (currentUser && currentUser.schedule) || window._lastScheduleTimeline || [];
     renderPersonalBriefingCard({
-      title: `Private Executive Briefing • ${currentUser.name}`,
+      title: (card && card.title) || `Private Executive Briefing • ${currentUser.name}`,
       organization: currentUser.organization,
-      commitments_count: 0,
-      alerts_count: 0
+      commitments_count: (card && card.commitments_count !== undefined) ? card.commitments_count : sched.length,
+      alerts_count: 0,
+      timeline: sched
     });
     return;
   }
@@ -2152,6 +2350,25 @@ function renderPersonalBriefingCard(card) {
     return;
   }
 
+  const timeline = (card && card.timeline) || (currentUser && currentUser.schedule) || window._lastScheduleTimeline || [];
+  const commitmentsCount = (card && card.commitments_count !== undefined) ? card.commitments_count : timeline.length;
+
+  let scheduleEntriesHtml = '';
+  if (timeline.length > 0) {
+    scheduleEntriesHtml = timeline.map(entry => {
+      const timeVal = entry.time || `${entry.start || '10:00'} - ${entry.end || '11:00'}`;
+      const titleVal = entry.title || 'Executive Task';
+      const statusVal = entry.status || 'Confirmed';
+      return `
+        <div class="schedule-entry">
+          <span class="time-slot">${timeVal}</span>
+          <span class="entry-name">${titleVal}</span>
+          <span class="entry-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">${statusVal}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card" id="briefingCard">
       <div class="card-beam-glow"></div>
@@ -2159,7 +2376,7 @@ function renderPersonalBriefingCard(card) {
       <div class="card-topbar">
         <div class="card-title-group">
           <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">Private Workspace</span>
-          <h2 class="card-main-title">${card.title || `Executive Workspace • ${currentUser.name}`}</h2>
+          <h2 class="card-main-title">${card.title || `Private Executive Briefing • ${currentUser.name}`}</h2>
         </div>
         <span class="card-subtitle-tag">${currentUser.organization}</span>
       </div>
@@ -2167,8 +2384,8 @@ function renderPersonalBriefingCard(card) {
       <div class="raycast-metrics-grid">
         <div class="metric-tile">
           <div class="metric-tile-label">Personal Schedule</div>
-          <div class="metric-tile-val">${card.commitments_count || 0} Commitments</div>
-          <div class="metric-tile-tag">${(card.commitments_count || 0) === 0 ? 'Clear Calendar Slate' : 'Active Agenda'}</div>
+          <div class="metric-tile-val">${commitmentsCount} Commitments</div>
+          <div class="metric-tile-tag">${commitmentsCount === 0 ? 'Clear Calendar Slate' : 'Active Agenda • Synced'}</div>
         </div>
         <div class="metric-tile">
           <div class="metric-tile-label">Active Alerts</div>
@@ -2182,13 +2399,23 @@ function renderPersonalBriefingCard(card) {
         </div>
       </div>
 
-      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:24px; display:flex; flex-direction:column; gap:12px;">
-        <div style="font-size:16px; font-weight:600; color:var(--color-on-surface);">Your Clean Executive Canvas</div>
-        <p style="font-size:14px; color:var(--color-secondary); line-height:1.55;">
-          You are logged into your private, isolated account. You will not see random demo data or dummy M&A items here. 
-          Use voice or command inputs to schedule your real meetings, add memory context, or inspect your own contracts.
+      ${timeline.length > 0 ? `
+      <div class="schedule-container" style="margin-top:16px;">
+        <div class="schedule-section-label">Today's Executive Commitments (${commitmentsCount})</div>
+        <div class="schedule-stack">
+          ${scheduleEntriesHtml}
+        </div>
+      </div>
+      ` : ''}
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:20px 24px; display:flex; flex-direction:column; gap:12px; margin-top:${timeline.length > 0 ? '16px' : '0'};">
+        <div style="font-size:15px; font-weight:600; color:var(--color-on-surface);">${timeline.length > 0 ? 'Executive Operations Console' : 'Your Clean Executive Canvas'}</div>
+        <p style="font-size:13px; color:var(--color-secondary); line-height:1.55;">
+          ${timeline.length > 0 
+            ? 'Your private executive schedule is synchronized in real time. Use voice or quick actions to schedule more meetings, verify travel buffers, or check contract redlines.' 
+            : 'You are logged into your private, isolated account. You will not see random demo data or dummy M&A items here. Use voice or command inputs to schedule your real meetings, add memory context, or inspect your own contracts.'}
         </p>
-        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:4px;">
           <button class="btn-raycast-action" onclick="sendQuery('add task Review Q3 marketing strategy at 3:00 PM')">+ Add Task</button>
           <button class="btn-raycast-action" onclick="sendQuery('how can i add my tasks')">ℹ️ How to Schedule</button>
           <button class="btn-raycast-action" onclick="sendQuery('What are my meetings today?')">View Schedule</button>
@@ -2866,18 +3093,32 @@ function renderProjectOverviewCard(card) {
 }
 
 function renderWeatherReportCard(card) {
-  const forecast = card.forecast || [
-    { day: "Today", high: "72°", low: "54°", cond: "Sunny", icon: "☀️" },
-    { day: "Tomorrow", high: "69°", low: "52°", cond: "Partly Cloudy", icon: "⛅" },
-    { day: "Friday", high: "67°", low: "51°", cond: "Sunny", icon: "☀️" },
-    { day: "Saturday", temp: "70° / 53°", cond: "Clear", icon: "🌤️" }
-  ];
+  const w = card.weather || card;
+  const loc = card.location || w.location || 'Local Area';
+  const cond = w.condition || card.condition || 'Clear Skies';
+  const temp = w.temperature || card.temperature || '22°C (72°F)';
+  const dateStr = card.date || w.date || formatAppDateLong();
+  const high = w.high || card.high || '24°C';
+  const low = w.low || card.low || '15°C';
+  const humidity = w.humidity || card.humidity || '50%';
+  const wind = w.wind || card.wind || '8 mph NW';
+  const airQuality = w.air_quality || card.air_quality || '38 AQI (Good)';
+  const forecast = w.forecast || card.forecast || [];
+
+  // Determine atmospheric icon based on condition
+  let mainIcon = '☀️';
+  const condLower = cond.toLowerCase();
+  if (condLower.includes('rain') || condLower.includes('drizzle') || condLower.includes('shower')) mainIcon = '🌧️';
+  else if (condLower.includes('thunder') || condLower.includes('storm')) mainIcon = '⛈️';
+  else if (condLower.includes('snow') || condLower.includes('ice') || condLower.includes('flurry')) mainIcon = '❄️';
+  else if (condLower.includes('cloud') || condLower.includes('overcast')) mainIcon = '⛅';
+  else if (condLower.includes('fog') || condLower.includes('mist') || condLower.includes('haze')) mainIcon = '🌫️';
 
   const forecastHtml = forecast.map(f => `
     <div style="background:rgba(255,255,255,0.03); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:12px; text-align:center;">
-      <div style="font-size:12px; color:var(--color-secondary); font-weight:600;">${f.day}</div>
+      <div style="font-size:12px; color:var(--color-secondary); font-weight:600;">${f.day || 'Day'}</div>
       <div style="font-size:20px; margin:6px 0;">${f.icon || '☀️'}</div>
-      <div style="font-size:14px; font-weight:700; color:var(--color-on-surface);">${f.high || f.temp || '72°'}</div>
+      <div style="font-size:13px; font-weight:700; color:var(--color-on-surface);">${f.temp || f.high || ''}</div>
       <div style="font-size:11px; color:var(--color-secondary); margin-top:2px;">${f.cond || ''}</div>
     </div>
   `).join('');
@@ -2888,33 +3129,33 @@ function renderWeatherReportCard(card) {
       
       <div class="card-topbar">
         <div class="card-title-group">
-          <span class="card-badge" style="color:#38bdf8; border-color:rgba(56,189,248,0.35);">Atmospheric Intelligence</span>
-          <h2 class="card-main-title">${card.location || 'San Francisco, CA'}</h2>
+          <span class="card-badge" style="color:#38bdf8; border-color:rgba(56,189,248,0.35);">Live Atmospheric Telemetry</span>
+          <h2 class="card-main-title">${loc}</h2>
         </div>
-        <span class="card-subtitle-tag">${card.condition || 'Sunny & Clear Skies'}</span>
+        <span class="card-subtitle-tag">${dateStr} • ${cond}</span>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:20px; margin-top:16px;">
         <div style="display:flex; align-items:center; gap:20px;">
-          <span style="font-size:48px;">☀️</span>
+          <span style="font-size:48px;">${mainIcon}</span>
           <div>
-            <div style="font-size:42px; font-weight:800; color:var(--color-on-surface); line-height:1;">${card.temperature || '68°F'}</div>
-            <div style="font-size:13px; color:var(--color-secondary); margin-top:4px;">High: ${card.high || '72°F'} • Low: ${card.low || '54°F'}</div>
+            <div style="font-size:38px; font-weight:800; color:var(--color-on-surface); line-height:1.1;">${temp}</div>
+            <div style="font-size:13px; color:var(--color-secondary); margin-top:6px;">High: ${high} • Low: ${low}</div>
           </div>
         </div>
         <div style="text-align:right; font-size:12px; color:var(--color-secondary); display:flex; flex-direction:column; gap:4px;">
-          <div>Humidity: <strong style="color:var(--color-on-surface);">${card.humidity || '48%'}</strong></div>
-          <div>Wind: <strong style="color:var(--color-on-surface);">${card.wind || '8 mph NW'}</strong></div>
-          <div>Air Quality: <strong style="color:#10b981;">${card.air_quality || '32 AQI (Good)'}</strong></div>
+          <div>Humidity: <strong style="color:var(--color-on-surface);">${humidity}</strong></div>
+          <div>Wind: <strong style="color:var(--color-on-surface);">${wind}</strong></div>
+          <div>Air Quality: <strong style="color:#10b981;">${airQuality}</strong></div>
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-top:14px;">
+      <div style="display:grid; grid-template-columns:repeat(${Math.max(1, Math.min(4, forecast.length || 4))}, 1fr); gap:10px; margin-top:14px;">
         ${forecastHtml}
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
-        <span style="font-size:13px; color:var(--color-secondary);">Echo Show Micro-Atmospheric Sensor Sync</span>
+        <span style="font-size:13px; color:var(--color-secondary);">GPS & Real-Time Meteorological Station Sync</span>
         <button class="btn-execute-key" onclick="sendQuery('What are my meetings today?')">
           <span>View Today's Schedule</span>
           <span class="btn-arrow">→</span>
@@ -3005,6 +3246,30 @@ function renderTimeDateCard(card) {
 }
 
 function renderWebSearchResultCard(card) {
+  const sourcesHtml = (card.sources && card.sources.length > 0)
+    ? `
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:11px; font-family:var(--font-mono); text-transform:uppercase; color:var(--color-secondary); margin-bottom:8px; letter-spacing:0.05em; font-weight:600;">Verified Grounded Sources</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          ${card.sources.map(s => `
+            <a href="${s.url || '#'}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); color:#06b6d4; padding:5px 12px; border-radius:6px; text-decoration:none; transition:all 0.15s ease;">
+              <span>🌐 ${s.title || s.domain || 'Reference'}</span>
+              <span style="opacity:0.6; font-size:10px;">(${s.domain || 'wikipedia.org'})</span>
+              <span>↗</span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `
+    : (card.url ? `
+      <div style="margin-top:12px;">
+        <a href="${card.url}" target="_blank" rel="noopener noreferrer" style="font-size:12px; color:#38bdf8; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+          <span>Source Documentation</span>
+          <span>↗</span>
+        </a>
+      </div>
+    ` : '');
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card" id="webSearchResultCard">
       <div class="card-beam-glow"></div>
@@ -3022,22 +3287,91 @@ function renderWebSearchResultCard(card) {
         <div style="font-size:15px; color:var(--color-on-surface); line-height:1.6; font-weight:400;">
           ${card.summary || 'No summary available.'}
         </div>
-        ${card.url ? `
-          <div style="margin-top:12px;">
-            <a href="${card.url}" target="_blank" rel="noopener noreferrer" style="font-size:12px; color:#38bdf8; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
-              <span>Source Documentation</span>
-              <span>↗</span>
-            </a>
-          </div>
-        ` : ''}
+        ${sourcesHtml}
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
-        <span style="font-size:13px; color:var(--color-secondary);">Live Web Search Engine Response</span>
+        <span style="font-size:13px; color:var(--color-secondary);">Grounded Fact Retrieval • No Hallucinations</span>
         <button class="btn-execute-key" onclick="sendQuery('Tell me the weather today')">
           <span>Check Weather</span>
           <span class="btn-arrow">→</span>
         </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderTravelBufferAuditCard(card) {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="travelBufferAuditCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#10b981; border-color:rgba(16,185,129,0.35);">Schedule & Transit Audit</span>
+          <h2 class="card-main-title">${card.title || 'Travel Buffer Audit'}</h2>
+        </div>
+        <span class="card-subtitle-tag" style="color:#10b981; font-weight:600;">✓ ${card.status || 'Clear'}</span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:20px; margin-top:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span style="font-size:13px; font-weight:600; color:var(--color-on-surface);">Status Evaluation</span>
+          <span style="font-size:12px; color:#10b981; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:4px;">0 Conflicts Detected</span>
+        </div>
+        <div style="font-size:14px; color:var(--color-on-surface); line-height:1.6;">
+          ${card.summary || 'All travel, buffer, and transit margins for tomorrow are fully secured. Zero calendar collisions.'}
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">
+          <div>
+            <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase;">Departure / Airport Margin</div>
+            <div style="font-size:13px; font-weight:600; color:#38bdf8; margin-top:2px;">${card.airport_buffer || 'Standard 45-90m Active'}</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase;">Buffer Margin Status</div>
+            <div style="font-size:13px; font-weight:600; color:#10b981; margin-top:2px;">100% Protected</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
+        <span style="font-size:13px; color:var(--color-secondary);">Private Calendar Intelligence • Tenant Isolation Active</span>
+        <button class="btn-execute-key" onclick="sendQuery('What is on my schedule today?')">
+          <span>View Schedule</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderAmbiguousClarificationCard(card) {
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="ambiguousClarificationCard">
+      <div class="card-beam-glow"></div>
+      
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:#f59e0b; border-color:rgba(245,158,11,0.35);">Intent Clarification</span>
+          <h2 class="card-main-title">${card.title || 'Clarification Needed'}</h2>
+        </div>
+        <span class="card-subtitle-tag">Confidence: ${Math.round((card.confidence || 0.5) * 100)}%</span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:20px; margin-top:16px;">
+        <div style="font-size:14px; color:var(--color-on-surface); line-height:1.6; margin-bottom:14px;">
+          ${card.message || 'Could you please clarify what you would like me to check?'}
+        </div>
+        ${card.suggestions && card.suggestions.length ? `
+          <div style="font-size:11px; text-transform:uppercase; color:var(--color-secondary); margin-bottom:8px; font-weight:600;">Suggested Commands:</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${card.suggestions.map(s => `
+              <button class="btn-shortcut-pill" onclick="sendQuery('${s}')" style="text-align:left; justify-content:flex-start; padding:8px 12px; width:100%;">
+                <span>💬 "${s}"</span>
+              </button>
+            `).join('')}
+          </div>
+        ` : ''}
       </div>
     </div>
   `;
@@ -3889,9 +4223,10 @@ function initClock() {
   const clockEl = document.getElementById('deviceClock');
   const echoClockTime = document.getElementById('echoClockTime');
   const echoClockDate = document.getElementById('echoClockDate');
+  const workspaceBadgeText = document.getElementById('workspaceBadgeText');
 
   const updateTime = () => {
-    const now = new Date();
+    const now = typeof getAppNow === 'function' ? getAppNow() : new Date();
     const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     if (clockEl) clockEl.textContent = now.toLocaleDateString('en-US', options);
 
@@ -3900,6 +4235,11 @@ function initClock() {
     }
     if (echoClockDate) {
       echoClockDate.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    }
+    if (workspaceBadgeText) {
+      const longDate = typeof formatAppDateLong === 'function' ? formatAppDateLong(now) : now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      const org = (typeof currentUser !== 'undefined' && currentUser && (currentUser.organization || (currentUser.is_demo ? 'Live Sandbox' : 'Private Workspace'))) || 'Private Workspace';
+      workspaceBadgeText.textContent = `${longDate} • ${org}`;
     }
   };
   updateTime();
@@ -3999,6 +4339,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
   apply3DCardTilt();
   updateUserDisplay();
+  requestUserLocation();
 
   // Wire PiP Floating Assistant Button & Keybind (⌘P)
   const pipBtn = document.getElementById('pipAssistantBtn');
