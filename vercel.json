@@ -1,31 +1,9 @@
 {
   "version": 2,
-  "name": "chronoos",
-  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://chronoos-0yf3.onrender.com/api/:path*"
-    },
-    {
-      "source": "/mcp",
-      "destination": "https://chronoos-0yf3.onrender.com/mcp"
-    },
-    {
-      "source": "/sse",
-      "destination": "https://chronoos-0yf3.onrender.com/sse"
-    },
-    {
-      "source": "/message",
-      "destination": "https://chronoos-0yf3.onrender.com/message"
-    },
-    {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
-      "source": "/:match*",
-      "destination": "/frontend/:match*"
+      "source": "/(.*)",
+      "destination": "https://chronoos-0yf3.onrender.com/$1"
     }
   ]
 }
