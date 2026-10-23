@@ -9,8 +9,7 @@
  * - Amazon Bedrock Multi-Turn Tool Telemetry & MCP Streamable HTTP JSON-RPC 2.0
  * - Human-in-the-Loop Native Sheet (<dialog>) Authorization
  */
-
-const API_BASE = window.location.origin;
+const API_BASE = window.CHRONOOS_BACKEND_URL || localStorage.getItem('CHRONOOS_BACKEND_URL') || window.location.origin;
 
 // State Variables
 let isListening = false;
