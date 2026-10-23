@@ -8,7 +8,7 @@ This guide details how to deploy ChronoOS with high availability and zero cost u
 
 ChronoOS is designed with a decoupled, high-performance architecture:
 * **Backend Gateway (Render)**: FastAPI + Uvicorn server running the Model Context Protocol (MCP) Streamable HTTP / SSE endpoints, multi-turn Amazon Bedrock reasoning loop, and mock executive data stores.
-* **Frontend UI (Render or Vercel)**: Kinetic Typography splash screen, Raycast-inspired Executive Command Palette, Echo Show 15 Multimodal Smart Display Simulator, and 60FPS audio visualizer.
+* **Frontend UI (Render or Vercel)**: Kinetic Typography splash screen, Executive Command Palette, Echo Show 15 Multimodal Smart Display Simulator, and 60FPS audio visualizer.
 * **Ambient Keep-Alive (UptimeRobot)**: Automated 5-minute health check pings targeting `/api/health` to prevent Render free-tier instances from spinning down or experiencing cold starts.
 * **AI Reasoning Core (Amazon Bedrock)**: Anthropic Claude 3.5 Sonnet v2 (`anthropic.claude-3-5-sonnet-20241022-v2:0`) and Amazon Nova Pro (`amazon.nova-pro-v1:0`) in `us-east-1`.
 

@@ -2,8 +2,7 @@
 
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Streamable_HTTP_(SSE)-00CAFF?style=flat-square)](https://modelcontextprotocol.io)
 [![Amazon Bedrock](https://img.shields.io/badge/AWS-Amazon_Bedrock_Orchestrated-FF9900?style=flat-square&logo=amazon-aws)](https://aws.amazon.com/bedrock/)
-[![Claude 3.5 Sonnet / Nova Pro](https://img.shields.io/badge/LLM-Claude_3.5_Sonnet_|_Nova_Pro-6366F1?style=flat-square)](https://aws.amazon.com/bedrock/)
-[![Architecture](https://img.shields.io/badge/UX-Raycast_Command_Architecture-10B981?style=flat-square)](https://raycast.com)
+[![Architecture](https://img.shields.io/badge/UX-Executive_Command_Architecture-10B981?style=flat-square)](https://github.com/Adhyayan-Dimri/ChronoOS)
 
 
 ChronoOS is an autonomous agentic operating system designed for executive triage, strategic risk mediation, and continuous operational awareness. Built on Amazon Bedrock foundation models (Claude 3.5 Sonnet and Amazon Nova Pro) and connected via the Model Context Protocol (MCP 2.0), ChronoOS autonomously reconciles conflicting legal redlines, flags flight buffer collisions, coordinates multi-tenant executive memory, and secures Human-in-the-Loop (HITL) authorization before dispatching high-liability actions.
@@ -176,7 +175,7 @@ ChronoOS/
 │   └── mock_executive_data.py# Preloaded Acme M&A contracts, flight UA 482 streams
 ├── frontend/
 │   ├── app.js                # Master interactive engine, speech synthesis, Echo Show & PiP
-│   ├── index.html            # Semantic HTML5 layout, Echo Show 15 simulator & Raycast deck
+│   ├── index.html            # Semantic HTML5 layout, Echo Show 15 simulator & Executive deck
 │   └── style.css             # Obsidian glassmorphic design system & Echo Show 15 bezel
 ├── tests/
 │   ├── __init__.py

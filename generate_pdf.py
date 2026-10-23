@@ -219,7 +219,7 @@ def build_pdf(filename="ChronoOS_Executive_Dossier.pdf"):
             Paragraph("<b>Protocol Standards:</b> Model Context Protocol (MCP 2.0 JSON-RPC / SSE)", table_body_style)
         ],
         [
-            Paragraph("<b>Dual Frontend Paradigms:</b> Raycast Command Center + Echo Show 15 Display", table_body_style),
+            Paragraph("<b>Dual Frontend Paradigms:</b> Executive Command Center + Echo Show 15 Display", table_body_style),
             Paragraph("<b>Repository:</b> github.com/Adhyayan-Dimri/ChronoOS", table_body_style)
         ]
     ]
@@ -259,7 +259,7 @@ def build_pdf(filename="ChronoOS_Executive_Dossier.pdf"):
     story.append(Paragraph(
         "<b>ChronoOS transforms Alexa+ into an Autonomous Executive Chief of Staff</b>. Powered by Amazon Bedrock "
         "foundation models, a standardized Model Context Protocol (MCP 2.0) microservice server, episodic memory graphs, "
-        "and dual multimodal viewports (Echo Show 15 Smart Display and Raycast Command Architecture), ChronoOS "
+        "and dual multimodal viewports (Echo Show 15 Smart Display and Executive Command Architecture), ChronoOS "
         "proactively triages executive commitments, mediates conflicting legal redlines, flags travel collisions, and "
         "secures cryptographic Human-in-the-Loop (HITL) authorization before dispatching corporate actions.",
         body_style
@@ -277,8 +277,8 @@ def build_pdf(filename="ChronoOS_Executive_Dossier.pdf"):
          "upon hearing \"Alexa, inspect the Acme merger redline from Sarah\", ChronoOS autonomously chains 4 tools: "
          "inspect_document_redlines -> query_episodic_memory -> Bedrock Guardrail policy evaluation -> calendar focus block allocation."),
         
-        ("Dual Interface Paradigms (Raycast Desktop + Echo Show 15 Display): ",
-         "Executives work across multiple form factors. ChronoOS offers an instant toggle between a keyboard-first Raycast "
+        ("Dual Interface Paradigms (Desktop Command Deck + Echo Show 15 Display): ",
+         "Executives work across multiple form factors. ChronoOS offers an instant toggle between a keyboard-first Executive "
          "Command Center (Cmd+K) and a dedicated 15.6\" Echo Show 15 Smart Display Simulator featuring physical bezel replication, "
          "far-field mic arrays, privacy camera shutter, ambient glance widgets, and the iconic Alexa Cyan Light Bar."),
         
@@ -451,10 +451,10 @@ def build_pdf(filename="ChronoOS_Executive_Dossier.pdf"):
         
         ("Bidirectional Speech & State Synchronization: ",
          "The Echo Show 15 mode is fully interactive: touching any suggestion capsule or speaking to Alexa triggers "
-         "Bedrock reasoning. Changes made in Echo Show mode synchronize instantly with the desktop Raycast Command Center."),
+         "Bedrock reasoning. Changes made in Echo Show mode synchronize instantly with the Desktop Command Center."),
         
         ("Instant Viewport Toggle (Cmd+E): ",
-         "Judges and executives can transition seamlessly between the Raycast Desktop Command Deck and the Echo Show 15 "
+         "Judges and executives can transition seamlessly between the Desktop Command Deck and the Echo Show 15 "
          "Smart Display with a single hotkey (Cmd+E) or top-bar button.")
     ]
     for title, desc in echo_features:
