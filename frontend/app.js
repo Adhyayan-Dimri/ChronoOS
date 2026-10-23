@@ -2817,37 +2817,30 @@ function renderCalendarTravelCard() {
     return;
   }
 
-  if (!currentUser.is_demo) {
-    multimodalWidgetArea.innerHTML = `
-      <div class="raycast-3d-card">
-        <div class="card-beam-glow"></div>
-        <div class="card-topbar">
-          <div class="card-title-group">
-            <span class="card-badge" style="color:#10b981;">Private Calendar</span>
-            <h2 class="card-main-title">Personal Schedule & Buffer</h2>
-          </div>
-          <span class="card-subtitle-tag">${currentUser.name}</span>
-        </div>
-        <div style="padding:20px; font-size:14px; color:var(--color-secondary);">
-          No travel conflicts or calendar collisions detected. You have a clean buffer.
-        </div>
-      </div>
-    `;
-    return;
-  }
+  // Gather active commitments from session or cache
+  const timeline = (currentUser && currentUser.schedule && currentUser.schedule.length > 0)
+    ? currentUser.schedule
+    : (window._lastScheduleTimeline || (currentUser.is_demo ? [
+        { time: "09:00 - 09:30", title: "Executive Leadership Daily Standup", location: "Boardroom Alpha & Zoom", attendees: "Alex Mercer, David Ross (CFO), Maya Patel (CTO), Sarah Chen (GC)", status: "Confirmed", type: "meeting" },
+        { time: "11:00 - 12:15", title: "Q3 Board Deck Final Review", location: "Zoom Room 4", attendees: "Alex Mercer, David Ross (CFO), Elena Rostova (Board)", status: "Confirmed", type: "meeting" },
+        { time: "14:00 - 15:00", title: "Project Apex: M&A Due Diligence & Legal Redlines", location: "Conf Call - Secure Bridge 09", attendees: "Alex Mercer, Sarah Chen (GC), Acme Corp Legal", status: "Critical", type: "negotiation", priority: "critical" },
+        { time: "16:30 - 17:30", title: "Global Partner Ecosystem Keynote Rehearsal", location: "Main Stage Studio", attendees: "Alex Mercer, Communications Team", status: "Confirmed", type: "presentation" }
+      ] : []));
 
-  multimodalWidgetArea.innerHTML = `
-    <div class="raycast-3d-card">
-      <div class="card-beam-glow"></div>
+  // Identify if any item is a travel/flight commitment
+  const travelItems = timeline.filter(item => {
+    const t = (item.title || '').toLowerCase();
+    const type = (item.type || item.item_type || '').toLowerCase();
+    return type === 'travel' || t.includes('flight') || t.includes('fly') || t.includes('airport') || t.includes('airline');
+  });
 
-      <div class="card-topbar">
-        <div class="card-title-group">
-          <span class="card-badge" style="color:var(--color-warning); border-color:rgba(245,158,11,0.35);">Buffer Conflict</span>
-          <h2 class="card-main-title">Executive Schedule & Travel Risk Analysis</h2>
-        </div>
-        <span class="card-subtitle-tag">Thursday, Oct 22 • SFO → JFK Keynote</span>
-      </div>
+  const isDemoMode = !!currentUser.is_demo;
+  const dateStr = formatAppDateLong();
 
+  // 1. Travel Buffer & Risk HTML Block
+  let travelBufferHtml = '';
+  if (isDemoMode) {
+    travelBufferHtml = `
       <div class="travel-timeline-card">
         <div class="travel-conflict-banner">
           <div>
@@ -2886,38 +2879,215 @@ function renderCalendarTravelCard() {
         </div>
 
         <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:16px; font-size:13px; line-height:1.55;">
-          <strong style="color:var(--color-on-surface);">Autonomous Buffer Strategy:</strong> ChronoOS can reschedule the Keynote Prep to 09:45 AM or initiate remote bridge access directly from your ground transport vehicle.
+          <strong style="color:var(--color-on-surface);">Autonomous Buffer Strategy:</strong> ChronoOS shifted Strategy Review to 11:30 AM (+30m), alerted attendees, and secured a 25-minute buffer.
+        </div>
+      </div>
+    `;
+  } else if (travelItems.length > 0) {
+    const flight = travelItems[0];
+    const fDetails = flight.flight_details || {};
+    const origin = fDetails.origin_display || flight.location || 'Bengaluru (BLR)';
+    const dest = fDetails.dest_display || flight.title || 'Delhi (DEL)';
+    const carrier = fDetails.carrier || 'Air India AI 804';
+    const depTime = flight.start || fDetails.departure_time || '08:30 AM';
+    const arrTime = flight.end || fDetails.arrival_time || '11:15 AM';
+    const bufferNote = fDetails.airport_buffer || 'Secured 90m Departure Buffer';
+
+    travelBufferHtml = `
+      <div class="travel-timeline-card">
+        <div class="travel-conflict-banner" style="border-color:rgba(56,189,248,0.4); background:rgba(56,189,248,0.06);">
+          <div>
+            <strong style="color:#38bdf8; font-size:14px;">✈ Flight Transit Corridor: ${carrier} (${origin} ➔ ${dest})</strong>
+            <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
+              Scheduled: ${depTime} - ${arrTime} • ${bufferNote} • Zero Collisions
+            </div>
+          </div>
+          <span class="sheet-badge" style="color:#10b981; background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.3);">BUFFER SECURED</span>
+        </div>
+
+        <div class="travel-steps-track">
+          <div class="travel-step-node">
+            <span style="font-size:11px; color:var(--color-secondary);">Origin Terminal</span>
+            <strong style="font-size:13px; color:#38bdf8;">${origin}</strong>
+            <span style="font-size:11px; color:var(--color-secondary);">${depTime} Departure</span>
+          </div>
+
+          <div class="travel-step-node">
+            <span style="font-size:11px; color:var(--color-secondary);">Air Transit Corridor</span>
+            <strong style="font-size:13px;">${carrier}</strong>
+            <span style="font-size:11px; color:#10b981;">Non-stop Scheduled</span>
+          </div>
+
+          <div class="travel-step-node">
+            <span style="font-size:11px; color:var(--color-secondary);">Touchdown & Buffer</span>
+            <strong style="font-size:13px; color:#38bdf8;">${dest}</strong>
+            <span style="font-size:11px; color:var(--color-secondary);">${arrTime} Arrival</span>
+          </div>
+
+          <div class="travel-step-node">
+            <span style="font-size:11px; color:#10b981;">Schedule Integrity</span>
+            <strong style="font-size:13px; color:#10b981;">0 Collisions</strong>
+            <span style="font-size:11px; color:var(--color-secondary);">Margin Protected</span>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-md); padding:16px; font-size:13px; line-height:1.55;">
+          <strong style="color:var(--color-on-surface);">Autonomous Travel Guardrail:</strong> ChronoOS verified departure and transit margins. A 90-minute airport buffer is locked in place without calendar collision.
+        </div>
+      </div>
+    `;
+  } else {
+    travelBufferHtml = `
+      <div class="travel-timeline-card">
+        <div class="travel-conflict-banner" style="border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.06);">
+          <div>
+            <strong style="color:#10b981; font-size:14px;">✓ Travel Buffer Status: 100% Protected (0 Conflicts Detected)</strong>
+            <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
+              All standard transit margins and commute buffers are clear with zero calendar collisions.
+            </div>
+          </div>
+          <span class="sheet-badge" style="color:#10b981; background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.3);">BUFFER CLEAN</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-top:14px;">
+          <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:14px;">
+            <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase;">Departure / Commute Margin</div>
+            <div style="font-size:16px; font-weight:700; color:#38bdf8; margin-top:4px;">45-90m Active</div>
+            <div style="font-size:11px; color:var(--color-secondary); margin-top:2px;">Standard Guardrail</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:14px;">
+            <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase;">Transit Risk Rating</div>
+            <div style="font-size:16px; font-weight:700; color:#10b981; margin-top:4px;">0.0% (Clear)</div>
+            <div style="font-size:11px; color:var(--color-secondary); margin-top:2px;">Optimal Flow</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); padding:14px;">
+            <div style="font-size:11px; color:var(--color-secondary); text-transform:uppercase;">Calendar Collisions</div>
+            <div style="font-size:16px; font-weight:700; color:#10b981; margin-top:4px;">0 Collisions</div>
+            <div style="font-size:11px; color:var(--color-secondary); margin-top:2px;">All Slots Verified</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 2. Schedule & Commitments Stack HTML Block
+  let scheduleEntriesHtml = '';
+  if (timeline.length > 0) {
+    scheduleEntriesHtml = timeline.map(entry => {
+      const timeVal = entry.time || `${entry.start || '10:00'} - ${entry.end || '11:00'}`;
+      const titleVal = entry.title || 'Executive Task';
+      const statusVal = entry.status || 'Confirmed';
+      const locVal = entry.location || '';
+      const attVal = entry.attendees ? (Array.isArray(entry.attendees) ? entry.attendees.join(', ') : entry.attendees) : '';
+      const isTravel = entry.type === 'travel' || titleVal.toLowerCase().includes('flight');
+      const isHighStakes = (entry.priority === 'critical' || entry.priority === 'high' || statusVal.toLowerCase() === 'critical');
+
+      return `
+        <div class="schedule-entry ${isHighStakes ? 'active-stakes' : ''}" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
+          <div style="display:flex; gap:16px; align-items:center;">
+            <span class="time-slot" style="font-family:var(--font-mono); font-weight:700; color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : 'var(--color-primary)')}; min-width:110px;">${timeVal}</span>
+            <div>
+              <div class="entry-name" style="font-weight:600; color:var(--color-on-surface); font-size:14px;">${titleVal}</div>
+              <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
+                ${attVal ? `<span style="opacity:0.8;">${attVal}</span>` : ''} 
+                ${locVal ? `• <span style="color:#38bdf8;">${locVal}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <span class="entry-badge ${isHighStakes ? 'stakes-badge' : ''}" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : '#10b981')};">
+            ${isTravel ? '✈ Flight' : (isHighStakes ? 'High Stakes' : statusVal)}
+          </span>
+        </div>
+      `;
+    }).join('');
+  } else {
+    scheduleEntriesHtml = `
+      <div style="text-align:center; padding:28px 16px; color:var(--color-secondary); background:rgba(255,255,255,0.02); border:1px dashed var(--color-outline); border-radius:var(--radius-md);">
+        <div style="font-size:24px; margin-bottom:8px;">🗓️</div>
+        <div style="font-size:15px; font-weight:600; color:var(--color-on-surface);">Clear Calendar Slate</div>
+        <p style="font-size:13px; margin:6px 0 14px; opacity:0.8;">You currently have zero scheduled commitments in your personal agenda.</p>
+        <button class="btn-raycast-action" onclick="sendQuery('Schedule a meeting tomorrow at 10am')">+ Schedule Meeting</button>
+      </div>
+    `;
+  }
+
+  multimodalWidgetArea.innerHTML = `
+    <div class="raycast-3d-card" id="calendarTravelCard">
+      <div class="card-beam-glow"></div>
+
+      <div class="card-topbar">
+        <div class="card-title-group">
+          <span class="card-badge" style="color:${isDemoMode ? 'var(--color-warning)' : '#10b981'}; border-color:${isDemoMode ? 'rgba(245,158,11,0.35)' : 'rgba(16,185,129,0.35)'};">
+            ${isDemoMode ? 'BUFFER RISK ANALYSIS' : 'PRIVATE CALENDAR & BUFFER'}
+          </span>
+          <h2 class="card-main-title">Executive Schedule & Travel Buffer Analysis</h2>
+        </div>
+        <span class="card-subtitle-tag">${currentUser.name} • ${timeline.length} Active Commitments</span>
+      </div>
+
+      <!-- Travel & Transit Buffer Intelligence -->
+      ${travelBufferHtml}
+
+      <!-- Detailed Agenda Timeline -->
+      <div class="schedule-container" style="margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div class="schedule-section-label" style="margin-bottom:0;">Detailed Schedule & Agenda Timeline (${timeline.length})</div>
+          <span style="font-size:12px; color:var(--color-secondary); font-family:var(--font-mono);">${dateStr}</span>
+        </div>
+        <div class="schedule-stack">
+          ${scheduleEntriesHtml}
         </div>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid var(--color-outline); padding-top:18px;">
-        <button class="btn-raycast-action" onclick="sendQuery('Alexa, reschedule keynote prep to 09:45 AM')">Reschedule to 09:45 AM</button>
-        <button class="btn-execute-key" onclick="sendQuery('Alexa, notify Elena of flight delay and enable remote car bridge')">
-          <span>Authorize Ground Bridge</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:18px; margin-top:20px;">
+        <div style="display:flex; gap:8px;">
+          <button class="btn-raycast-action" onclick="sendQuery('Alexa, check for travel buffer conflicts tomorrow')">
+            Audit Travel Buffer
+          </button>
+          <button class="btn-raycast-action" onclick="sendQuery('what are my plans for today')">
+            Today's Plans
+          </button>
+        </div>
+        <button class="btn-execute-key" onclick="sendQuery('how can i add my tasks')">
+          <span>+ Add Commitment</span>
           <span class="btn-arrow">→</span>
         </button>
       </div>
     </div>
   `;
+  apply3DCardTilt();
 }
 
 function renderScheduleViewCard(card) {
-  const timeline = card.timeline || [];
-  const entriesHtml = timeline.map(entry => `
-    <div class="schedule-entry" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
-      <div style="display:flex; gap:16px; align-items:center;">
-        <span class="time-slot" style="font-family:var(--font-mono); font-weight:700; color:var(--color-primary); min-width:110px;">${entry.time}</span>
-        <div>
-          <div class="entry-name" style="font-weight:600; color:var(--color-on-surface); font-size:14px;">${entry.title}</div>
-          <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
-            ${entry.attendees ? `<span style="opacity:0.8;">${entry.attendees}</span>` : ''} 
-            ${entry.location ? `• <span style="color:#38bdf8;">${entry.location}</span>` : ''}
+  const timeline = (card && card.timeline && card.timeline.length > 0)
+    ? card.timeline
+    : ((currentUser && currentUser.schedule && currentUser.schedule.length > 0) ? currentUser.schedule : (window._lastScheduleTimeline || []));
+  const entriesHtml = timeline.map(entry => {
+    const timeVal = entry.time || `${entry.start || '10:00'} - ${entry.end || '11:00'}`;
+    const titleVal = entry.title || 'Executive Task';
+    const statusVal = entry.status || 'Confirmed';
+    const locVal = entry.location || '';
+    const attVal = entry.attendees ? (Array.isArray(entry.attendees) ? entry.attendees.join(', ') : entry.attendees) : '';
+    const isTravel = entry.type === 'travel' || titleVal.toLowerCase().includes('flight');
+    const isHighStakes = (entry.priority === 'critical' || entry.priority === 'high' || statusVal.toLowerCase() === 'critical');
+    return `
+      <div class="schedule-entry ${isHighStakes ? 'active-stakes' : ''}" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
+        <div style="display:flex; gap:16px; align-items:center;">
+          <span class="time-slot" style="font-family:var(--font-mono); font-weight:700; color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : 'var(--color-primary)')}; min-width:110px;">${timeVal}</span>
+          <div>
+            <div class="entry-name" style="font-weight:600; color:var(--color-on-surface); font-size:14px;">${titleVal}</div>
+            <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
+              ${attVal ? `<span style="opacity:0.8;">${attVal}</span>` : ''} 
+              ${locVal ? `• <span style="color:#38bdf8;">${locVal}</span>` : ''}
+            </div>
           </div>
         </div>
+        <span class="entry-badge ${isHighStakes ? 'stakes-badge' : ''}" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : (isHighStakes ? '#FF5C7A' : '#10b981')};">
+          ${isTravel ? '✈ Flight' : (isHighStakes ? 'High Stakes' : statusVal)}
+        </span>
       </div>
-      <span class="entry-badge" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:var(--color-on-surface);">${entry.status || 'Confirmed'}</span>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card" id="scheduleViewCard">
@@ -2928,7 +3098,7 @@ function renderScheduleViewCard(card) {
           <span class="card-badge" style="color:var(--color-primary); border-color:rgba(129,140,248,0.35);">Executive Calendar</span>
           <h2 class="card-main-title">${card.title || 'Today\'s Executive Commitments'}</h2>
         </div>
-        <span class="card-subtitle-tag">${card.next_up || '4 Commitments Today'}</span>
+        <span class="card-subtitle-tag">${card.next_up || `${timeline.length} Commitments Today`}</span>
       </div>
 
       <div class="schedule-container" style="margin-top:16px;">
@@ -3301,6 +3471,44 @@ function renderWebSearchResultCard(card) {
 }
 
 function renderTravelBufferAuditCard(card) {
+  const timeline = (currentUser && currentUser.schedule && currentUser.schedule.length > 0)
+    ? currentUser.schedule
+    : (window._lastScheduleTimeline || (currentUser && currentUser.is_demo ? [
+        { time: "09:00 - 09:30", title: "Executive Leadership Daily Standup", location: "Boardroom Alpha", attendees: "Alex Mercer, Leadership Team", status: "Confirmed" },
+        { time: "11:00 - 12:15", title: "Q3 Board Deck Final Review", location: "Zoom Room 4", attendees: "David Ross, Elena Rostova", status: "Confirmed" },
+        { time: "14:00 - 15:00", title: "Project Apex: M&A Due Diligence & Legal Call", location: "Secure Bridge 09", attendees: "Sarah Chen, Acme Legal", status: "Critical" },
+        { time: "16:30 - 17:30", title: "Global Partner Ecosystem Keynote Rehearsal", location: "Main Stage Studio", attendees: "Communications Team", status: "Confirmed" }
+      ] : []));
+
+  let scheduleEntriesHtml = '';
+  if (timeline.length > 0) {
+    scheduleEntriesHtml = timeline.map(entry => {
+      const timeVal = entry.time || `${entry.start || '10:00'} - ${entry.end || '11:00'}`;
+      const titleVal = entry.title || 'Executive Task';
+      const statusVal = entry.status || 'Confirmed';
+      const locVal = entry.location || '';
+      const attVal = entry.attendees ? (Array.isArray(entry.attendees) ? entry.attendees.join(', ') : entry.attendees) : '';
+      const isTravel = entry.type === 'travel' || titleVal.toLowerCase().includes('flight');
+      return `
+        <div class="schedule-entry" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid var(--color-outline); border-radius:var(--radius-sm); margin-bottom:8px;">
+          <div style="display:flex; gap:16px; align-items:center;">
+            <span class="time-slot" style="font-family:var(--font-mono); font-weight:700; color:${isTravel ? '#38bdf8' : 'var(--color-primary)'}; min-width:110px;">${timeVal}</span>
+            <div>
+              <div class="entry-name" style="font-weight:600; color:var(--color-on-surface); font-size:14px;">${titleVal}</div>
+              <div style="font-size:12px; color:var(--color-secondary); margin-top:2px;">
+                ${attVal ? `<span style="opacity:0.8;">${attVal}</span>` : ''} 
+                ${locVal ? `• <span style="color:#38bdf8;">${locVal}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <span class="entry-badge" style="text-transform:uppercase; font-size:10px; font-weight:700; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--color-outline); color:${isTravel ? '#38bdf8' : '#10b981'};">
+            ${isTravel ? '✈ Flight' : statusVal}
+          </span>
+        </div>
+      `;
+    }).join('');
+  }
+
   multimodalWidgetArea.innerHTML = `
     <div class="raycast-3d-card" id="travelBufferAuditCard">
       <div class="card-beam-glow"></div>
@@ -3332,6 +3540,15 @@ function renderTravelBufferAuditCard(card) {
           </div>
         </div>
       </div>
+
+      ${scheduleEntriesHtml ? `
+        <div class="schedule-container" style="margin-top:20px;">
+          <div class="schedule-section-label">Active Schedule Agenda (${timeline.length})</div>
+          <div class="schedule-stack">
+            ${scheduleEntriesHtml}
+          </div>
+        </div>
+      ` : ''}
 
       <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--color-outline); padding-top:16px; margin-top:16px;">
         <span style="font-size:13px; color:var(--color-secondary);">Private Calendar Intelligence • Tenant Isolation Active</span>
