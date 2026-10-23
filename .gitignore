@@ -6,4 +6,6 @@ __pycache__/
 .env
 .pytest_cache/
 scratch_*.py
-*user_store.json*.egg-info/
+*user_store.json
+*.egg-info/
+uv.lock

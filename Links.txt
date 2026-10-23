@@ -1,0 +1,3 @@
+Prototype: https://chronoos.vercel.app/
+GitHub Repository: https://github.com/Adhyayan-Dimri/ChronoOS
+YouTube Tutorial: https://youtu.be/2wtxMMq5S20?si=rey_WbaNUt2qaWie
